@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clase 2 — GPS en tiempo real · GeoCollect · ARTECLAB</title>
+<link rel="stylesheet" href="assets/slides.css"></head>
+<body><div class="deck">
+<div class="topbar"><div class="topbar-left"><span class="tb-badge">ARTECLAB</span><span class="tb-course">GeoCollect — Flutter GIS</span><span class="tb-class">Clase 2</span></div><div class="topbar-right"><span class="slide-counter" id="slideCounter"><span>1</span> / 12</span><button class="theme-btn" id="themeBtn"><span class="t-icon">◐</span><span class="t-label">Oscuro</span></button><button class="fs-btn" id="fsBtn">⛶</button></div></div>
+<div class="progress-wrap"><div class="progress-fill" id="progressFill"></div></div>
+<div class="slides-wrap">
+<div class="slide slide-cover"><div class="cover-grid"></div>
+<div class="cover-tag"><span class="cover-dot"></span> Módulo 1 · Clase 2 · <span class="auto-year"></span></div>
+<h1 class="cover-title">GPS en tiempo real:<br><em>el mapa que te sigue</em></h1>
+<p class="cover-sub">geolocator · StreamBuilder · Polyline · Haversine — de tu posición a tu trayectoria</p>
+<div class="cover-pills"><span class="cover-pill">⏱ 2 horas</span><span class="cover-pill">📡 GPS Real</span><span class="cover-pill">👨‍💻 Daniel Quisbert</span></div></div>
+
+<div class="slide slide-content"><div class="slide-label">Al finalizar esta clase</div><div class="slide-title">¿Qué construiremos hoy?</div><div class="slide-body"><div class="steps">
+<div class="step"><div class="step-num">1</div><div class="step-text"><div class="step-title">Pedir permisos GPS y obtener la posición actual</div><div class="step-desc">Geolocator.checkPermission(), requestPermission(), getCurrentPosition().</div></div></div>
+<div class="step"><div class="step-num">2</div><div class="step-text"><div class="step-title">Stream GPS que actualiza el mapa en tiempo real</div><div class="step-desc">getPositionStream() + StreamBuilder + mapController.move().</div></div></div>
+<div class="step"><div class="step-num">3</div><div class="step-text"><div class="step-title">Trayectoria dibujada como Polyline</div><div class="step-desc">List de LatLng que crece con cada actualización GPS.</div></div></div>
+<div class="step"><div class="step-num">4</div><div class="step-text"><div class="step-title">Distancia acumulada calculada con Haversine en Dart puro</div><div class="step-desc">Sin dependencias externas — la fórmula implementada en 10 líneas.</div></div></div>
+</div><div class="instructor-strip"><div class="is-avatar">DQ</div><div><div class="is-name">Daniel Quisbert</div><div class="is-role">ARTECLAB Bolivia · flutter-gis.danielquisbert.com</div></div></div></div></div>
+
+<div class="slide slide-content"><div class="slide-label">Concepto clave</div><div class="slide-title">Future vs Stream — la diferencia que lo cambia todo</div><div class="slide-body">
+<div class="two-col">
+<div><div class="cards" style="gap:12px;">
+<div class="card card-gold"><span class="card-icon">📸</span><div class="card-title">Future — una foto</div><div class="card-desc">Devuelve un solo valor y termina. getCurrentPosition() da la posición actual y no sigue actualizando.<br><br>Úsalo para: posición inicial al abrir la app.</div></div>
+<div class="card card-blue"><span class="card-icon">🎥</span><div class="card-title">Stream — una película</div><div class="card-desc">Emite valores continuamente mientras esté activo. getPositionStream() emite una posición nueva cada vez que te mueves.<br><br>Úsalo para: seguimiento GPS en tiempo real.</div></div>
+</div></div>
+<div><div class="code-label">Los dos métodos de geolocator</div>
+<div class="code-block"><span class="c">// Future: posición actual (una vez)</span>
+<span class="k">final</span> pos = <span class="k">await</span>
+  Geolocator.getCurrentPosition();
+
+<span class="c">// Stream: posición continua</span>
+<span class="k">final</span> stream =
+  Geolocator.getPositionStream(
+    locationSettings: LocationSettings(
+      accuracy: LocationAccuracy.high,
+      <span class="c">// Hack: solo actualiza cada 5m</span>
+      distanceFilter: <span class="n">5</span>,
+    ),
+  );
+
+<span class="c">// Escuchar el stream</span>
+stream.listen((Position pos) {
+  <span class="k">final</span> latLng = LatLng(
+    pos.latitude, pos.longitude);
+  <span class="c">// actualizar mapa aquí</span>
+});</div>
+</div></div></div></div>
+
+<div class="slide slide-section"><div class="section-num">Hack #1</div><div class="section-title">distanceFilter: 5<br>el 80% de batería que ahorras</div><div class="section-desc">El GPS actualiza solo cuando te mueves 5 metros — no cada 100ms</div></div>
+
+<div class="slide slide-content"><div class="slide-label">Hack bueno de la clase</div><div class="slide-title">distanceFilter + WidgetsBindingObserver = GPS inteligente</div><div class="slide-body">
+<div class="two-col">
+<div><div class="code-label">GPS que respeta la batería</div>
+<div class="code-block"><span class="k">class</span> <span class="n">_MapaState</span>
+    extends State&lt;MapaScreen&gt;
+    with WidgetsBindingObserver {
+
+  StreamSubscription? _gpsSub;
+
+  @override
+  <span class="k">void</span> initState() {
+    super.initState();
+    WidgetsBinding.instance
+      .addObserver(this);
+    _iniciarGPS();
+  }
+
+  <span class="k">void</span> _iniciarGPS() {
+    _gpsSub = Geolocator
+      .getPositionStream(
+        locationSettings: LocationSettings(
+          distanceFilter: <span class="n">5</span>,
+        ))
+      .listen(_onNuevaPosicion);
+  }
+
+  @override
+  <span class="k">void</span> didChangeAppLifecycleState(
+      AppLifecycleState state) {
+    <span class="k">if</span> (state == AppLifecycleState.paused) {
+      _gpsSub?.pause(); <span class="c">// App al fondo</span>
+    } <span class="k">else if</span> (state ==
+        AppLifecycleState.resumed) {
+      _gpsSub?.resume(); <span class="c">// App activa</span>
+    }
+  }
+
+  @override
+  <span class="k">void</span> dispose() {
+    _gpsSub?.cancel();
+    WidgetsBinding.instance
+      .removeObserver(this);
+    super.dispose();
+  }
+}</div></div>
+<div>
+<div class="kv-list">
+<div class="kv"><span class="kv-key">Sin distanceFilter</span><span class="kv-val">~10 actualizaciones/segundo si el GPS es preciso</span></div>
+<div class="kv"><span class="kv-key">distanceFilter: 5</span><span class="kv-val">Solo actualiza al moverse 5 metros</span></div>
+<div class="kv"><span class="kv-key">Ahorro batería</span><span class="kv-val">Hasta 80% menos consumo en uso típico</span></div>
+</div>
+<div class="callout callout-ok" style="margin-top:12px;"><span class="callout-icon">✓</span><div class="callout-body"><div class="callout-title">WidgetsBindingObserver</div>Detecta cuando la app pasa al background (paused) y pausa el stream GPS. Cuando el usuario vuelve (resumed) lo reactiva. Sin código nativo.</div></div>
+</div></div></div></div>
+
+<div class="slide slide-content"><div class="slide-label">Trayectoria en el mapa</div><div class="slide-title">StreamBuilder + PolylineLayer</div><div class="slide-body">
+<div class="two-col">
+<div><div class="code-label">Mapa que sigue al usuario</div>
+<div class="code-block"><span class="k">final</span> <span class="n">_trayectoria</span> = &lt;LatLng&gt;[];
+<span class="k">final</span> <span class="n">_ctrl</span> = MapController();
+
+<span class="c">// En la pantalla:</span>
+StreamBuilder&lt;Position&gt;(
+  stream: _gpsStream,
+  builder: (ctx, snap) {
+    <span class="k">if</span> (snap.hasData) {
+      <span class="k">final</span> p = snap.data!;
+      <span class="k">final</span> ll = LatLng(
+        p.latitude, p.longitude);
+
+      <span class="c">// Añadir a la trayectoria</span>
+      _trayectoria.add(ll);
+
+      <span class="c">// Mover cámara al usuario</span>
+      _ctrl.move(ll, _ctrl.camera.zoom);
+    }
+    <span class="k">return</span> FlutterMap(
+      mapController: <span class="n">_ctrl</span>,
+      children: [
+        TileLayer(...),
+        PolylineLayer(polylines: [
+          Polyline(
+            points: <span class="n">_trayectoria</span>,
+            color: Color(<span class="n">0xFF006A6A</span>),
+            strokeWidth: <span class="n">4</span>,
+          ),
+        ]),
+        MarkerLayer(...), <span class="c">// posición actual</span>
+      ],
+    );
+  },
+)</div></div>
+<div>
+<div class="callout callout-info" style="margin-bottom:10px;"><span class="callout-icon">📐</span><div class="callout-body"><div class="callout-title">PolylineLayer</div>Recibe una lista de Polyline, cada uno con su lista de LatLng. strokeWidth en píxeles lógicos, independiente del zoom.</div></div>
+<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body">No usar setState() dentro del StreamBuilder — ya reconstruye automáticamente. Llamar setState() adicional duplica los renders.</div></div>
+</div></div></div></div>
+
+<div class="slide slide-content"><div class="slide-label">Hack #2</div><div class="slide-title">Haversine en Dart puro — distancia acumulada</div><div class="slide-body">
+<div class="two-col">
+<div><div class="code-label">La fórmula en Dart — sin dependencias</div>
+<div class="code-block"><span class="k">import</span> <span class="s">'dart:math'</span>;
+
+<span class="c">/// Distancia en metros entre dos coordenadas</span>
+<span class="k">double</span> haversine(LatLng a, LatLng b) {
+  <span class="k">const</span> R = <span class="n">6371000.0</span>; <span class="c">// Radio Tierra en m</span>
+  <span class="k">final</span> dLat = _rad(b.latitude - a.latitude);
+  <span class="k">final</span> dLon = _rad(b.longitude - a.longitude);
+  <span class="k">final</span> sinLat = sin(dLat / 2);
+  <span class="k">final</span> sinLon = sin(dLon / 2);
+  <span class="k">final</span> x =
+    sinLat * sinLat +
+    cos(_rad(a.latitude)) *
+    cos(_rad(b.latitude)) *
+    sinLon * sinLon;
+  <span class="k">return</span> R * 2 * asin(sqrt(x));
+}
+
+<span class="k">double</span> _rad(<span class="k">double</span> deg) =>
+  deg * pi / <span class="n">180</span>;
+
+<span class="c">// Distancia total de la trayectoria</span>
+<span class="k">double</span> distanciaTotal(List&lt;LatLng&gt; pts) {
+  <span class="k">double</span> total = 0;
+  <span class="k">for</span> (<span class="k">int</span> i = 1; i &lt; pts.length; i++) {
+    total += haversine(pts[i-1], pts[i]);
+  }
+  <span class="k">return</span> total;
+}</div></div>
+<div>
+<div class="callout callout-ok" style="margin-bottom:10px;"><span class="callout-icon">✓</span><div class="callout-body"><div class="callout-title">Verificación</div>haversine(LatLng(-16.50,-68.15), LatLng(-17.78,-63.18)) da ~547 km — exactamente la distancia La Paz → Santa Cruz.</div></div>
+<div class="callout callout-info"><span class="callout-icon">💬</span><div class="callout-body"><div class="callout-title">Prompt para la IA</div>"Implementa la fórmula Haversine en Dart que calcule distancia en metros entre dos LatLng de flutter_map. Sin dependencias externas."<br>La IA lo genera correctamente — este es un caso donde el código generado funciona a la primera.</div></div>
+</div></div></div></div>
+
+<div class="slide slide-content"><div class="slide-label">Resumen</div><div class="slide-title">Lo que aprendiste hoy</div><div class="slide-body">
+<div class="two-col">
+<ul class="slide-list">
+<li>Future = un valor, Stream = valores continuos — geolocator ofrece los dos</li>
+<li>distanceFilter: 5 reduce las actualizaciones GPS al 20% — ahorra batería en campo</li>
+<li>WidgetsBindingObserver pausa el stream GPS cuando la app va al background — sin código nativo</li>
+<li>PolylineLayer dibuja la trayectoria como una línea continua que crece con cada punto GPS</li>
+<li>Haversine en Dart puro — 10 líneas, sin dependencias, error menor al 0.5%</li>
+<li>StreamBuilder reconstruye la UI automáticamente — no usar setState() dentro de él</li>
+</ul>
+<div><div class="callout callout-info"><span class="callout-icon">🌐</span><div class="callout-body"><div class="callout-title">Próxima clase</div>Capas WMS desde GeoServer. Las capas que publicaste en el curso GeoServer 3 aparecerán sobre el mapa en la app.</div></div></div>
+</div></div></div>
+
+<div class="slide slide-cover"><div class="cover-grid"></div>
+<div class="cover-tag"><span class="cover-dot"></span> Fin de la Clase 2</div>
+<h1 class="cover-title">El GPS funciona.<br><em>Ahora conectamos el servidor.</em></h1>
+<p class="cover-sub">Próxima clase: capas WMS desde GeoServer — el servidor habla, la app escucha.</p>
+<div style="max-width:460px;width:100%;position:relative;">
+<div class="quiz-cta"><div class="quiz-cta-text"><div class="quiz-cta-title">Cuestionario — Clase 2: GPS</div><div class="quiz-cta-sub">12 preguntas · 2 intentos</div></div><a href="test/stream.html" target="_blank">Ir al cuestionario →</a></div></div>
+<div class="cover-pills" style="margin-top:20px;"><span class="cover-pill">🗓 Próxima: WMS desde GeoServer</span><span class="cover-pill">🌐 Necesitas acceso al GeoServer del curso</span></div>
+</div></div>
+<div class="navbar"><button class="nav-btn" id="btnPrev">← Anterior</button>
+<div class="nav-dots"><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button></div>
+<button class="nav-btn" id="btnNext">Siguiente →</button></div>
+</div><script src="assets/slides.js"></script></body></html>

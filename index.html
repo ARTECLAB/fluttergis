@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Presentaciones — GeoCollect Flutter GIS · ARTECLAB</title>
+<link rel="stylesheet" href="assets/slides.css">
+<style>
+body{min-height:100vh;display:flex;flex-direction:column;}
+.idx-hero{padding:60px 32px 40px;text-align:center;position:relative;overflow:hidden;}
+.idx-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(0,106,106,.12) 0%,transparent 70%);pointer-events:none;}
+.idx-hero .tb-badge{display:inline-block;background:var(--accent);color:#fff;font-size:12px;font-weight:700;padding:4px 14px;border-radius:20px;letter-spacing:.06em;margin-bottom:18px;}
+.idx-hero h1{font-size:clamp(26px,5vw,44px);font-weight:800;color:var(--text);margin:0 0 14px;line-height:1.15;}
+.idx-hero h1 em{color:var(--accent);font-style:normal;}
+.idx-hero p{color:var(--muted);font-size:16px;max-width:540px;margin:0 auto 24px;line-height:1.6;}
+.idx-stats{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin-bottom:8px;}
+.idx-stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 24px;text-align:center;}
+.idx-stat-num{font-size:28px;font-weight:800;color:var(--accent);display:block;}
+.idx-stat-lbl{font-size:12px;color:var(--muted);font-weight:500;margin-top:2px;}
+.idx-instructor{display:inline-flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:30px;padding:8px 16px 8px 8px;margin-top:20px;}
+.idx-avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;}
+.idx-name{font-size:13px;color:var(--text);font-weight:600;}
+.idx-role{font-size:11px;color:var(--muted);}
+.idx-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;padding:32px;max-width:1100px;margin:0 auto;width:100%;box-sizing:border-box;}
+.idx-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;text-decoration:none;transition:transform .18s,box-shadow .18s,border-color .18s;display:flex;flex-direction:column;}
+.idx-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,.14);border-color:var(--accent);}
+.idx-card-top{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-light) 100%);padding:20px 22px 16px;position:relative;}
+.idx-card-num{font-size:11px;font-weight:700;color:rgba(255,255,255,.5);letter-spacing:.08em;margin-bottom:6px;}
+.idx-card-title{font-size:15px;font-weight:700;color:#fff;line-height:1.3;margin:0;}
+.idx-card-title em{color:#4DD0CC;font-style:normal;}
+.idx-card-bot{padding:14px 22px 16px;flex:1;display:flex;flex-direction:column;gap:8px;}
+.idx-card-sub{font-size:12px;color:var(--muted);line-height:1.5;}
+.idx-card-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;}
+.idx-chip{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:3px 8px;font-size:11px;color:var(--muted);}
+.idx-chip-acc{background:rgba(0,106,106,.1);border-color:rgba(0,106,106,.25);color:var(--accent);}
+.idx-card-link{margin-top:auto;display:inline-flex;align-items:center;gap:6px;color:var(--accent);font-size:12px;font-weight:600;}
+.idx-footer{text-align:center;padding:24px 32px;border-top:1px solid var(--border);color:var(--muted);font-size:13px;margin-top:auto;}
+.theme-wrap{position:fixed;top:14px;right:16px;z-index:100;}
+</style>
+</head>
+<body>
+<button class="theme-btn theme-wrap" id="themeBtn"><span class="t-icon">◐</span><span class="t-label">Oscuro</span></button>
+
+<div class="idx-hero">
+  <div class="tb-badge">ARTECLAB Bolivia</div>
+  <h1>GeoCollect<br><em>Flutter GIS</em></h1>
+  <p>App de colecta de campo con mapas interactivos, GPS en tiempo real, WMS/WFS desde GeoServer y publicación offline-first</p>
+  <div class="idx-stats">
+    <div class="idx-stat"><span class="idx-stat-num">10</span><span class="idx-stat-lbl">Clases</span></div>
+    <div class="idx-stat"><span class="idx-stat-num">89</span><span class="idx-stat-lbl">Slides</span></div>
+    <div class="idx-stat"><span class="idx-stat-num">20h</span><span class="idx-stat-lbl">Duración</span></div>
+    <div class="idx-stat"><span class="idx-stat-num">120</span><span class="idx-stat-lbl">Preguntas</span></div>
+  </div>
+  <div class="idx-instructor">
+    <div class="idx-avatar">DQ</div>
+    <div><div class="idx-name">Daniel Quisbert</div><div class="idx-role">flutter-gis.danielquisbert.com</div></div>
+  </div>
+</div>
+
+<div class="idx-grid">
+  <a href="widget.html" class="idx-card">
+    <div class="idx-card-top">
+      <div class="idx-card-num">CLASE 1 · MÓDULO 1</div>
+      <div class="idx-card-title">El mapa que late:<br><em>flutter_map desde cero</em></div>
+    </div>
+    <div class="idx-card-bot">
+      <div class="idx-card-sub">Tu primer mapa sin API key · dark mode automático · marcadores · MapController</div>
+      <div class="idx-card-meta"><span class="idx-chip">13 slides</span><span class="idx-chip">2h</span><span class="idx-chip-acc idx-chip">flutter_map 8.x</span></div>
+      <div class="idx-card-link">Ver presentación →</div>
+    </div>
+  </a>
+  <a href="stream.html" class="idx-card">
+    <div class="idx-card-top">
+      <div class="idx-card-num">CLASE 2 · MÓDULO 1</div>
+      <div class="idx-card-title">GPS en tiempo real:<br><em>el mapa que te sigue</em></div>
+    </div>
+    <div class="idx-card-bot">
+      <div class="idx-card-sub">geolocator · Stream · Polyline · Haversine · distanceFilter batería</div>
+      <div class="idx-card-meta"><span class="idx-chip">9 slides</span><span class="idx-chip">2h</span><span class="idx-chip-acc idx-chip">GPS real</span></div>
+      <div class="idx-card-link">Ver presentación →</div>
+    </div>
+  </a>
+  <a href="layer.html" class="idx-card">
+    <div class="idx-card-top">
+      <div class="idx-card-num">CLASE 3 · MÓDULO 2</div>
+      <div class="idx-card-title">Capas WMS desde GeoServer:<br><em>el servidor habla</em></div>
+    </div>
+    <div class="idx-card-bot">
+      <div class="idx-card-sub">TileLayer WMS · Visibility · Opacity slider · CQL_FILTER dinámico</div>
+      <div class="idx-card-meta"><span class="idx-chip">9 slides</span><span class="idx-chip">2h</span><span class="idx-chip-acc idx-chip">GeoServer 3</span></div>
+      <div class="idx-card-link">Ver presentación →</div>
+    </div>
+  </a>
+  <a href="feature.html" class="idx-card">
+    <div class="idx-card-top">
+      <div class="idx-card-num">CLASE 4 · MÓDULO 2</div>
+      <div class="idx-card-title">WFS y GeoJSON:<br><em>datos que puedes tocar</em></div>
+    </div>
+    <div class="idx-card-bot">
+      <div class="idx-card-sub">PolygonLayer interactivo · compute() · cache SQLite TTL · popups</div>
+      <div class="idx-card-meta"><span class="idx-chip">10 slides</span><span class="idx-chip">2h</span><span class="idx-chip-acc idx-chip">GeoJSON</span></div>
+      <div class="idx-card-link">Ver presentación →</div>
+    </div>
+  </a>
+  <a href="collect.html" class="idx-card">
+    <div class="idx-card-top">
+      <div class="idx-card-num">CLASE 5 · MÓDULO 3</div>
+      <div class="idx-card-title">Colecta de campo:<br><em>el formulario GPS</em></div>
+    </div>
+    <div class="idx-card-bot">
+      <div class="idx-card-sub">sqflite · modelos Dart · fotos 80KB · offline-first · sincronización</div>
+      <div class="idx-card-meta"><span class="idx-chip">9 slides</span><span class="idx-chip">2h</span><span class="idx-chip-acc idx-chip">SQLite</span></div>
+      <div class="idx-card-link">Ver presentación →</div>
+    </div>
+  </a>
+  <a href="heatmap.html" class="idx-card">
+    <div class="idx-card-top">
+      <div class="idx-card-num">CLASE 6 · MÓDULO 3</div>
+      <div class="idx-card-title">Mapa de calor:<br><em>los datos que brillan</em></div>
+    </div>
+    <div class="idx-card-bot">
+      <div class="idx-card-sub">WeightedLatLng · normalización min-max · filtro BBox · Slider animado</div>
+      <div class="idx-card-meta"><span class="idx-chip">8 slides</span><span class="idx-chip">2h</span><span class="idx-chip-acc idx-chip">Heatmap</span></div>
+      <div class="idx-card-link">Ver presentación →</div>
+    </div>
+  </a>
+  <a href="provider.html" class="idx-card">
+    <div class="idx-card-top">
+      <div class="idx-card-num">CLASE 7 · MÓDULO 4</div>
+      <div class="idx-card-title">Arquitectura en 3 capas:<br><em>la app que crece bien</em></div>
+    </div>
+    <div class="idx-card-bot">
+      <div class="idx-card-sub">UI · Services · Data · setState bien usado · GpsService</div>
+      <div class="idx-card-meta"><span class="idx-chip">8 slides</span><span class="idx-chip">2h</span><span class="idx-chip-acc idx-chip">UI · Services · Data</span></div>
+      <div class="idx-card-link">Ver presentación →</div>
+    </div>
+  </a>
+  <a href="offline.html" class="idx-card">
+    <div class="idx-card-top">
+      <div class="idx-card-num">CLASE 8 · MÓDULO 4</div>
+      <div class="idx-card-title">Offline Maps:<br><em>cuando no hay señal</em></div>
+    </div>
+    <div class="idx-card-bot">
+      <div class="idx-card-sub">FMTC · descarga BBox La Paz · modo avión GIS · connectivity auto</div>
+      <div class="idx-card-meta"><span class="idx-chip">8 slides</span><span class="idx-chip">2h</span><span class="idx-chip-acc idx-chip">FMTC</span></div>
+      <div class="idx-card-link">Ver presentación →</div>
+    </div>
+  </a>
+  <a href="export.html" class="idx-card">
+    <div class="idx-card-top">
+      <div class="idx-card-num">CLASE 9 · MÓDULO 4</div>
+      <div class="idx-card-title">Exportar y Compartir:<br><em>los datos que viajan</em></div>
+    </div>
+    <div class="idx-card-bot">
+      <div class="idx-card-sub">GeoJSON Dart puro · CSV · share_plus · REST API GeoServer · geojson.io</div>
+      <div class="idx-card-meta"><span class="idx-chip">7 slides</span><span class="idx-chip">2h</span><span class="idx-chip-acc idx-chip">Export</span></div>
+      <div class="idx-card-link">Ver presentación →</div>
+    </div>
+  </a>
+  <a href="release.html" class="idx-card">
+    <div class="idx-card-top">
+      <div class="idx-card-num">CLASE 10 · FINAL</div>
+      <div class="idx-card-title">GeoCollect Completa:<br><em>proyecto final</em></div>
+    </div>
+    <div class="idx-card-bot">
+      <div class="idx-card-sub">APK --split-per-abi · obfuscación · launcher icons · App Bundle Play Store</div>
+      <div class="idx-card-meta"><span class="idx-chip">8 slides</span><span class="idx-chip">2h</span><span class="idx-chip-acc idx-chip">Release</span></div>
+      <div class="idx-card-link">Ver presentación →</div>
+    </div>
+  </a>
+</div>
+
+<footer class="idx-footer">
+  <a href="https://flutter-gis.danielquisbert.com" target="_blank">flutter-gis.danielquisbert.com</a>
+  &nbsp;·&nbsp; Daniel Quisbert · ARTECLAB Bolivia · <span class="auto-year"></span>
+</footer>
+<script src="assets/slides.js"></script>
+</body>
+</html>

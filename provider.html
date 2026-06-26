@@ -1,0 +1,308 @@
+<!DOCTYPE html><html lang="es" data-theme="light"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clase 7 — Arquitectura en 3 capas · GeoCollect · ARTECLAB</title>
+<link rel="stylesheet" href="assets/slides.css"></head>
+<body><div class="deck">
+<div class="topbar"><div class="topbar-left"><span class="tb-badge">ARTECLAB</span><span class="tb-course">GeoCollect — Flutter GIS</span><span class="tb-class">Clase 7</span></div><div class="topbar-right"><span class="slide-counter" id="slideCounter"><span>1</span> / 12</span><button class="theme-btn" id="themeBtn"><span class="t-icon">◐</span><span class="t-label">Oscuro</span></button><button class="fs-btn" id="fsBtn">⛶</button></div></div>
+<div class="progress-wrap"><div class="progress-fill" id="progressFill"></div></div>
+<div class="slides-wrap">
+
+<div class="slide slide-cover"><div class="cover-grid"></div>
+<div class="cover-tag"><span class="cover-dot"></span> Módulo 4 · Clase 7 · <span class="auto-year"></span></div>
+<h1 class="cover-title">Arquitectura en 3 capas:<br><em>la app que crece bien</em></h1>
+<p class="cover-sub">UI · Services · Data — separar responsabilidades sin complicar el código</p>
+<div class="cover-pills"><span class="cover-pill">⏱ 2 horas</span><span class="cover-pill">🏗️ Arquitectura</span><span class="cover-pill">👨‍💻 Daniel Quisbert</span></div></div>
+
+<div class="slide slide-content"><div class="slide-label">El problema real</div><div class="slide-title">¿Qué pasa cuando todo vive en la misma clase?</div><div class="slide-body">
+<div class="two-col">
+<div><div class="code-label">El problema — todo mezclado en un solo widget</div>
+<div class="code-block"><span class="k">class</span> <span class="n">MapScreen</span> extends StatefulWidget {
+
+  <span class="c">// GPS directo aqui</span>
+  <span class="k">late</span> StreamSubscription _gpsSub;
+
+  <span class="c">// HTTP directo aqui</span>
+  Future&lt;<span class="k">void</span>&gt; _cargarMunicipios() <span class="k">async</span> {
+    <span class="k">final</span> resp = <span class="k">await</span> http.get(...);
+    <span class="k">final</span> data = jsonDecode(resp.body);
+    <span class="c">// ... 50 lineas de parseo</span>
+  }
+
+  <span class="c">// SQLite directo aqui</span>
+  Future&lt;<span class="k">void</span>&gt; _guardar(Colecta c) <span class="k">async</span> {
+    <span class="k">final</span> db = <span class="k">await</span> openDatabase(...);
+    <span class="k">await</span> db.insert(<span class="s">'colectas'</span>, c.toMap());
+  }
+
+  <span class="c">// Y tambien toda la UI aqui</span>
+  Widget build(...) { <span class="c">/* 200 lineas */</span> }
+}</div></div>
+<div>
+<div class="callout callout-warn" style="margin-bottom:12px;"><span class="callout-icon">⚠️</span><div class="callout-body"><div class="callout-title">El síntoma</div>Un archivo de 400 líneas donde está todo mezclado: la UI, el GPS, el HTTP y la base de datos. Si cambias SQLite por otro storage, tienes que tocar el widget.</div></div>
+<div class="callout callout-info"><span class="callout-icon">💡</span><div class="callout-body"><div class="callout-title">La solución</div>Separar en 3 capas. Cada archivo sabe solo lo que le toca. La UI solo construye widgets.</div></div>
+</div></div></div></div>
+
+<div class="slide slide-content"><div class="slide-label">La arquitectura</div><div class="slide-title">3 capas — una regla que lo explica todo</div><div class="slide-body">
+<div class="hierarchy" style="margin-bottom:18px;">
+<div class="hier-item hier-1"><span class="hier-icon">📱</span><div><div class="hier-name">Capa UI — lib/screens/ + lib/widgets/</div><div style="font-size:11px;color:var(--muted)">Solo construye pantallas. Nunca toca SQLite ni HTTP directamente.</div></div></div>
+<div class="hier-item hier-2"><span class="hier-icon">↓</span><div><div class="hier-name">llama a ↓</div></div></div>
+<div class="hier-item hier-1" style="border-left-color:#7F77DD;"><span class="hier-icon">⚙️</span><div><div class="hier-name">Capa Services — lib/services/</div><div style="font-size:11px;color:var(--muted)">Lógica de negocio: GPS, cálculos, coordenadas. Sin widgets, sin SQLite.</div></div></div>
+<div class="hier-item hier-2"><span class="hier-icon">↓</span><div><div class="hier-name">llama a ↓</div></div></div>
+<div class="hier-item hier-1" style="border-left-color:#888780;"><span class="hier-icon">🗄️</span><div><div class="hier-name">Capa Data — lib/data/ + lib/models/</div><div style="font-size:11px;color:var(--muted)">Acceso a datos: SQLite, HTTP a GeoServer. Devuelve modelos Dart, nunca widgets.</div></div></div>
+</div>
+<div class="callout callout-ok"><span class="callout-icon">✓</span><div class="callout-body"><div class="callout-title">La regla de oro</div>Las flechas solo bajan. UI llama a Services. Services llama a Data. Nunca al revés. Si un archivo de Data importa un widget, algo está mal.</div></div>
+</div></div>
+
+<div class="slide slide-section"><div class="section-num">Capa Data</div><div class="section-title">lib/models/ y lib/data/<br>donde viven los datos</div><div class="section-desc">Separar el modelo del acceso a la base de datos</div></div>
+
+<div class="slide slide-content"><div class="slide-label">Capa Data</div><div class="slide-title">Modelo + acceso a SQLite separados en dos archivos</div><div class="slide-body">
+<div class="two-col">
+<div><div class="code-label">lib/models/colecta.dart — el modelo</div>
+<div class="code-block"><span class="c">// Solo datos: campos y conversion Map</span>
+<span class="k">class</span> <span class="n">Colecta</span> {
+  <span class="k">final</span> int id;
+  <span class="k">final</span> String tipo;
+  <span class="k">final</span> double latitud;
+  <span class="k">final</span> double longitud;
+  <span class="k">final</span> int timestamp;
+  <span class="k">final</span> bool sincronizado;
+
+  <span class="c">// Sin widgets, sin sqflite imports</span>
+  Map&lt;String,dynamic&gt; toMap() =&gt; {
+    <span class="s">'id'</span>: id, <span class="s">'tipo'</span>: tipo,
+    <span class="s">'latitud'</span>: latitud,
+    <span class="s">'longitud'</span>: longitud,
+    <span class="s">'timestamp'</span>: timestamp,
+    <span class="s">'sincronizado'</span>:
+      sincronizado ? <span class="n">1</span> : <span class="n">0</span>,
+  };
+
+  <span class="k">factory</span> Colecta.fromMap(Map m) =&gt;
+    Colecta(
+      id: m[<span class="s">'id'</span>],
+      tipo: m[<span class="s">'tipo'</span>],
+      latitud: m[<span class="s">'latitud'</span>],
+      longitud: m[<span class="s">'longitud'</span>],
+      timestamp: m[<span class="s">'timestamp'</span>],
+      sincronizado: m[<span class="s">'sincronizado'</span>] == 1,
+    );
+}</div></div>
+<div><div class="code-label">lib/data/colecta_db.dart — el acceso</div>
+<div class="code-block"><span class="c">// Solo operaciones de base de datos</span>
+<span class="k">class</span> <span class="n">ColectaDb</span> {
+  <span class="k">static</span> Database? _db;
+
+  <span class="k">static</span> Future&lt;Database&gt; get db
+    <span class="k">async</span> {
+    _db ??= <span class="k">await</span> _initDb();
+    <span class="k">return</span> _db!;
+  }
+
+  <span class="c">// INSERT: devuelve int (rowId)</span>
+  <span class="k">static</span> Future&lt;int&gt; insertar(
+      Colecta c) <span class="k">async</span> =&gt;
+    (await db).insert(
+      <span class="s">'colectas'</span>, c.toMap(),
+      conflictAlgorithm:
+        ConflictAlgorithm.replace);
+
+  <span class="c">// SELECT: devuelve List&lt;Colecta&gt;</span>
+  <span class="k">static</span> Future&lt;List&lt;Colecta&gt;&gt;
+      todas() <span class="k">async</span> {
+    <span class="k">final</span> rows = <span class="k">await</span>
+      (await db).query(<span class="s">'colectas'</span>);
+    <span class="k">return</span> rows
+      .map(Colecta.fromMap)
+      .toList();
+  }
+
+  <span class="c">// Pendientes de sincronizar</span>
+  <span class="k">static</span> Future&lt;List&lt;Colecta&gt;&gt;
+      pendientes() <span class="k">async</span> {
+    <span class="k">final</span> rows = <span class="k">await</span>
+      (await db).query(<span class="s">'colectas'</span>,
+        where: <span class="s">'sincronizado = 0'</span>);
+    <span class="k">return</span> rows
+      .map(Colecta.fromMap)
+      .toList();
+  }
+}</div></div></div></div></div>
+
+<div class="slide slide-section"><div class="section-num">Capa Services</div><div class="section-title">lib/services/<br>la lógica sin widgets</div><div class="section-desc">GpsService · WmsService · ExportService</div></div>
+
+<div class="slide slide-content"><div class="slide-label">Capa Services</div><div class="slide-title">GpsService — el GPS desacoplado de la pantalla</div><div class="slide-body">
+<div class="two-col">
+<div><div class="code-label">lib/services/gps_service.dart</div>
+<div class="code-block"><span class="c">// Sin imports de Flutter UI</span>
+<span class="c">// Sin referencias a BuildContext</span>
+<span class="k">import</span> <span class="s">'package:geolocator/geolocator.dart'</span>;
+<span class="k">import</span> <span class="s">'package:latlong2/latlong2.dart'</span>;
+
+<span class="k">class</span> <span class="n">GpsService</span> {
+  StreamSubscription&lt;Position&gt;? _sub;
+  <span class="k">final</span> _ctrl =
+    StreamController&lt;LatLng&gt;.broadcast();
+
+  <span class="c">// El Screen escucha este stream</span>
+  Stream&lt;LatLng&gt; get posicion =&gt;
+    _ctrl.stream;
+
+  Future&lt;<span class="k">void</span>&gt; iniciar() <span class="k">async</span> {
+    <span class="k">final</span> ok = <span class="k">await</span> _pedirPermisos();
+    <span class="k">if</span> (!ok) <span class="k">return</span>;
+
+    _sub = Geolocator
+      .getPositionStream(
+        locationSettings: LocationSettings(
+          distanceFilter: <span class="n">5</span>,
+        ))
+      .listen((pos) {
+        _ctrl.add(LatLng(
+          pos.latitude, pos.longitude));
+      });
+  }
+
+  <span class="c">// Haversine vive aqui, no en la UI</span>
+  <span class="k">double</span> distancia(
+      LatLng a, LatLng b) { <span class="c">/* ... */</span> }
+
+  <span class="k">void</span> detener() {
+    _sub?.cancel();
+    _ctrl.close();
+  }
+}</div></div>
+<div>
+<div class="callout callout-ok" style="margin-bottom:12px;"><span class="callout-icon">✓</span><div class="callout-body"><div class="callout-title">Por qué GpsService mejora el código</div>MapScreen ya no gestiona StreamSubscription ni permisos. Solo escucha el stream. Si cambias geolocator por otra librería, solo tocas GpsService.</div></div>
+<div class="callout callout-info"><span class="callout-icon">💡</span><div class="callout-body"><div class="callout-title">broadcast()</div>StreamController.broadcast() permite que múltiples widgets escuchen el mismo stream GPS simultáneamente — el mapa, un contador de distancia, y un panel de estado pueden actualizarse con una sola fuente.</div></div>
+</div></div></div></div>
+
+<div class="slide slide-content"><div class="slide-label">Capa UI usando Services</div><div class="slide-title">MapScreen — limpia, sin lógica de negocio</div><div class="slide-body">
+<div class="two-col">
+<div><div class="code-label">lib/screens/map_screen.dart</div>
+<div class="code-block"><span class="k">class</span> <span class="n">_MapScreenState</span>
+    extends State&lt;MapScreen&gt; {
+
+  <span class="c">// Instancia del servicio</span>
+  <span class="k">final</span> _gps = GpsService();
+  <span class="k">final</span> _ctrl = MapController();
+  <span class="k">final</span> _trayectoria = &lt;LatLng&gt;[];
+
+  @override
+  <span class="k">void</span> initState() {
+    super.initState();
+    <span class="c">// El Screen solo llama al Service</span>
+    _gps.iniciar();
+  }
+
+  @override
+  <span class="k">void</span> dispose() {
+    _gps.detener(); <span class="c">// limpieza</span>
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext ctx) =&gt;
+    StreamBuilder&lt;LatLng&gt;(
+      stream: <span class="n">_gps.posicion</span>,
+      builder: (ctx, snap) {
+        <span class="k">if</span> (snap.hasData) {
+          _trayectoria.add(snap.data!);
+          _ctrl.move(
+            snap.data!, _ctrl.camera.zoom);
+        }
+        <span class="k">return</span> FlutterMap(
+          mapController: <span class="n">_ctrl</span>,
+          children: [
+            TileLayer(...),
+            PolylineLayer(...)
+          ],
+        );
+      },
+    );
+}</div></div>
+<div>
+<div class="callout callout-ok" style="margin-bottom:10px;"><span class="callout-icon">✓</span><div class="callout-body"><div class="callout-title">MapScreen sin lógica</div>No hay Geolocator.getPositionStream(). No hay manejo de permisos. No hay Haversine. Solo escucha el stream y actualiza la UI. Eso es lo que debe hacer un widget.</div></div>
+<div class="callout callout-info"><span class="callout-icon">🏗️</span><div class="callout-body">La misma lógica de GpsService puede usarse desde CollectScreen para obtener la posición al abrir el formulario — sin duplicar código.</div></div>
+</div></div></div></div>
+
+<div class="slide slide-section"><div class="section-num">Estructura</div><div class="section-title">La carpeta lib/<br>del proyecto final</div><div class="section-desc">Cada archivo tiene una sola responsabilidad</div></div>
+
+<div class="slide slide-content"><div class="slide-label">Estructura de archivos</div><div class="slide-title">lib/ organizada en 3 capas — sin extras</div><div class="slide-body">
+<div class="two-col">
+<div>
+<div class="kv-list">
+<div class="kv"><span class="kv-key" style="min-width:160px;color:var(--accent)">lib/models/</span><span class="kv-val">Solo clases de datos con toMap/fromMap</span></div>
+<div class="kv"><span class="kv-key" style="min-width:160px;color:var(--muted);">colecta.dart</span><span class="kv-val">Modelo Colecta — sin lógica de negocio</span></div>
+</div>
+<div style="margin-top:14px;" class="kv-list">
+<div class="kv"><span class="kv-key" style="min-width:160px;color:var(--accent)">lib/data/</span><span class="kv-val">Solo acceso a SQLite y API REST</span></div>
+<div class="kv"><span class="kv-key" style="min-width:160px;color:var(--muted);">colecta_db.dart</span><span class="kv-val">INSERT · SELECT · UPDATE SQLite</span></div>
+<div class="kv"><span class="kv-key" style="min-width:160px;color:var(--muted);">geoserver_api.dart</span><span class="kv-val">http GET/POST a GeoServer REST</span></div>
+</div>
+<div style="margin-top:14px;" class="kv-list">
+<div class="kv"><span class="kv-key" style="min-width:160px;color:var(--accent)">lib/services/</span><span class="kv-val">Lógica de negocio sin widgets</span></div>
+<div class="kv"><span class="kv-key" style="min-width:160px;color:var(--muted);">gps_service.dart</span><span class="kv-val">Stream GPS · permisos · Haversine</span></div>
+<div class="kv"><span class="kv-key" style="min-width:160px;color:var(--muted);">wms_service.dart</span><span class="kv-val">URLs WMS/WFS · filtros CQL</span></div>
+<div class="kv"><span class="kv-key" style="min-width:160px;color:var(--muted);">export_service.dart</span><span class="kv-val">GeoJSON · CSV · share_plus</span></div>
+</div>
+</div>
+<div>
+<div style="margin-top:0;" class="kv-list">
+<div class="kv"><span class="kv-key" style="min-width:160px;color:var(--accent)">lib/screens/</span><span class="kv-val">Pantallas — solo UI y llamadas a services</span></div>
+<div class="kv"><span class="kv-key" style="min-width:160px;color:var(--muted);">map_screen.dart</span><span class="kv-val">FlutterMap + GpsService</span></div>
+<div class="kv"><span class="kv-key" style="min-width:160px;color:var(--muted);">collect_screen.dart</span><span class="kv-val">Formulario + ColectaDb</span></div>
+<div class="kv"><span class="kv-key" style="min-width:160px;color:var(--muted);">heatmap_screen.dart</span><span class="kv-val">HeatMapLayer + ColectaDb</span></div>
+<div class="kv"><span class="kv-key" style="min-width:160px;color:var(--muted);">export_screen.dart</span><span class="kv-val">Botones + ExportService</span></div>
+</div>
+<div style="margin-top:14px;" class="kv-list">
+<div class="kv"><span class="kv-key" style="min-width:160px;color:var(--accent)">lib/widgets/</span><span class="kv-val">Widgets reutilizables</span></div>
+<div class="kv"><span class="kv-key" style="min-width:160px;color:var(--muted);">layer_panel.dart</span><span class="kv-val">Toggle + Slider de capas WMS</span></div>
+<div class="kv"><span class="kv-key" style="min-width:160px;color:var(--muted);">collect_form.dart</span><span class="kv-val">Formulario de colecta</span></div>
+</div>
+<div class="callout callout-ok" style="margin-top:14px;"><span class="callout-icon">✓</span><div class="callout-body">main.dart tiene solo runApp(GeoCollectApp()). Sin ProviderScope ni configuración de librerías externas de estado.</div></div>
+</div></div></div></div>
+
+<div class="slide slide-content"><div class="slide-label">IA como copiloto</div><div class="slide-title">Prompt por capa — la IA genera código limpio</div><div class="slide-body">
+<div class="steps">
+<div class="step"><div class="step-num">1</div><div class="step-text"><div class="step-title">Primero el modelo</div><div class="step-desc">"Genera la clase Dart Colecta con campos id, tipo, latitud, longitud, timestamp y sincronizado. Con toMap() y fromMap() para sqflite. Sin imports de Flutter."</div></div></div>
+<div class="step"><div class="step-num">2</div><div class="step-text"><div class="step-title">Luego la capa Data</div><div class="step-desc">"Genera ColectaDb en Dart con sqflite. Operaciones: crear tabla, insertar Colecta, listar todas, listar pendientes de sincronizar. Sin widgets."</div></div></div>
+<div class="step"><div class="step-num">3</div><div class="step-text"><div class="step-title">Luego la capa Services</div><div class="step-desc">"Genera GpsService en Dart puro que expone un Stream de LatLng usando geolocator con distanceFilter: 5. Sin BuildContext. Con método iniciar() y detener()."</div></div></div>
+<div class="step"><div class="step-num">4</div><div class="step-text"><div class="step-title">Finalmente el Screen</div><div class="step-desc">"Genera MapScreen Flutter que usa GpsService para obtener posición GPS y dibuja la trayectoria con PolylineLayer de flutter_map. Sin lógica de GPS directa en el widget."</div></div></div>
+</div>
+<div class="callout callout-info" style="margin-top:14px;"><span class="callout-icon">💡</span><div class="callout-body">Pedir cada capa por separado produce código más limpio que pedir toda la app de una vez. La IA respeta los límites cuando el prompt los declara explícitamente.</div></div>
+</div></div>
+
+<div class="slide slide-content"><div class="slide-label">Actividad práctica</div><div class="slide-title">Refactoriza: mueve el GPS de MapScreen a GpsService</div><div class="slide-body">
+<div class="steps">
+<div class="step"><div class="step-num">1</div><div class="step-text"><div class="step-title">Crea lib/services/gps_service.dart</div><div class="step-desc">Mueve todo el código de Geolocator.getPositionStream() al nuevo archivo. El Screen no debe importar geolocator.</div></div></div>
+<div class="step"><div class="step-num">2</div><div class="step-text"><div class="step-title">Crea lib/data/colecta_db.dart</div><div class="step-desc">Mueve las funciones openDatabase(), insert() y query() del formulario al nuevo archivo. Solo devuelve List&lt;Colecta&gt; o int.</div></div></div>
+<div class="step"><div class="step-num">3</div><div class="step-text"><div class="step-title">Simplifica MapScreen</div><div class="step-desc">MapScreen solo instancia GpsService, llama a iniciar() en initState() y detener() en dispose(). La lógica GPS ya no existe en el widget.</div></div></div>
+<div class="step"><div class="step-num">4</div><div class="step-text"><div class="step-title">Verifica la regla de oro</div><div class="step-desc">Revisa cada import. ¿Hay algún import de sqflite en map_screen.dart? ¿Algún import de flutter/material en colecta_db.dart? Si lo hay, la capa está mal.</div></div></div>
+</div></div></div>
+
+<div class="slide slide-content"><div class="slide-label">Resumen</div><div class="slide-title">Lo que aprendiste hoy</div><div class="slide-body">
+<div class="two-col">
+<ul class="slide-list">
+<li>3 capas: UI (screens/widgets), Services (lógica), Data (SQLite/HTTP) — cada archivo sabe solo lo que le toca</li>
+<li>La regla de oro: las flechas solo bajan. Data nunca importa Services. Services nunca importa widgets.</li>
+<li>GpsService expone un Stream que los Screens escuchan — el GPS vive fuera de la UI</li>
+<li>ColectaDb devuelve List&lt;Colecta&gt; y int — nunca widgets ni contexto Flutter</li>
+<li>main.dart solo tiene runApp() — sin frameworks de estado externos</li>
+<li>La IA genera código más limpio cuando el prompt especifica la capa: "sin widgets", "sin BuildContext", "sin lógica de negocio"</li>
+</ul>
+<div><div class="callout callout-info"><span class="callout-icon">✈️</span><div class="callout-body"><div class="callout-title">Próxima clase</div>Offline Maps con FMTC — la app funciona completamente sin internet en campo.</div></div></div>
+</div></div></div>
+
+<div class="slide slide-cover"><div class="cover-grid"></div>
+<div class="cover-tag"><span class="cover-dot"></span> Fin de la Clase 7</div>
+<h1 class="cover-title">El código está<br><em>ordenado por capas.</em></h1>
+<p class="cover-sub">Próxima clase: Offline Maps — FMTC y modo avión GIS.</p>
+<div style="max-width:460px;width:100%;position:relative;">
+<div class="quiz-cta"><div class="quiz-cta-text"><div class="quiz-cta-title">Cuestionario — Clase 7: Arquitectura</div><div class="quiz-cta-sub">12 preguntas · 2 intentos</div></div><a href="test/provider.html" target="_blank">Ir al cuestionario →</a></div></div>
+<div class="cover-pills" style="margin-top:20px;"><span class="cover-pill">Próxima: Offline maps</span><span class="cover-pill">Instala flutter_map_tile_caching</span></div>
+</div>
+
+</div>
+<div class="navbar"><button class="nav-btn" id="btnPrev">← Anterior</button>
+<div class="nav-dots"><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button></div>
+<button class="nav-btn" id="btnNext">Siguiente →</button></div>
+</div><script src="assets/slides.js"></script></body></html>

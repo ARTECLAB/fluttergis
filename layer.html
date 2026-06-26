@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clase 3 — Capas WMS desde GeoServer · GeoCollect · ARTECLAB</title>
+<link rel="stylesheet" href="assets/slides.css"></head>
+<body><div class="deck">
+<div class="topbar"><div class="topbar-left"><span class="tb-badge">ARTECLAB</span><span class="tb-course">GeoCollect — Flutter GIS</span><span class="tb-class">Clase 3</span></div><div class="topbar-right"><span class="slide-counter" id="slideCounter"><span>1</span> / 12</span><button class="theme-btn" id="themeBtn"><span class="t-icon">◐</span><span class="t-label">Oscuro</span></button><button class="fs-btn" id="fsBtn">⛶</button></div></div>
+<div class="progress-wrap"><div class="progress-fill" id="progressFill"></div></div>
+<div class="slides-wrap">
+<div class="slide slide-cover"><div class="cover-grid"></div>
+<div class="cover-tag"><span class="cover-dot"></span> Módulo 2 · Clase 3 · <span class="auto-year"></span></div>
+<h1 class="cover-title">Capas WMS desde GeoServer:<br><em>el servidor habla, la app escucha</em></h1>
+<p class="cover-sub">TileLayer WMS · opacidad · CQL_FILTER · toggle de capas — datos reales de Bolivia</p>
+<div class="cover-pills"><span class="cover-pill">⏱ 2 horas</span><span class="cover-pill">🌐 GeoServer 3</span><span class="cover-pill">👨‍💻 Daniel Quisbert</span></div></div>
+
+<div class="slide slide-content"><div class="slide-label">Al finalizar esta clase</div><div class="slide-title">¿Qué construiremos hoy?</div><div class="slide-body"><div class="steps">
+<div class="step"><div class="step-num">1</div><div class="step-text"><div class="step-title">Capa WMS de GeoServer sobre el mapa base</div><div class="step-desc">TileLayer con WMSTileLayerOptions — departamentos, municipios o vialidad.</div></div></div>
+<div class="step"><div class="step-num">2</div><div class="step-text"><div class="step-title">Toggle para mostrar u ocultar cada capa</div><div class="step-desc">Visibility() — el widget idiomático de Flutter para control de visibilidad.</div></div></div>
+<div class="step"><div class="step-num">3</div><div class="step-text"><div class="step-title">Slider de opacidad por capa</div><div class="step-desc">Opacity() + Slider — ajuste en tiempo real sin recrear el TileLayer.</div></div></div>
+<div class="step"><div class="step-num">4</div><div class="step-text"><div class="step-title">Filtro CQL desde la UI</div><div class="step-desc">El usuario escribe un departamento y la app filtra la capa WMS al instante.</div></div></div>
+</div><div class="instructor-strip"><div class="is-avatar">DQ</div><div><div class="is-name">Daniel Quisbert</div><div class="is-role">ARTECLAB Bolivia · geoserver-pro.danielquisbert.com</div></div></div></div></div>
+
+<div class="slide slide-content"><div class="slide-label">Conexión entre cursos</div><div class="slide-title">Las capas que publicaste en GeoServer 3 llegan aquí</div><div class="slide-body">
+<table class="compare-table"><thead><tr><th>Capa publicada en GeoServer</th><th>URL WMS para Flutter</th></tr></thead>
+<tbody>
+<tr><td>departamentos</td><td><code style="font-size:11px">http://servidor:8080/geoserver/wms?LAYERS=geoserver3_curso:departamentos</code></td></tr>
+<tr><td>municipios</td><td><code style="font-size:11px">http://servidor:8080/geoserver/wms?LAYERS=geoserver3_curso:municipios</code></td></tr>
+<tr><td>red_vial</td><td><code style="font-size:11px">http://servidor:8080/geoserver/wms?LAYERS=geoserver3_curso:red_vial</code></td></tr>
+</tbody></table>
+<div class="callout callout-ok" style="margin-top:12px;"><span class="callout-icon">🔗</span><div class="callout-body"><div class="callout-title">Un curso, dos aplicaciones</div>El curso GeoServer 3 publica las capas. Este curso (GeoCollect) las consume. Es el flujo de trabajo real de un proyecto GIS profesional.</div></div>
+</div></div>
+
+<div class="slide slide-content"><div class="slide-label">Código esencial</div><div class="slide-title">TileLayer WMS — la forma correcta</div><div class="slide-body">
+<div class="two-col">
+<div><div class="code-label">TileLayer con WMSTileLayerOptions</div>
+<div class="code-block">TileLayer(
+  wmsOptions: WMSTileLayerOptions(
+    baseUrl: <span class="s">'http://servidor:8080'</span>
+             <span class="s">'/geoserver/wms?'</span>,
+    layers: [<span class="s">'geoserver3_curso:departamentos'</span>],
+    format: <span class="s">'image/png'</span>,
+    transparent: <span class="k">true</span>,
+    version: <span class="s">'1.3.0'</span>,
+    <span class="c">// Filtro CQL dinámico</span>
+    otherParameters: {
+      <span class="k">if</span> (_filtro.isNotEmpty)
+        <span class="s">'CQL_FILTER'</span>:
+          <span class="s">"nombre='$_filtro'"</span>,
+    },
+  ),
+  userAgentPackageName:
+    <span class="s">'com.arteclab.geocollect'</span>,
+  <span class="c">// ⚠ NO añadir headers ni crossOrigin</span>
+  <span class="c">// flutter_map carga tiles como Image.network</span>
+)</div></div>
+<div>
+<div class="callout callout-warn" style="margin-bottom:10px;"><span class="callout-icon">🚨</span><div class="callout-body"><div class="callout-title">El error más frecuente</div>Añadir <code>additionalOptions: {'crossOrigin': 'anonymous'}</code> o headers CORS. En apps móviles Flutter las teselas van como Image.network — CORS no aplica. Esto rompe la carga silenciosamente.</div></div>
+<div class="callout callout-ok"><span class="callout-icon">✓</span><div class="callout-body"><code>transparent: true</code> activa TRANSPARENT=true en la petición WMS. Combinar siempre con <code>format: 'image/png'</code> — JPEG no tiene transparencia.</div></div>
+</div></div></div></div>
+
+<div class="slide slide-section"><div class="section-num">Hack</div><div class="section-title">Visibility() + Opacity():<br>control de capas profesional</div><div class="section-desc">El sistema de toggle de capas que parece un visor GIS real</div></div>
+
+<div class="slide slide-content"><div class="slide-label">Hack bueno de la clase</div><div class="slide-title">Panel de capas con Visibility + Slider de opacidad</div><div class="slide-body">
+<div class="two-col">
+<div><div class="code-label">Control de capas en FlutterMap</div>
+<div class="code-block"><span class="c">// Estado por capa</span>
+<span class="k">bool</span> _showDptos = <span class="k">true</span>;
+<span class="k">double</span> _opDptos = 0.8;
+<span class="k">bool</span> _showVial = <span class="k">false</span>;
+
+<span class="c">// En FlutterMap children:</span>
+Visibility(
+  visible: <span class="n">_showDptos</span>,
+  child: Opacity(
+    opacity: <span class="n">_opDptos</span>,
+    child: TileLayer(
+      wmsOptions: WMSTileLayerOptions(
+        layers: [<span class="s">'geoserver3_curso:departamentos'</span>],
+        <span class="c">// ...</span>
+      ),
+    ),
+  ),
+),
+Visibility(
+  visible: <span class="n">_showVial</span>,
+  child: TileLayer(<span class="c">/* red_vial */</span>),
+),
+
+<span class="c">// Panel de control (fuera del mapa):</span>
+SwitchListTile(
+  title: Text(<span class="s">'Departamentos'</span>),
+  value: <span class="n">_showDptos</span>,
+  onChanged: (v) =>
+    setState(() => _showDptos = v),
+),
+Slider(
+  value: <span class="n">_opDptos</span>,
+  onChanged: (v) =>
+    setState(() => _opDptos = v),
+)</div></div>
+<div>
+<div class="callout callout-info" style="margin-bottom:10px;"><span class="callout-icon">💡</span><div class="callout-body"><div class="callout-title">Visibility vs Opacity(0.0)</div>Visibility(visible: false) elimina el widget del árbol — no se renderiza ni consume recursos. Opacity(opacity: 0.0) renderiza el tile invisible, desperdiciando CPU y red.</div></div>
+<div class="callout callout-ok"><span class="callout-icon">✓</span><div class="callout-body">El slider de opacidad solo reconstruye el Opacity() wrapper — el TileLayer subyacente no se destruye ni recarga los tiles.</div></div>
+</div></div></div></div>
+
+<div class="slide slide-content"><div class="slide-label">IA como copiloto</div><div class="slide-title">La IA genera el TileLayer WMS — y el error que cometería</div><div class="slide-body">
+<div class="two-col">
+<div><div class="code-label">Prompt exacto</div>
+<div class="callout callout-info" style="margin-bottom:10px;"><span class="callout-icon">💬</span><div class="callout-body"><em>"Genera el TileLayer de flutter_map 8.x para consumir un WMS de GeoServer 3. URL base: http://servidor:8080/geoserver/wms. Workspace: geoserver3_curso, capa: departamentos. Con TRANSPARENT=true y FORMAT=image/png."</em></div></div>
+<div class="cards" style="gap:8px;">
+<div class="card card-gold"><div class="card-title">Lo que la IA hace bien</div><div class="card-desc">La estructura WMSTileLayerOptions, baseUrl, layers, format y transparent. Correcto al 90%.</div></div>
+<div class="card" style="border-color:var(--warn)"><div class="card-title">Lo que la IA suele añadir de más</div><div class="card-desc">additionalOptions con crossOrigin o headers de autenticación innecesarios. Esto rompe la carga de tiles en apps móviles.</div></div>
+</div></div>
+<div><div class="callout callout-warn"><span class="callout-icon">🔍</span><div class="callout-body"><div class="callout-title">Cómo detectar el error</div>Si los tiles del WMS no cargan pero la URL funciona en el navegador, busca en el código generado si hay crossOrigin, headers, o additionalOptions. Elimínalos.</div></div>
+<div class="code-label" style="margin-top:10px;">Diagnóstico rápido</div>
+<div class="code-block"><span class="c">// Probar la URL directamente</span>
+<span class="c">// en el navegador del simulador:</span>
+http://servidor:8080/geoserver/wms
+  ?SERVICE=WMS&VERSION=1.3.0
+  &REQUEST=GetMap
+  &LAYERS=geoserver3_curso:departamentos
+  &CRS=EPSG:4326
+  &BBOX=-22.9,-69.6,-9.7,-57.5
+  &WIDTH=512&HEIGHT=512
+  &FORMAT=image/png
+  &TRANSPARENT=true</div>
+</div></div></div></div>
+
+<div class="slide slide-content"><div class="slide-label">Resumen</div><div class="slide-title">Lo que aprendiste hoy</div><div class="slide-body">
+<div class="two-col">
+<ul class="slide-list">
+<li>TileLayer + WMSTileLayerOptions conecta flutter_map a cualquier servidor WMS sin código adicional</li>
+<li>NO añadir crossOrigin ni headers CORS — las teselas van como Image.network en apps móviles</li>
+<li>Visibility(visible: bool) es más eficiente que Opacity(opacity: 0.0) para ocultar capas</li>
+<li>Opacity() envuelve el TileLayer sin destruirlo — el slider funciona sin recargar tiles</li>
+<li>otherParameters en WMSTileLayerOptions pasa CQL_FILTER y cualquier parámetro WMS adicional</li>
+<li>Las capas de GeoServer 3 y Flutter GIS son dos cursos que trabajan juntos en producción real</li>
+</ul>
+<div><div class="callout callout-info"><span class="callout-icon">📊</span><div class="callout-body"><div class="callout-title">Próxima clase</div>WFS y GeoJSON — datos que puedes tocar, seleccionar y mostrar con popups informativos al hacer tap.</div></div></div>
+</div></div></div>
+
+<div class="slide slide-cover"><div class="cover-grid"></div>
+<div class="cover-tag"><span class="cover-dot"></span> Fin de la Clase 3</div>
+<h1 class="cover-title">Las capas del servidor<br><em>viven en la app.</em></h1>
+<p class="cover-sub">Próxima clase: WFS y GeoJSON — datos que puedes tocar.</p>
+<div style="max-width:460px;width:100%;position:relative;">
+<div class="quiz-cta"><div class="quiz-cta-text"><div class="quiz-cta-title">Cuestionario — Clase 3: WMS</div><div class="quiz-cta-sub">12 preguntas · 2 intentos</div></div><a href="test/layer.html" target="_blank">Ir al cuestionario →</a></div></div>
+<div class="cover-pills" style="margin-top:20px;"><span class="cover-pill">🗓 Próxima: WFS y GeoJSON</span><span class="cover-pill">📦 Instala el paquete http</span></div>
+</div></div>
+<div class="navbar"><button class="nav-btn" id="btnPrev">← Anterior</button>
+<div class="nav-dots"><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button></div>
+<button class="nav-btn" id="btnNext">Siguiente →</button></div>
+</div><script src="assets/slides.js"></script></body></html>

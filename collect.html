@@ -1,0 +1,216 @@
+<!DOCTYPE html><html lang="es" data-theme="light"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Clase 5 — Colecta de campo · GeoCollect · ARTECLAB</title><link rel="stylesheet" href="assets/slides.css"></head><body><div class="deck">
+<div class="topbar"><div class="topbar-left"><span class="tb-badge">ARTECLAB</span><span class="tb-course">GeoCollect — Flutter GIS</span><span class="tb-class">Clase 5</span></div><div class="topbar-right"><span class="slide-counter" id="slideCounter"><span>1</span> / 12</span><button class="theme-btn" id="themeBtn"><span class="t-icon">◐</span><span class="t-label">Oscuro</span></button><button class="fs-btn" id="fsBtn">⛶</button></div></div>
+<div class="progress-wrap"><div class="progress-fill" id="progressFill"></div></div>
+<div class="slides-wrap">
+
+<div class="slide slide-cover"><div class="cover-grid"></div>
+<div class="cover-tag"><span class="cover-dot"></span> Módulo 3 · Clase 5 · <span class="auto-year"></span></div>
+<h1 class="cover-title">Colecta de campo:<br><em>el formulario que sabe dónde está</em></h1>
+<p class="cover-sub">sqflite · GPS automático · fotos comprimidas · offline-first · sincronización</p>
+<div class="cover-pills"><span class="cover-pill">⏱ 2 horas</span><span class="cover-pill">🗄️ SQLite</span><span class="cover-pill">👨‍💻 Daniel Quisbert</span></div></div>
+
+<div class="slide slide-content"><div class="slide-label">El modelo de datos</div><div class="slide-title">La clase Colecta — toMap() y fromMap()</div><div class="slide-body">
+<div class="two-col"><div><div class="code-label">lib/models/colecta.dart</div>
+<div class="code-block">class Colecta {
+  final int id;
+  final String tipo;
+  final String descripcion;
+  final double latitud;
+  final double longitud;
+  final String? fotoPath;
+  final int timestamp;
+  final bool sincronizado;
+
+  Map&lt;String,dynamic&gt; toMap() =&gt; {
+    'id': id, 'tipo': tipo,
+    'descripcion': descripcion,
+    'latitud': latitud,
+    'longitud': longitud,
+    'fotoPath': fotoPath,
+    'timestamp': timestamp,
+    // bool no existe en SQLite
+    'sincronizado': sincronizado ? 1 : 0,
+  };
+
+  factory Colecta.fromMap(Map m) =&gt;
+    Colecta(
+      id: m['id'],
+      tipo: m['tipo'],
+      descripcion: m['descripcion'],
+      latitud: m['latitud'],
+      longitud: m['longitud'],
+      fotoPath: m['fotoPath'],
+      timestamp: m['timestamp'],
+      sincronizado: m['sincronizado'] == 1,
+    );
+}</div></div>
+<div><div class="callout callout-warn" style="margin-bottom:10px;"><span class="callout-icon">⚠️</span><div class="callout-body"><div class="callout-title">bool → INTEGER en SQLite</div>SQLite no tiene tipo BOOLEAN. La IA pasa el bool directamente y lanza error en runtime. Convertir siempre: sincronizado ? 1 : 0</div></div>
+<div class="callout callout-ok"><span class="callout-icon">✓</span><div class="callout-body">ID único sin servidor: DateTime.now().millisecondsSinceEpoch — garantiza unicidad sin autoincrement del servidor.</div></div>
+</div></div></div></div>
+
+<div class="slide slide-content"><div class="slide-label">Base de datos SQLite</div><div class="slide-title">Inicializar, insertar y consultar colectas</div><div class="slide-body">
+<div class="two-col"><div><div class="code-label">lib/data/colecta_db.dart</div>
+<div class="code-block">class ColectaDB {
+  static Database? _db;
+  static Future&lt;Database&gt; get db async {
+    _db ??= await _initDb();
+    return _db!;
+  }
+
+  static Future&lt;Database&gt; _initDb() async {
+    final dir = await
+      getApplicationDocumentsDirectory();
+    return openDatabase(
+      join(dir.path, 'geocollect.db'),
+      version: 1,
+      onCreate: (db, _) =&gt; db.execute('''
+        CREATE TABLE colectas (
+          id INTEGER PRIMARY KEY,
+          tipo TEXT NOT NULL,
+          descripcion TEXT,
+          latitud REAL NOT NULL,
+          longitud REAL NOT NULL,
+          fotoPath TEXT,
+          timestamp INTEGER NOT NULL,
+          sincronizado INTEGER DEFAULT 0)'''),
+    );
+  }
+
+  static Future&lt;int&gt; insertar(Colecta c)
+    async =&gt; (await db).insert(
+      'colectas', c.toMap(),
+      conflictAlgorithm:
+        ConflictAlgorithm.replace);
+
+  static Future&lt;List&lt;Colecta&gt;&gt;
+      pendientes() async {
+    final rows = await (await db).query(
+      'colectas',
+      where: 'sincronizado = 0');
+    return rows.map(Colecta.fromMap).toList();
+  }
+}</div></div>
+<div><div class="callout callout-info" style="margin-bottom:10px;"><span class="callout-icon">📁</span><div class="callout-body">getApplicationDocumentsDirectory() devuelve la ruta correcta en cada plataforma — el código Dart es idéntico en Android e iOS.</div></div>
+<div class="callout callout-ok"><span class="callout-icon">✓</span><div class="callout-body">sincronizado = 0 en la consulta SQL filtra las colectas pendientes — base del sistema offline-first. Al sincronizar, actualizar a 1.</div></div>
+</div></div></div></div>
+
+<div class="slide slide-section"><div class="section-num">Hack</div><div class="section-title">GPS instantáneo +<br>foto 80KB en campo</div><div class="section-desc">getLastKnownPosition() + imageQuality: 30</div></div>
+
+<div class="slide slide-content"><div class="slide-label">Hack bueno de la clase</div><div class="slide-title">Formulario de colecta con GPS automático y foto comprimida</div><div class="slide-body">
+<div class="two-col"><div><div class="code-label">GPS automático al abrir el formulario</div>
+<div class="code-block">class _FormState extends State&lt;FormColecta&gt; {
+  LatLng? _pos;
+  String? _fotoPath;
+
+  @override
+  void initState() {
+    super.initState();
+    _cargarPosicion(); // GPS al abrir
+  }
+
+  Future&lt;void&gt; _cargarPosicion() async {
+    // Usar ultima posicion conocida
+    // (instantaneo, sin esperar fix nuevo)
+    final p =
+      await Geolocator.getLastKnownPosition()
+      ?? await Geolocator.getCurrentPosition();
+    setState(() =&gt; _pos =
+      LatLng(p.latitude, p.longitude));
+  }
+
+  Future&lt;void&gt; _tomarFoto() async {
+    final img = await ImagePicker()
+      .pickImage(
+        source: ImageSource.camera,
+        imageQuality: 30,  // 3MB -&gt; ~80KB
+        maxWidth: 1024,
+      );
+    if (img != null)
+      setState(() =&gt; _fotoPath = img.path);
+  }
+}</div></div>
+<div><div class="kv-list">
+<div class="kv"><span class="kv-key">imageQuality: 30</span><span class="kv-val">~80KB — detalle suficiente para documentar</span></div>
+<div class="kv"><span class="kv-key">imageQuality: 100</span><span class="kv-val">~3MB — innecesario en campo</span></div>
+<div class="kv"><span class="kv-key">Capacidad campo</span><span class="kv-val">1000 fotos en 80MB vs 3GB</span></div>
+</div>
+<div class="callout callout-ok" style="margin-top:10px;"><span class="callout-icon">⚡</span><div class="callout-body">getLastKnownPosition() es instantáneo — usa la posición en memoria. getCurrentPosition() puede tardar 5 segundos buscando fix. Siempre intentar last conocida primero.</div></div>
+</div></div></div></div>
+
+<div class="slide slide-content"><div class="slide-label">Offline-first</div><div class="slide-title">Guardar local + sincronizar cuando hay internet</div><div class="slide-body">
+<div class="two-col"><div><div class="code-label">Ciclo offline-first completo</div>
+<div class="code-block">// Al guardar la colecta:
+Future&lt;void&gt; guardarColecta(
+    Colecta c) async {
+  // Siempre guardar local primero
+  await ColectaDB.insertar(c
+    .copyWith(sincronizado: false));
+
+  // Intentar sincronizar si hay internet
+  final conn = await Connectivity()
+    .checkConnectivity();
+  if (conn != ConnectivityResult.none) {
+    await _sincronizar();
+  }
+}
+
+// Escuchar reconexion automaticamente
+void _listenConectividad() {
+  Connectivity().onConnectivityChanged
+    .listen((result) {
+      if (result != ConnectivityResult.none) {
+        _sincronizar();
+      }
+    });
+}
+
+Future&lt;void&gt; _sincronizar() async {
+  final pendientes =
+    await ColectaDB.pendientes();
+  for (final c in pendientes) {
+    // Publicar en GeoServer via REST
+    await _publicarEnGeoServer(c);
+    // Marcar como sincronizado
+    await ColectaDB.marcarSincronizado(c.id);
+  }
+}</div></div>
+<div><div class="callout callout-ok" style="margin-bottom:10px;"><span class="callout-icon">✓</span><div class="callout-body"><div class="callout-title">Flujo offline-first</div>1. Guardar en SQLite → 2. Intentar sincronizar → 3. Si no hay internet: esperar. 4. Al reconectar: sincronizar automáticamente. Nunca se pierde una colecta.</div></div>
+<div class="callout callout-info"><span class="callout-icon">📡</span><div class="callout-body">onConnectivityChanged es un Stream que emite cuando cambia la red — el dispositivo detecta la reconexión automáticamente y dispara la sincronización.</div></div>
+</div></div></div></div>
+
+<div class="slide slide-content"><div class="slide-label">IA como copiloto</div><div class="slide-title">Generar el modelo Colecta con Claude</div><div class="slide-body">
+<div class="callout callout-info" style="margin-bottom:14px;"><span class="callout-icon">💬</span><div class="callout-body"><em>"Genera el modelo Dart 'Colecta' con campos: id, tipo, descripcion, latitud, longitud, fotoPath, timestamp, sincronizado. Con toMap() y fromMap() para sqflite. Incluye validaciones básicas."</em></div></div>
+<div class="two-col"><div><div class="cards" style="gap:8px;">
+<div class="card card-gold"><div class="card-title">Lo que la IA hace bien</div><div class="card-desc">La estructura de la clase, los campos, el constructor, y la mayor parte de toMap()/fromMap(). Correcto al 85%.</div></div>
+<div class="card" style="border-color:var(--warn)"><div class="card-title">Errores típicos de la IA</div><div class="card-desc">1) Pasar bool directamente a SQLite sin convertir a 0/1. 2) Olvidar el campo sincronizado en el schema SQL. 3) No marcar latitud/longitud como NOT NULL en el CREATE TABLE.</div></div>
+</div></div>
+<div><div class="callout callout-warn"><span class="callout-icon">✓</span><div class="callout-body"><div class="callout-title">Checklist después de generar</div>Verificar: 1) sincronizado ? 1 : 0 en toMap(), 2) m['sincronizado'] == 1 en fromMap(), 3) REAL NOT NULL en latitud y longitud del schema SQL.</div></div></div>
+</div></div></div>
+
+<div class="slide slide-content"><div class="slide-label">Resumen</div><div class="slide-title">Lo que aprendiste hoy</div><div class="slide-body">
+<div class="two-col">
+<ul class="slide-list">
+<li>SQLite no tiene BOOLEAN — siempre convertir: sincronizado ? 1 : 0. La IA olvida esto</li>
+<li>toMap() para insertar en SQLite, fromMap() para reconstruir desde el resultado SQL</li>
+<li>getLastKnownPosition() es instantáneo vs getCurrentPosition() que puede tardar 5 segundos</li>
+<li>imageQuality: 30 comprime de 3MB a ~80KB — multiplica x37 la capacidad de almacenamiento en campo</li>
+<li>offline-first: guardar local siempre, sincronizar con sincronizado=0 cuando llega internet</li>
+<li>onConnectivityChanged dispara la sincronización automáticamente al reconectar</li>
+</ul>
+<div><div class="callout callout-info"><span class="callout-icon">🔥</span><div class="callout-body"><div class="callout-title">Próxima clase</div>Mapa de calor de tus colectas — los datos que brillan.</div></div></div>
+</div></div></div>
+
+<div class="slide slide-cover"><div class="cover-grid"></div>
+<div class="cover-tag"><span class="cover-dot"></span> Fin de la Clase 5</div>
+<h1 class="cover-title">Los datos están<br><em>guardados en campo.</em></h1>
+<p class="cover-sub">Próxima clase: visualiza tus colectas como mapa de calor.</p>
+<div style="max-width:460px;width:100%;position:relative;">
+<div class="quiz-cta"><div class="quiz-cta-text"><div class="quiz-cta-title">Cuestionario — Clase 5: Colecta de campo</div><div class="quiz-cta-sub">12 preguntas · 2 intentos</div></div><a href="test/collect.html" target="_blank">Ir al cuestionario →</a></div></div>
+<div class="cover-pills" style="margin-top:20px;"><span class="cover-pill">🗓 Próxima: Mapa de calor</span><span class="cover-pill">📦 Instala flutter_map_heatmap</span></div>
+</div>
+
+</div>
+<div class="navbar"><button class="nav-btn" id="btnPrev">← Anterior</button>
+<div class="nav-dots"><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button></div>
+<button class="nav-btn" id="btnNext">Siguiente →</button></div>
+</div><script src="assets/slides.js"></script></body></html>

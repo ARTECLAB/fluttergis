@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cuestionario · Clase 7 · GeoCollect · ARTECLAB</title>
+<link rel="stylesheet" href="assets/quiz.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="header-top">
+    <div class="logo-area"><span class="logo-badge">ARTECLAB</span><span class="logo-name">GeoCollect — Flutter GIS</span></div>
+    <button class="theme-toggle" id="themeToggle"><span class="toggle-icon">◐</span><span class="toggle-label">Oscuro</span></button>
+  </div>
+  <div class="course-banner">
+    <div class="course-meta">
+      <span class="class-tag">📱 Clase 7</span>
+      <h1 class="course-title">Arquitectura en 3 capas: la app que crece bien</h1>
+      <p class="course-subtitle">Cuestionario de práctica · 2 intentos · Nivel intermedio</p>
+    </div>
+    <div class="quiz-stats">
+      <div class="stat-pill"><span class="stat-num">12</span><span class="stat-label">Preguntas</span></div>
+      <div class="stat-pill"><span class="stat-num">100</span><span class="stat-label">Puntos</span></div>
+      <div class="stat-pill"><span class="stat-num">2</span><span class="stat-label">Intentos</span></div>
+    </div>
+  </div>
+  <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressFill"></div></div>
+</header>
+<main class="main-content">
+  <div class="intro-panel">
+    <h2>¿Cómo funciona este cuestionario?</h2>
+    <p>Cada pregunta tiene <strong>2 intentos</strong>. Primer intento correcto: puntaje completo. Segundo intento: la mitad.</p>
+    <div class="intro-rules">
+      <span class="rule-chip"><span class="dot"></span>Primer intento: puntaje completo</span>
+      <span class="rule-chip"><span class="dot"></span>Segundo intento: mitad del puntaje</span>
+      <span class="rule-chip"><span class="dot"></span>Puedes reiniciar cuando quieras</span>
+    </div>
+  </div>
+  <div id="quizContainer"></div>
+  <button class="btn-submit-all" id="btnSubmit" onclick="submitQuiz()" disabled>Ver mi resultado final →</button>
+  <div class="result-panel" id="resultPanel">
+    <div class="result-header">
+      <div class="result-score-circle"><span class="result-score-num" id="resFinalScore">0</span><span class="result-score-of">/ 100</span></div>
+      <div class="result-grade" id="resGrade">—</div><div class="result-desc" id="resDesc">—</div>
+    </div>
+    <div class="result-body">
+      <div class="result-stats-grid">
+        <div class="result-stat rs-correct"><span class="result-stat-num" id="resCorrect">0</span><span class="result-stat-label">Correctas a la primera</span></div>
+        <div class="result-stat rs-second"><span class="result-stat-num" id="resSecond">0</span><span class="result-stat-label">Correctas en 2.º intento</span></div>
+        <div class="result-stat rs-wrong"><span class="result-stat-num" id="resWrong">0</span><span class="result-stat-label">Sin responder bien</span></div>
+      </div>
+      <div class="breakdown-title">Detalle por pregunta</div>
+      <div id="breakdownList"></div>
+      <button class="btn-retry" onclick="retryQuiz()">Reiniciar cuestionario</button>
+    </div>
+  </div>
+</main>
+<footer class="site-footer">
+  <a href="https://flutter-gis.danielquisbert.com" target="_blank">flutter-gis.danielquisbert.com</a>
+  &nbsp;·&nbsp; Daniel Quisbert · ARTECLAB <span class="footer-year"></span>
+</footer>
+<script>
+window.QUIZ_QUESTIONS = [{"id": 1, "type": "Opcion multiple", "points": 8, "text": "En la arquitectura de 3 capas de GeoCollect, que responsabilidad tiene la capa UI?", "options": ["Acceder directamente a SQLite y construir la pantalla", "Solo construir pantallas y widgets, llamando a Services para la logica", "Gestionar el GPS y la conexion HTTP al mismo tiempo que la pantalla", "Abrir la base de datos y devolver los datos al usuario"], "correct": 1, "hint": "UI = interfaz de usuario. Solo se encarga de lo que el usuario ve.", "explanation": "La capa UI (lib/screens/ y lib/widgets/) solo construye pantallas y widgets. Nunca accede directamente a SQLite ni hace peticiones HTTP. Llama a la capa Services para cualquier logica de negocio. Esta separacion hace que el widget sea facil de leer y mantener."}, {"id": 2, "type": "Opcion multiple", "points": 8, "text": "Cual es la regla de oro de la arquitectura en 3 capas?", "options": ["Cada capa puede llamar a cualquier otra capa en cualquier direccion", "Las flechas solo bajan: UI llama a Services, Services llama a Data, nunca al reves", "Data puede llamar a Services si necesita validar datos", "Services puede importar widgets de Flutter para mostrar errores"], "correct": 1, "hint": "Las flechas solo bajan. Piensa en una cascada de agua.", "explanation": "La regla de oro es que las dependencias solo van hacia abajo: UI llama a Services, Services llama a Data. Nunca al reves. Si un archivo en la capa Data importa un widget de Flutter, o si Services llama a algo de la capa UI, la arquitectura esta rota."}, {"id": 3, "type": "Verdadero o Falso", "points": 8, "text": "En la arquitectura de 3 capas, el archivo colecta_db.dart puede importar widgets de Flutter como Scaffold o Text para mostrar mensajes de error.", "options": ["Verdadero: todos los archivos Dart pueden importar cualquier cosa", "Falso: colecta_db.dart es capa Data y nunca debe importar widgets de Flutter"], "correct": 1, "hint": "colecta_db.dart pertenece a la capa Data. Las flechas solo bajan.", "explanation": "FALSO. colecta_db.dart pertenece a la capa Data (lib/data/). Esta capa solo importa paquetes de datos como sqflite, path_provider y los modelos Dart. Si importa un widget de Flutter, estaremos rompiendo la arquitectura: Data estaría dependiendo de UI, y las flechas estarían subiendo."}, {"id": 4, "type": "Opcion multiple", "points": 8, "text": "Donde debe vivir la logica de calculo de distancia Haversine en la arquitectura de 3 capas?", "options": ["Directamente en MapScreen dentro del metodo build()", "En ColectaDb junto con las operaciones SQLite", "En GpsService dentro de la capa Services", "En main.dart para que este disponible globalmente"], "correct": 2, "hint": "Haversine es logica de negocio (calculo). No es UI, no es base de datos.", "explanation": "Haversine es logica de negocio: recibe dos LatLng y calcula una distancia. Eso pertenece a la capa Services, especificamente en GpsService. No es responsabilidad de la UI (MapScreen) ni de la base de datos (ColectaDb). Tenerlo en GpsService permite que cualquier pantalla lo use sin duplicar codigo."}, {"id": 5, "type": "Opcion multiple", "points": 8, "text": "Para que sirve StreamController.broadcast() en GpsService?", "options": ["Para guardar todas las posiciones GPS en memoria automaticamente", "Para que multiples widgets puedan escuchar el mismo stream GPS simultaneamente", "Para enviar el GPS directamente a GeoServer via HTTP", "Para pausar y reanudar el GPS sin cancelar la suscripcion"], "correct": 1, "hint": "broadcast() = transmision. Como la radio: muchos receptores, una sola fuente.", "explanation": "StreamController.broadcast() crea un stream que puede tener multiples suscriptores simultaneos. Asi, MapScreen (para dibujar la trayectoria), un panel de distancia y CollectScreen pueden todos escuchar la posicion GPS desde la misma fuente en GpsService, sin que cada uno tenga su propio stream GPS independiente."}, {"id": 6, "type": "Verdadero o Falso", "points": 8, "text": "MapScreen debe llamar directamente a Geolocator.getPositionStream() para obtener el GPS en la arquitectura de 3 capas.", "options": ["Verdadero: cada Screen gestiona sus propios recursos de sistema", "Falso: MapScreen llama a GpsService.posicion que ya encapsula el stream de geolocator"], "correct": 1, "hint": "MapScreen es capa UI. geolocator es logica de sistema. Que capa debe tenerlo?", "explanation": "FALSO. En la arquitectura de 3 capas, MapScreen (capa UI) no importa ni usa geolocator directamente. Llama a GpsService.posicion que devuelve un Stream. GpsService (capa Services) es quien encapsula geolocator, gestiona permisos y aplica distanceFilter. MapScreen solo escucha el resultado."}, {"id": 7, "type": "Opcion multiple", "points": 8, "text": "Cual es el tipo de retorno correcto para el metodo todas() de ColectaDb?", "options": ["Future<List<Map<String, dynamic>>> para devolver los datos crudos de SQLite", "Future<List<Colecta>> para devolver modelos Dart ya construidos", "Stream<Colecta> para escuchar cambios en tiempo real", "Widget para mostrar la lista directamente"], "correct": 1, "hint": "ColectaDb debe devolver modelos Dart, no datos crudos ni widgets.", "explanation": "Future<List<Colecta>> es el tipo correcto. ColectaDb convierte los Map que devuelve SQLite en objetos Colecta usando Colecta.fromMap(). La capa UI recibe objetos Dart tipados, no mapas crudos. Esto hace que el codigo de los Screens sea mas legible y seguro en cuanto a tipos."}, {"id": 8, "type": "Opcion multiple", "points": 8, "text": "Cuando la IA genera codigo para ColectaDb, que instruccion en el prompt mejora la calidad del resultado?", "options": ["\"Hazlo lo mas compacto posible\"", "\"Sin imports de Flutter, sin widgets, solo sqflite y el modelo Colecta\"", "\"Incluye la interfaz de usuario para mostrar los errores de SQL\"", "\"Usa Riverpod para gestionar el estado de la base de datos\""], "correct": 1, "hint": "La IA respeta los limites cuando el prompt los declara explicitamente.", "explanation": "Decirle a la IA 'sin imports de Flutter, sin widgets, solo sqflite y el modelo Colecta' produce codigo que respeta la arquitectura de 3 capas. Sin esta instruccion, la IA puede mezclar logica de negocio con UI o anadir dependencias innecesarias. El prompt define los limites de la capa."}, {"id": 9, "type": "Opcion multiple", "points": 8, "text": "Que debe contener main.dart en la arquitectura de 3 capas de GeoCollect?", "options": ["La inicializacion de SQLite, GpsService y todas las configuraciones de la app", "Solo runApp(GeoCollectApp()) sin frameworks de estado externos ni configuraciones complejas", "La definicion de todas las rutas y providers de la aplicacion", "La conexion inicial a GeoServer para verificar que el servidor esta activo"], "correct": 1, "hint": "main.dart es el punto de entrada. Debe ser lo mas simple posible.", "explanation": "main.dart solo tiene void main() => runApp(GeoCollectApp()); La inicializacion de servicios (GPS, SQLite) ocurre cuando cada Screen los necesita, no en main. Sin ProviderScope ni configuraciones complejas, main.dart queda en 5 lineas y es facil de entender."}, {"id": 10, "type": "Verdadero o Falso", "points": 8, "text": "Si hay que cambiar sqflite por otra base de datos local como Hive, en la arquitectura de 3 capas solo se modifica el archivo colecta_db.dart.", "options": ["Verdadero: la capa Data encapsula el storage, el resto de la app no cambia", "Falso: hay que modificar tambien todos los Screens que usan la base de datos"], "correct": 0, "hint": "Esa es exactamente la ventaja de separar en capas.", "explanation": "VERDADERO. Esa es la ventaja clave de la arquitectura en capas. ColectaDb es la unica clase que sabe como se almacenan los datos. Si cambias sqflite por Hive, modificas solo colecta_db.dart y los metodos siguen devolviendo List<Colecta>. MapScreen, CollectScreen y HeatmapScreen no saben ni sienten el cambio."}, {"id": 11, "type": "Opcion multiple", "points": 9, "text": "En que orden correcto se crean los archivos cuando se usa IA para generar la app por capas?", "options": ["Primero los Screens, luego los Services, luego los modelos", "Primero los modelos, luego Data, luego Services, finalmente los Screens", "Primero main.dart, luego todos los archivos juntos en un solo prompt", "No importa el orden: la IA puede generarlo todo junto sin problemas"], "correct": 1, "hint": "Las capas de abajo hacia arriba: primero los cimientos, luego lo que se apoya en ellos.", "explanation": "El orden correcto es de abajo hacia arriba: 1) Modelo Colecta (sin dependencias), 2) ColectaDb (depende del modelo), 3) GpsService y WmsService (pueden depender del modelo), 4) Screens (dependen de Services y Data). Asi cada prompt puede referenciar correctamente lo que ya existe."}, {"id": 12, "type": "Opcion multiple", "points": 9, "text": "Cual de estas afirmaciones describe mejor la diferencia entre GpsService y MapScreen en la arquitectura de 3 capas?", "options": ["GpsService muestra el mapa; MapScreen gestiona el GPS", "GpsService encapsula la logica GPS sin saber nada de la UI; MapScreen construye el mapa sin saber nada de geolocator", "Ambos hacen lo mismo pero en archivos separados para mayor claridad", "GpsService es mas rapido porque no tiene que renderizar widgets"], "correct": 1, "hint": "Cada uno sabe solo lo que le toca y no sabe nada de la responsabilidad del otro.", "explanation": "GpsService (capa Services) encapsula geolocator, permisos y Haversine. No importa flutter/material ni conoce MapController. MapScreen (capa UI) construye FlutterMap, PolylineLayer y los widgets. No importa geolocator ni conoce los detalles del GPS. Esa separacion limpia es exactamente el objetivo de la arquitectura en 3 capas."}];
+</script>
+<script src="assets/quiz.js"></script>
+</body>
+</html>

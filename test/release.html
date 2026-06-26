@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cuestionario · Clase 10 · GeoCollect · ARTECLAB</title>
+<link rel="stylesheet" href="assets/quiz.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="header-top">
+    <div class="logo-area"><span class="logo-badge">ARTECLAB</span><span class="logo-name">GeoCollect — Flutter GIS</span></div>
+    <button class="theme-toggle" id="themeToggle"><span class="toggle-icon">◐</span><span class="toggle-label">Oscuro</span></button>
+  </div>
+  <div class="course-banner">
+    <div class="course-meta">
+      <span class="class-tag">📱 Clase 10</span>
+      <h1 class="course-title">GeoCollect completa: proyecto final y publicación</h1>
+      <p class="course-subtitle">Cuestionario de práctica · 2 intentos · Nivel intermedio</p>
+    </div>
+    <div class="quiz-stats">
+      <div class="stat-pill"><span class="stat-num">12</span><span class="stat-label">Preguntas</span></div>
+      <div class="stat-pill"><span class="stat-num">100</span><span class="stat-label">Puntos</span></div>
+      <div class="stat-pill"><span class="stat-num">2</span><span class="stat-label">Intentos</span></div>
+    </div>
+  </div>
+  <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressFill"></div></div>
+</header>
+<main class="main-content">
+  <div class="intro-panel">
+    <h2>¿Cómo funciona este cuestionario?</h2>
+    <p>Cada pregunta tiene <strong>2 intentos</strong>. Primer intento correcto: puntaje completo. Segundo intento: la mitad.</p>
+    <div class="intro-rules">
+      <span class="rule-chip"><span class="dot"></span>Primer intento: puntaje completo</span>
+      <span class="rule-chip"><span class="dot"></span>Segundo intento: mitad del puntaje</span>
+      <span class="rule-chip"><span class="dot"></span>Puedes reiniciar cuando quieras</span>
+    </div>
+  </div>
+  <div id="quizContainer"></div>
+  <button class="btn-submit-all" id="btnSubmit" onclick="submitQuiz()" disabled>Ver mi resultado final →</button>
+  <div class="result-panel" id="resultPanel">
+    <div class="result-header">
+      <div class="result-score-circle"><span class="result-score-num" id="resFinalScore">0</span><span class="result-score-of">/ 100</span></div>
+      <div class="result-grade" id="resGrade">—</div><div class="result-desc" id="resDesc">—</div>
+    </div>
+    <div class="result-body">
+      <div class="result-stats-grid">
+        <div class="result-stat rs-correct"><span class="result-stat-num" id="resCorrect">0</span><span class="result-stat-label">Correctas a la primera</span></div>
+        <div class="result-stat rs-second"><span class="result-stat-num" id="resSecond">0</span><span class="result-stat-label">Correctas en 2.º intento</span></div>
+        <div class="result-stat rs-wrong"><span class="result-stat-num" id="resWrong">0</span><span class="result-stat-label">Sin responder bien</span></div>
+      </div>
+      <div class="breakdown-title">Detalle por pregunta</div>
+      <div id="breakdownList"></div>
+      <button class="btn-retry" onclick="retryQuiz()">Reiniciar cuestionario</button>
+    </div>
+  </div>
+</main>
+<footer class="site-footer">
+  <a href="https://flutter-gis.danielquisbert.com" target="_blank">flutter-gis.danielquisbert.com</a>
+  &nbsp;·&nbsp; Daniel Quisbert · ARTECLAB <span class="footer-year"></span>
+</footer>
+<script>
+window.QUIZ_QUESTIONS = [{"id": 1, "type": "Opcion multiple", "points": 8, "text": "Que flag de flutter build apk reduce el tamano del APK separando por arquitectura de procesador?", "options": ["--minimize", "--split-per-abi", "--compress", "--thin"], "correct": 1, "hint": "ABI = Application Binary Interface: la arquitectura del procesador (arm32, arm64, x86_64).", "explanation": "flutter build apk --release --split-per-abi genera 3 APKs: arm32 (~9MB), arm64 64-bit (~10MB) y x86_64 para emuladores. El APK universal pesa ~25MB; los por ABI ~9-10MB. El usuario descarga solo el que su dispositivo necesita."}, {"id": 2, "type": "Verdadero o Falso", "points": 8, "text": "flutter build apk --split-per-abi genera un unico APK universal mas pequeno que el APK normal.", "options": ["Verdadero: combina todas las arquitecturas en un APK optimizado", "Falso: genera multiples APKs (uno por arquitectura), cada uno mas pequeno porque solo incluye el codigo nativo de su arquitectura"], "correct": 1, "hint": "Split = dividir, no comprimir. En que se divide?", "explanation": "FALSO. --split-per-abi genera 3 APKs separados, cada uno con el codigo nativo solo para su arquitectura. El APK universal incluye las 3 arquitecturas concatenadas (~25MB). Los APKs por ABI son mas pequenos porque excluyen el codigo de arquitecturas que el dispositivo no usa."}, {"id": 3, "type": "Opcion multiple", "points": 8, "text": "Que paquete genera automaticamente los iconos de la app en todos los tamanos requeridos para Android e iOS?", "options": ["icon_generator", "flutter_app_icon", "flutter_launcher_icons", "auto_icon"], "correct": 2, "hint": "Su nombre describe exactamente su funcion: genera los iconos de lanzador (launcher) de la app.", "explanation": "flutter_launcher_icons genera automaticamente todos los tamanos de icono para Android (mipmap-*dpi) e iOS (AppIcon.appiconset) desde una sola imagen de 1024x1024px. Elimina el trabajo manual de crear mas de 20 tamanos distintos."}, {"id": 4, "type": "Opcion multiple", "points": 8, "text": "Que hace la obfuscacion de codigo Dart en una app Flutter de produccion?", "options": ["Cifra los datos almacenados en SQLite", "Renombra clases, metodos y variables con nombres sin significado, dificultando la ingenieria inversa del binario", "Reduce el tamano del APK eliminando codigo no usado", "Ofusca las coordenadas GPS almacenadas en el GeoJSON"], "correct": 1, "hint": "Obfuscar = hacer oscuro/ilegible. Que se hace ilegible?", "explanation": "flutter build apk --obfuscate --split-debug-info=./symbols renombra todas las clases y metodos en el binario final, haciendo que el codigo descompilado sea incomprensible. Los symbols necesarios para leer stack traces se guardan en ./symbols y no se distribuyen."}, {"id": 5, "type": "Opcion multiple", "points": 8, "text": "Cual es la diferencia entre flutter build apk y flutter build appbundle para publicar en Play Store?", "options": ["No hay diferencia: ambos generan el mismo archivo", "APK es para distribucion directa; App Bundle permite a Google Play optimizar el APK para cada dispositivo con menor tamano de descarga", "App Bundle solo funciona para iOS; APK es solo para Android", "APK es mas rapido de compilar que App Bundle"], "correct": 1, "hint": "La Play Store recomienda .aab desde 2021. Por que?", "explanation": "APK: archivo completo instalable directamente, incluye recursos para todos los dispositivos (~25MB). App Bundle (.aab): Google Play genera APKs optimizados para cada dispositivo, solo con los recursos de su pantalla y arquitectura (aprox 40% mas pequeno). Play Store exige .aab para nuevas apps desde 2021."}, {"id": 6, "type": "Verdadero o Falso", "points": 8, "text": "El flag --obfuscate de Flutter modifica el codigo fuente Dart del proyecto del desarrollador.", "options": ["Verdadero: --obfuscate tambien modifica el codigo fuente del proyecto", "Falso: --obfuscate solo afecta el binario compilado (APK/IPA); el codigo fuente permanece intacto"], "correct": 1, "hint": "Modifica los archivos .dart del proyecto o el resultado compilado?", "explanation": "FALSO. --obfuscate opera solo sobre el proceso de compilacion, modificando el binario resultante. El codigo fuente Dart permanece completamente intacto. Es un paso de post-compilacion, no una modificacion del codigo fuente."}, {"id": 7, "type": "Opcion multiple", "points": 8, "text": "Que archivo de un proyecto Flutter define el nombre de la app, version, descripcion y lista de dependencias?", "options": ["main.dart", "AndroidManifest.xml", "pubspec.yaml", "build.gradle"], "correct": 2, "hint": "Es un archivo YAML en la raiz del proyecto. Su nombre incluye spec de especificacion.", "explanation": "pubspec.yaml es el archivo de configuracion central de Flutter: name, description, version (1.0.0+1 donde +1 es el buildNumber), sdk constraints, y la seccion dependencies con todos los paquetes del curso."}, {"id": 8, "type": "Opcion multiple", "points": 8, "text": "Como se verifica que GeoCollect funciona correctamente en modo release antes de distribuirla?", "options": ["Solo probando en el emulador de Android Studio", "flutter run --release en un dispositivo fisico conectado", "Subiendo directamente a Play Store", "Usando flutter test en modo release"], "correct": 1, "hint": "El modo release tiene optimizaciones y comportamientos distintos al modo debug.", "explanation": "flutter run --release instala y ejecuta la app en modo release en un dispositivo fisico conectado. Fundamental porque las optimizaciones de Dart (tree-shaking, obfuscation, AOT compilation) pueden revelar bugs que no aparecen en debug."}, {"id": 9, "type": "Opcion multiple", "points": 8, "text": "Que informacion esencial debe incluir el README.md de GeoCollect como proyecto Flutter GIS?", "options": ["Solo el nombre y la descripcion", "Descripcion, capturas de pantalla, instrucciones de instalacion/build, dependencias clave, estructura del proyecto y creditos", "Solo el listado de packages de pubspec.yaml", "Las coordenadas GPS de prueba usadas en desarrollo"], "correct": 1, "hint": "Un README es la primera impresion del proyecto. Que necesita saber alguien que lo encuentra por primera vez?", "explanation": "Un README profesional incluye: descripcion, capturas de pantalla de la app, requisitos (Flutter version, plataformas), instrucciones de instalacion y build, descripcion de dependencias clave, estructura de carpetas de lib/, instrucciones de uso basico, y creditos: Instructor Daniel Quisbert, ARTECLAB."}, {"id": 10, "type": "Verdadero o Falso", "points": 8, "text": "Una app Flutter compilada en modo release tiene mejor rendimiento que la misma app en modo debug.", "options": ["Verdadero: release usa compilacion AOT y optimizaciones que debug no aplica", "Falso: ambos modos tienen el mismo rendimiento en un dispositivo real"], "correct": 0, "hint": "Debug incluye informacion para depuracion; release la elimina y aplica optimizaciones agresivas.", "explanation": "VERDADERO. En modo debug Flutter usa un interprete JIT para hot reload. En release usa compilacion AOT (Ahead of Time), tree-shaking y todas las optimizaciones del compilador Dart, resultando en apps 5-10 veces mas rapidas y mucho menores en tamano."}, {"id": 11, "type": "Opcion multiple", "points": 9, "text": "Que significa la version 1.0.0+1 en el pubspec.yaml de GeoCollect?", "options": ["1.0.0 es el nombre interno; +1 es el precio en la tienda", "1.0.0 es la version semantica (mayor.menor.parche); +1 es el buildNumber para la tienda de apps", "Solo el buildNumber importa; 1.0.0 es decorativo", "Es la version de Flutter SDK requerida"], "correct": 1, "hint": "Version semantica mas buildNumber. Para que usa Play Store el buildNumber?", "explanation": "En pubspec.yaml: 1.0.0 es la version semantica visible al usuario (mayor.menor.parche). +1 es el versionCode de Android y buildNumber de iOS, un entero que debe incrementarse en cada upload a la tienda. La Play Store rechaza uploads con el mismo buildNumber que uno anterior."}, {"id": 12, "type": "Opcion multiple", "points": 9, "text": "Que ventaja tiene que los estudiantes publiquen sus colectas en GeoServer via REST API en la Clase 10?", "options": ["Solo es un ejercicio tecnico sin valor practico", "Las colectas de todos los estudiantes se acumulan en una sola capa WMS visible en el mapa del instructor: resultado visual inmediato del trabajo grupal", "GeoServer requiere publicacion via REST API obligatoriamente", "Es mas seguro que compartir archivos GeoJSON individualmente"], "correct": 1, "hint": "Que pasa cuando 20 estudiantes publican sus puntos en la misma capa?", "explanation": "Al publicar todas las colectas en la misma capa de GeoServer, el instructor puede mostrar en pantalla el mapa con todos los puntos de la clase, creando un mapa de calor colectivo en tiempo real. Es el momento mas impactante del curso."}];
+</script>
+<script src="assets/quiz.js"></script>
+</body>
+</html>

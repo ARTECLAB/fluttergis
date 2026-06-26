@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cuestionario · Clase 1 · GeoCollect · ARTECLAB</title>
+<link rel="stylesheet" href="assets/quiz.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="header-top">
+    <div class="logo-area">
+      <span class="logo-badge">ARTECLAB</span>
+      <span class="logo-name">GeoCollect — Flutter GIS</span>
+    </div>
+    <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema">
+      <span class="toggle-icon" aria-hidden="true">◐</span>
+      <span class="toggle-label">Oscuro</span>
+    </button>
+  </div>
+  <div class="course-banner">
+    <div class="course-meta">
+      <span class="class-tag">📱 Módulo 1 · Clase 1</span>
+      <h1 class="course-title">El mapa que late:<br>flutter_map desde cero</h1>
+      <p class="course-subtitle">Cuestionario de práctica · 2 intentos · Nivel intermedio</p>
+    </div>
+    <div class="quiz-stats">
+      <div class="stat-pill"><span class="stat-num">12</span><span class="stat-label">Preguntas</span></div>
+      <div class="stat-pill"><span class="stat-num">100</span><span class="stat-label">Puntos</span></div>
+      <div class="stat-pill"><span class="stat-num">2</span><span class="stat-label">Intentos</span></div>
+    </div>
+  </div>
+  <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressFill"></div></div>
+</header>
+<main class="main-content">
+  <div class="intro-panel">
+    <h2>¿Cómo funciona este cuestionario?</h2>
+    <p>Cada pregunta tiene <strong>2 intentos</strong>. Primer intento correcto: puntaje completo. Segundo intento: la mitad. Al finalizar verás tu nota con retroalimentación detallada.</p>
+    <div class="intro-rules">
+      <span class="rule-chip"><span class="dot"></span>Primer intento: puntaje completo</span>
+      <span class="rule-chip"><span class="dot"></span>Segundo intento: mitad del puntaje</span>
+      <span class="rule-chip"><span class="dot"></span>Puedes reiniciar cuando quieras</span>
+    </div>
+  </div>
+  <div id="quizContainer"></div>
+  <button class="btn-submit-all" id="btnSubmit" onclick="submitQuiz()" disabled>Ver mi resultado final →</button>
+  <div class="result-panel" id="resultPanel">
+    <div class="result-header">
+      <div class="result-score-circle"><span class="result-score-num" id="resFinalScore">0</span><span class="result-score-of">/ 100</span></div>
+      <div class="result-grade" id="resGrade">—</div>
+      <div class="result-desc" id="resDesc">—</div>
+    </div>
+    <div class="result-body">
+      <div class="result-stats-grid">
+        <div class="result-stat rs-correct"><span class="result-stat-num" id="resCorrect">0</span><span class="result-stat-label">Correctas a la primera</span></div>
+        <div class="result-stat rs-second"><span class="result-stat-num" id="resSecond">0</span><span class="result-stat-label">Correctas en 2.º intento</span></div>
+        <div class="result-stat rs-wrong"><span class="result-stat-num" id="resWrong">0</span><span class="result-stat-label">Sin responder bien</span></div>
+      </div>
+      <div class="breakdown-title">Detalle por pregunta</div>
+      <div id="breakdownList"></div>
+      <button class="btn-retry" onclick="retryQuiz()">Reiniciar cuestionario</button>
+    </div>
+  </div>
+</main>
+<footer class="site-footer">
+  <a href="https://flutter-gis.danielquisbert.com" target="_blank">flutter-gis.danielquisbert.com</a>
+  &nbsp;·&nbsp; Daniel Quisbert · ARTECLAB <span class="footer-year"></span>
+</footer>
+<script>
+window.QUIZ_QUESTIONS = [
+  {id:1,type:"Opción múltiple",points:8,text:"¿Cuál es el paquete principal que usamos para mostrar mapas interactivos en Flutter sin API key?",options:["google_maps_flutter","mapbox_gl","flutter_map","arcgis_maps"],correct:2,hint:"Es el paquete número 1 sin fines comerciales de Flutter, 100% open source y compatible con OpenStreetMap.",explanation:"flutter_map es la librería de mapas más popular de Flutter sin costo ni API key. Funciona con cualquier proveedor de tiles XYZ (OSM, CartoDB, Stamen, etc.) y es la base de todo el curso GeoCollect."},
+  {id:2,type:"Opción múltiple",points:8,text:"¿Qué clase de flutter_map representa una coordenada geográfica (latitud y longitud)?",options:["GeoPoint","Coordinate","LatLng","MapLocation"],correct:2,hint:"Es una clase de dos valores: latitud primero, longitud después. Viene del paquete latlong2.",explanation:"LatLng(lat, lon) es la unidad básica de posición en flutter_map. Siempre latitud primero, longitud segundo. Viene del paquete complementario latlong2 y se usa en marcadores, polígonos, rutas y centros de cámara."},
+  {id:3,type:"Verdadero / Falso",points:8,text:"flutter_map requiere una API key de Google para mostrar tiles de OpenStreetMap.",options:["Verdadero — todos los proveedores de mapas requieren autenticación","Falso — OSM es de acceso libre y flutter_map no necesita API key para usarlo"],correct:1,hint:"OSM (OpenStreetMap) es un proyecto colaborativo de datos abiertos. ¿Necesitaría una clave privada?",explanation:"FALSO. OpenStreetMap es un proyecto de datos abiertos y sus tiles son de acceso libre (con uso razonable). flutter_map puede usarlos directamente con la URL de teselas sin ninguna clave de API. Google Maps sí requiere API key, por eso preferimos flutter_map en este curso."},
+  {id:4,type:"Opción múltiple",points:8,text:"¿Qué widget de flutter_map añade marcadores (pines) sobre el mapa?",options:["PinLayer","MarkerLayer","PointLayer","IconLayer"],correct:1,hint:"El nombre sigue la convención de flutter_map: tipo de elemento + Layer.",explanation:"MarkerLayer es el widget que recibe una lista de objetos Marker y los dibuja sobre el mapa en sus coordenadas LatLng. Cada Marker puede tener un widget personalizado como child: Icon, Container, Image, etc."},
+  {id:5,type:"Opción múltiple",points:8,text:"¿Qué propiedad de MapOptions define dónde se centra el mapa al abrirse?",options:["center","initialCenter","startPosition","origin"],correct:1,hint:"El nombre lleva el prefijo 'initial' porque es el valor solo en la primera carga.",explanation:"initialCenter: LatLng(-16.50, -68.15) centra el mapa en La Paz al iniciar. El prefijo 'initial' indica que es el estado de inicio — después el usuario puede mover el mapa libremente. Sin este parámetro, el mapa arranca centrado en el mar."},
+  {id:6,type:"Verdadero / Falso",points:8,text:"Para detectar si el sistema operativo está en modo oscuro en Flutter se usa MediaQuery.of(context).platformBrightness == Brightness.dark.",options:["Verdadero — MediaQuery expone el brillo del sistema operativo","Falso — hay que usar un paquete externo para detectar el tema del sistema"],correct:0,hint:"MediaQuery da acceso a información del entorno del dispositivo, incluyendo el brillo/tema actual.",explanation:"VERDADERO. MediaQuery.of(context).platformBrightness devuelve Brightness.dark o Brightness.light según la configuración del sistema. Esto nos permite cambiar automáticamente el mapa base (OSM claro → CartoDB Dark Matter) sin que el usuario configure nada."},
+  {id:7,type:"Opción múltiple",points:8,text:"¿Cuál es la URL de tiles de CartoDB Dark Matter para un mapa oscuro?",options:["https://tile.openstreetmap.org/{z}/{x}/{y}.png","https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png","https://maps.googleapis.com/dark/{z}/{x}/{y}","https://tiles.mapbox.com/v4/dark/{z}/{x}/{y}.png"],correct:1,hint:"CartoDB ofrece estilos light y dark. El estilo oscuro se llama dark_all y usa subdominios {s}.",explanation:"https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png es la URL del estilo Dark Matter de CartoDB. Los subdominios {s} permiten paralelizar la descarga de tiles. Este URL es gratuito para proyectos no comerciales con atribución correcta."},
+  {id:8,type:"Opción múltiple",points:8,text:"¿Qué objeto de flutter_map controla la cámara del mapa (posición, zoom, rotación) programáticamente?",options:["MapCamera","CameraPosition","MapController","ViewState"],correct:2,hint:"Es un controlador — su nombre sigue el patrón *Controller de Flutter (TextEditingController, ScrollController, etc.).",explanation:"MapController permite mover y animar el mapa desde código: mapController.move(LatLng(-16.50, -68.15), 14). Se crea con MapController() y se pasa a FlutterMap mediante el parámetro mapController. Es esencial para centrar el mapa en el GPS del usuario."},
+  {id:9,type:"Opción múltiple",points:8,text:"¿Qué propiedad del widget TileLayer define la plantilla de URL del proveedor de tiles?",options:["source","urlTemplate","tileUrl","mapUrl"],correct:1,hint:"El nombre describe exactamente lo que es: una plantilla (template) de URL con variables {z}, {x}, {y}.",explanation:"urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png' es el parámetro que define el proveedor de teselas. Las variables {z} (zoom), {x} e {y} (coordenadas de la tesela) son reemplazadas automáticamente por flutter_map al pedir cada tile."},
+  {id:10,type:"Verdadero / Falso",points:8,text:"flutter_map solo funciona en Android y no puede compilarse para iOS o Web.",options:["Verdadero — flutter_map es exclusivo para Android","Falso — flutter_map es multiplataforma: Android, iOS, Web, Desktop"],correct:1,hint:"Flutter como framework es multiplataforma. ¿Un paquete 100% Dart podría ser solo para Android?",explanation:"FALSO. flutter_map es 100% puro Flutter/Dart, sin código nativo. Funciona en Android, iOS, Web, macOS, Windows y Linux con el mismo código. Es una de sus mayores ventajas sobre google_maps_flutter (que tiene restricciones en Web y Desktop)."},
+  {id:11,type:"Opción múltiple",points:9,text:"¿Cuál es la forma correcta de cambiar el mapa base en tiempo real sin reiniciar el widget FlutterMap?",options:["Destruir y recrear el widget FlutterMap completo","Usar setState() para actualizar el urlTemplate del TileLayer","Llamar a mapController.reload()","Reiniciar la app con un hot restart"],correct:1,hint:"En Flutter, setState() marca el widget para reconstruirse. Solo los widgets cuyo estado cambió se reconstruyen.",explanation:"Con setState(() { _tileUrl = nuevoUrl; }) Flutter reconstruye solo el TileLayer con la nueva URL, manteniendo la posición y zoom del mapa. No se destruye el FlutterMap — solo el TileLayer se reemplaza. Esto da una transición suave entre mapas base."},
+  {id:12,type:"Opción múltiple",points:9,text:"Al comparar flutter_map con google_maps_flutter, ¿cuál es la principal ventaja de flutter_map para un curso de GIS?",options:["flutter_map tiene mejor rendimiento en todos los casos","flutter_map no requiere API key ni cuenta de Google y es compatible con GeoServer WMS","flutter_map tiene más funciones de navegación turn-by-turn","flutter_map consume menos batería del dispositivo"],correct:1,hint:"Piensa en las restricciones de google_maps_flutter: facturación, API keys, y soporte de servicios OGC estándar.",explanation:"flutter_map no requiere API key ni cuenta de facturación de Google. Más importante aún: soporta nativamentecualquier proveedor de tiles XYZ y capas WMS — incluido GeoServer. google_maps_flutter no puede consumir servicios WMS directamente, lo que lo hace inadecuado para un curso de GIS con GeoServer."}
+];
+</script>
+<script src="assets/quiz.js"></script>
+</body>
+</html>
