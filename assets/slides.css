@@ -709,7 +709,7 @@ html, body {
 .is-name  { font-size: 12px; font-weight: 700; color: var(--text); }
 .is-role  { font-size: 11px; color: var(--muted); }
 
-/* ── FLUTTER GIS THEME OVERRIDE ──────────────────────────── */
+/* ── Flutter+GIS THEME OVERRIDE ──────────────────────────── */
 :root {
   --accent: #006A6A;
   --accent-light: #00938F;

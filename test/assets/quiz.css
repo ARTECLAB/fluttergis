@@ -704,7 +704,7 @@ body {
   .q-header      { padding: 16px 16px 12px; }
 }
 
-/* ── FLUTTER GIS THEME OVERRIDE ──────────────────────────── */
+/* ── Flutter+GIS THEME OVERRIDE ──────────────────────────── */
 :root {
   --accent: #006A6A;
   --accent-light: #00938F;
