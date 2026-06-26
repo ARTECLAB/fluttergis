@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fundamentos · Flutter GIS · ARTECLAB</title>
+<style>
+/* ── RESET ──────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --navy:        #0D1B3E;
+  --navy-light:  #1E3464;
+  --gold:        #C89B3C;
+  --gold-light:  #E8B84B;
+  --gold-pale:   #F5E6C0;
+  --teal:        #006A6A;
+  --teal-light:  #4DD0CC;
+  --teal-pale:   #E0F2F1;
+  --bg:          #F4F6FA;
+  --card:        #FFFFFF;
+  --border:      #E2E8F0;
+  --text:        #0D1B3E;
+  --muted:       #5A6478;
+  --code-bg:     #0D1B3E;
+  --code-text:   #E8EDF8;
+  --ok:          #1A6B3A;
+  --ok-bg:       #E8F5EE;
+  --info:        #1A4A8B;
+  --info-bg:     #E8F0FB;
+  --warn:        #7A5200;
+  --warn-bg:     #FFF8E6;
+  --r: 10px;
+  --t: 0.2s ease;
+}
+[data-theme="dark"] {
+  --bg:        #080F20;
+  --card:      #0D1B3E;
+  --border:    #1E3464;
+  --text:      #E8EDF8;
+  --muted:     #8A97B4;
+  --code-bg:   #060E1F;
+  --code-text: #E8EDF8;
+  --gold-pale: #1A1200;
+  --teal-pale: #002928;
+  --ok-bg:     #081A0E;
+  --info-bg:   #080F20;
+  --warn-bg:   #1A1200;
+  --ok:        #4ABA7A;
+  --info:      #6B9FE4;
+  --warn:      #E8B84B;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Segoe UI', system-ui, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  transition: background var(--t), color var(--t);
+}
+
+/* ── TOGGLE ─────────────────────────────────────────────── */
+.toggle-wrap { position: fixed; top: 16px; right: 20px; z-index: 200; }
+.theme-btn {
+  background: rgba(13,27,62,0.88);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 20px; padding: 5px 12px;
+  cursor: pointer; color: rgba(255,255,255,0.6);
+  font-size: 11px; font-family: inherit;
+  display: flex; align-items: center; gap: 5px;
+  transition: border-color .2s, color .2s;
+}
+.theme-btn:hover { border-color: var(--teal-light); color: var(--teal-light); }
+
+/* ── HERO ────────────────────────────────────────────────── */
+.hero {
+  background: var(--navy);
+  padding: 64px 24px 52px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(0,106,106,0.09) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,106,106,0.09) 1px, transparent 1px);
+  background-size: 44px 44px;
+  pointer-events: none;
+}
+.hero-inner { position: relative; max-width: 600px; margin: 0 auto; }
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: rgba(0,106,106,0.18);
+  border: 1px solid rgba(77,208,204,0.3);
+  border-radius: 20px; padding: 4px 14px;
+  color: var(--teal-light); font-size: 11px;
+  font-weight: 700; letter-spacing: 1.2px;
+  text-transform: uppercase; margin-bottom: 20px;
+}
+.badge-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--teal-light);
+  animation: blink 2.4s ease-in-out infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+.hero-title { color: #fff; font-size: 34px; font-weight: 700; line-height: 1.2; margin-bottom: 14px; }
+.hero-title em { color: var(--teal-light); font-style: normal; }
+.hero-desc { color: rgba(255,255,255,0.42); font-size: 15px; line-height: 1.75; margin-bottom: 28px; }
+.hero-pills { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.hero-pill {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px; padding: 5px 14px;
+  font-size: 12px; color: rgba(255,255,255,0.5);
+}
+
+/* ── LAYOUT ──────────────────────────────────────────────── */
+.page { max-width: 760px; margin: 0 auto; padding: 52px 24px 80px; }
+
+/* ── SECCIONES ───────────────────────────────────────────── */
+.section { margin-bottom: 56px; }
+.section-label {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--teal); margin-bottom: 6px; display: block;
+}
+[data-theme="dark"] .section-label { color: var(--teal-light); }
+.section-title {
+  font-size: 20px; font-weight: 700;
+  color: var(--text); margin-bottom: 4px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--teal);
+  display: inline-block;
+}
+[data-theme="dark"] .section-title { border-bottom-color: var(--teal-light); }
+.section-desc { font-size: 14px; color: var(--muted); margin-bottom: 20px; margin-top: 10px; line-height: 1.65; }
+
+/* ── CONCEPT CARDS ───────────────────────────────────────── */
+.concept-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px; margin-bottom: 20px;
+}
+.concept-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 18px;
+  transition: background var(--t), border-color var(--t);
+}
+.concept-card:hover { border-color: var(--teal); }
+.concept-icon { font-size: 22px; margin-bottom: 10px; display: block; }
+.concept-name { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 5px; }
+.concept-desc { font-size: 12px; color: var(--muted); line-height: 1.6; }
+
+/* ── CALLOUTS ────────────────────────────────────────────── */
+.callout {
+  border-radius: 8px; padding: 14px 16px;
+  font-size: 13px; line-height: 1.65;
+  display: flex; gap: 12px; align-items: flex-start;
+  margin-bottom: 12px;
+  transition: background var(--t);
+}
+.callout-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+.callout-body { flex: 1; }
+.callout-title { font-weight: 700; margin-bottom: 3px; font-size: 12px; }
+.callout-ok   { background: var(--ok-bg);   color: var(--ok);   border-left: 3px solid #2D8A52; }
+.callout-info { background: var(--info-bg); color: var(--info); border-left: 3px solid #3A7FD4; }
+.callout-warn { background: var(--warn-bg); color: var(--warn); border-left: 3px solid #C89B3C; }
+.callout-teal { background: var(--teal-pale); color: var(--teal); border-left: 3px solid var(--teal); }
+[data-theme="dark"] .callout-teal { color: var(--teal-light); }
+
+/* ── CODE ────────────────────────────────────────────────── */
+.code-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 6px;
+}
+.code-block {
+  background: var(--code-bg);
+  border-radius: 8px; padding: 16px 18px;
+  font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+  font-size: 13px; line-height: 1.7;
+  color: var(--code-text);
+  overflow-x: auto; white-space: pre;
+  margin-bottom: 16px;
+}
+.code-block .c  { color: #6A8FAF; }
+.code-block .k  { color: var(--gold-light); }
+.code-block .s  { color: #98D982; }
+.code-block .n  { color: #7EC8E3; }
+.code-block .cm { color: #4DD0CC; }
+
+/* ── LINKS ───────────────────────────────────────────────── */
+.links-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px; margin-top: 16px;
+}
+.link-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 14px 16px;
+  text-decoration: none;
+  display: flex; align-items: center; gap: 12px;
+  transition: background var(--t), border-color .15s, transform .15s;
+}
+.link-card:hover { border-color: var(--teal); transform: translateY(-2px); }
+.link-icon { font-size: 20px; flex-shrink: 0; }
+.link-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.link-url   { font-size: 11px; color: var(--teal); }
+[data-theme="dark"] .link-url { color: var(--teal-light); }
+
+/* ── CHECK LIST ──────────────────────────────────────────── */
+.check-list { display: flex; flex-direction: column; gap: 8px; }
+.check-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 8px; padding: 12px 14px;
+  font-size: 13px; color: var(--text);
+  transition: background var(--t), border-color var(--t);
+}
+.check-mark {
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--teal-pale); color: var(--teal);
+  font-size: 11px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 1px;
+}
+[data-theme="dark"] .check-mark { background: rgba(77,208,204,0.1); color: var(--teal-light); }
+.check-text { flex: 1; line-height: 1.5; }
+.check-bold { font-weight: 700; }
+.check-sub  { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+/* ── FOOTER ──────────────────────────────────────────────── */
+.site-footer {
+  background: var(--navy); padding: 18px 28px;
+  display: flex; align-items: center;
+  justify-content: space-between; gap: 10px; flex-wrap: wrap;
+}
+.footer-badge {
+  background: var(--gold); color: var(--navy);
+  font-size: 9px; font-weight: 700; letter-spacing: 1.2px;
+  text-transform: uppercase; padding: 2px 8px; border-radius: 4px;
+}
+.footer-left { display: flex; align-items: center; gap: 10px; }
+.footer-copy { font-size: 11px; color: rgba(255,255,255,0.3); }
+.footer-copy a { color: var(--gold); text-decoration: none; }
+.footer-right { font-size: 11px; color: rgba(255,255,255,0.3); }
+
+/* ── RESPONSIVE ──────────────────────────────────────────── */
+@media (max-width: 560px) {
+  .hero { padding: 52px 20px 44px; }
+  .hero-title { font-size: 26px; }
+  .page { padding: 36px 18px 60px; }
+  .site-footer { justify-content: center; text-align: center; }
+}
+</style>
+</head>
+<body>
+
+<div class="toggle-wrap">
+  <button class="theme-btn" id="themeBtn">
+    <span class="t-icon">◐</span>
+    <span class="t-label">Oscuro</span>
+  </button>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      Flutter GIS · ARTECLAB · Material de repaso
+    </div>
+    <h1 class="hero-title">Fundamentos<br><em>antes de empezar</em></h1>
+    <p class="hero-desc">
+      Conceptos esenciales, ejemplos mínimos y recursos clave para llegar
+      preparado al curso GeoCollect. Revisa este material el fin de semana anterior.
+    </p>
+    <div class="hero-pills">
+      <span class="hero-pill">📱 Flutter básico</span>
+      <span class="hero-pill">🎯 Dart esencial</span>
+      <span class="hero-pill">🗺️ Conceptos GIS</span>
+      <span class="hero-pill">⏱ 2–3 horas de repaso</span>
+    </div>
+  </div>
+</section>
+
+<!-- CONTENIDO -->
+<div class="page">
+
+  <!-- 1. DART ESENCIAL ──────────────────────────────────── -->
+  <section class="section">
+    <span class="section-label">Bloque 1</span>
+    <h2 class="section-title">Dart esencial</h2>
+    <p class="section-desc">
+      El curso usa Dart constantemente. No necesitas ser experto, pero sí debes
+      sentirte cómodo con estas construcciones. Si alguna te resulta extraña, repásala antes.
+    </p>
+
+    <div class="callout callout-teal" style="margin-bottom:18px;">
+      <span class="callout-icon">💡</span>
+      <div class="callout-body">
+        <div class="callout-title">¿Por qué Dart?</div>
+        Flutter está escrito en Dart. Es el lenguaje que usamos para construir la app GIS:
+        el mapa, el GPS, la base de datos y la exportación a GeoJSON son todos Dart puro.
+      </div>
+    </div>
+
+    <div class="code-label">Repaso rápido — lo que usarás en el curso</div>
+    <div class="code-block"><span class="c">// Variables y tipos</span>
+<span class="k">String</span>  nombre = <span class="s">'La Paz'</span>;
+<span class="k">double</span>  lat    = -16.5000;
+<span class="k">int</span>     zoom   = 12;
+<span class="k">bool</span>    activo = <span class="k">true</span>;
+<span class="k">var</span>     ciudad = <span class="s">'Cochabamba'</span>; <span class="c">// Dart infiere el tipo</span>
+
+<span class="c">// Funciones</span>
+<span class="k">double</span> calcularDistancia(<span class="k">double</span> lat1, <span class="k">double</span> lon1) {
+  <span class="k">return</span> lat1 * lon1; <span class="c">// simplificado</span>
+}
+
+<span class="c">// Future — operación asíncrona (resultado único)</span>
+Future&lt;<span class="k">String</span>&gt; obtenerDato() <span class="k">async</span> {
+  <span class="k">await</span> Future.delayed(Duration(seconds: 1));
+  <span class="k">return</span> <span class="s">'Bolivia'</span>;
+}
+
+<span class="c">// Stream — flujo continuo de valores (ej: GPS)</span>
+Stream&lt;<span class="k">double</span>&gt; temperaturaStream() <span class="k">async</span>* {
+  <span class="k">while</span> (<span class="k">true</span>) {
+    <span class="k">yield</span> 25.0; <span class="c">// emite un valor</span>
+    <span class="k">await</span> Future.delayed(Duration(seconds: 1));
+  }
+}
+
+<span class="c">// List — la usamos para trayectorias GPS</span>
+<span class="k">final</span> puntos = &lt;String&gt;[<span class="s">'A'</span>, <span class="s">'B'</span>, <span class="s">'C'</span>];
+puntos.add(<span class="s">'D'</span>);
+puntos.where((p) =&gt; p != <span class="s">'B'</span>).toList();
+
+<span class="c">// Map — lo usamos para SQLite y GeoJSON</span>
+<span class="k">final</span> colecta = &lt;String, dynamic&gt;{
+  <span class="s">'tipo'</span>: <span class="s">'árbol'</span>,
+  <span class="s">'latitud'</span>: -16.50,
+  <span class="s">'timestamp'</span>: 1700000000,
+};</div>
+
+    <div class="concept-grid">
+      <div class="concept-card">
+        <span class="concept-icon">🔄</span>
+        <div class="concept-name">Future vs Stream</div>
+        <div class="concept-desc"><strong>Future:</strong> un solo resultado. Como una foto. <strong>Stream:</strong> muchos resultados en el tiempo. Como un video. El GPS es un Stream.</div>
+      </div>
+      <div class="concept-card">
+        <span class="concept-icon">⚡</span>
+        <div class="concept-name">async / await</div>
+        <div class="concept-desc">Marcar una función como <code>async</code> permite usar <code>await</code> dentro. El código espera sin congelar la app.</div>
+      </div>
+      <div class="concept-card">
+        <span class="concept-icon">📦</span>
+        <div class="concept-name">Map&lt;String, dynamic&gt;</div>
+        <div class="concept-desc">El tipo de datos más frecuente del curso. SQLite devuelve Maps. GeoJSON es un Map. Aprende a leerlos y escribirlos.</div>
+      </div>
+    </div>
+
+    <div class="links-grid">
+      <a class="link-card" href="https://dart.dev/language" target="_blank">
+        <span class="link-icon">🎯</span>
+        <div><div class="link-title">Tour de Dart</div><div class="link-url">dart.dev/language</div></div>
+      </a>
+      <a class="link-card" href="https://dart.dev/codelabs/async-await" target="_blank">
+        <span class="link-icon">🔄</span>
+        <div><div class="link-title">async/await en Dart</div><div class="link-url">dart.dev/codelabs/async-await</div></div>
+      </a>
+      <a class="link-card" href="https://dartpad.dev" target="_blank">
+        <span class="link-icon">▶️</span>
+        <div><div class="link-title">DartPad — Dart en el navegador</div><div class="link-url">dartpad.dev</div></div>
+      </a>
+    </div>
+  </section>
+
+  <!-- 2. FLUTTER BÁSICO ────────────────────────────────── -->
+  <section class="section">
+    <span class="section-label">Bloque 2</span>
+    <h2 class="section-title">Flutter básico</h2>
+    <p class="section-desc">
+      El curso no enseña Flutter desde cero — asume que ya sabes crear un proyecto
+      y construir widgets básicos. Esto es lo mínimo que debes dominar.
+    </p>
+
+    <div class="check-list">
+      <div class="check-item">
+        <div class="check-mark">✓</div>
+        <div class="check-text">
+          <div class="check-bold">Crear un proyecto Flutter con flutter create</div>
+          <div class="check-sub">Conocer la estructura: lib/, pubspec.yaml, android/, ios/</div>
+        </div>
+      </div>
+      <div class="check-item">
+        <div class="check-mark">✓</div>
+        <div class="check-text">
+          <div class="check-bold">StatefulWidget y StatelessWidget</div>
+          <div class="check-sub">Saber cuándo usar cada uno y cómo funciona setState()</div>
+        </div>
+      </div>
+      <div class="check-item">
+        <div class="check-mark">✓</div>
+        <div class="check-text">
+          <div class="check-bold">Widgets básicos: Column, Row, Container, Text, Icon, ElevatedButton</div>
+          <div class="check-sub">Construir layouts simples sin errores de overflow</div>
+        </div>
+      </div>
+      <div class="check-item">
+        <div class="check-mark">✓</div>
+        <div class="check-text">
+          <div class="check-bold">FutureBuilder y StreamBuilder</div>
+          <div class="check-sub">Son los widgets que conectan datos asíncronos con la UI — los usaremos todo el curso</div>
+        </div>
+      </div>
+      <div class="check-item">
+        <div class="check-mark">✓</div>
+        <div class="check-text">
+          <div class="check-bold">Añadir paquetes en pubspec.yaml y ejecutar flutter pub get</div>
+          <div class="check-sub">El curso instala: flutter_map, geolocator, sqflite, connectivity_plus y más</div>
+        </div>
+      </div>
+      <div class="check-item">
+        <div class="check-mark">✓</div>
+        <div class="check-text">
+          <div class="check-bold">Ejecutar la app en un emulador o dispositivo físico</div>
+          <div class="check-sub">Tener Android Studio o VS Code configurado con Flutter SDK instalado</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-label" style="margin-top:20px;">El patrón StreamBuilder — aparece en la Clase 2 del curso</div>
+    <div class="code-block"><span class="c">// StreamBuilder escucha un Stream y reconstruye la UI</span>
+<span class="c">// cuando llega un nuevo valor — perfecto para GPS</span>
+StreamBuilder&lt;<span class="k">double</span>&gt;(
+  stream: miStream, <span class="c">// Stream que emite valores</span>
+  builder: (context, snapshot) {
+    <span class="k">if</span> (!snapshot.hasData) {
+      <span class="k">return</span> CircularProgressIndicator();
+    }
+    <span class="k">return</span> Text(<span class="s">'Valor: ${snapshot.data}'</span>);
+  },
+)</div>
+
+    <div class="links-grid">
+      <a class="link-card" href="https://docs.flutter.dev/get-started/install" target="_blank">
+        <span class="link-icon">⚙️</span>
+        <div><div class="link-title">Instalar Flutter SDK</div><div class="link-url">docs.flutter.dev/get-started/install</div></div>
+      </a>
+      <a class="link-card" href="https://docs.flutter.dev/ui/widgets-intro" target="_blank">
+        <span class="link-icon">🧩</span>
+        <div><div class="link-title">Introducción a widgets</div><div class="link-url">docs.flutter.dev/ui/widgets-intro</div></div>
+      </a>
+      <a class="link-card" href="https://docs.flutter.dev/data-and-backend/state-mgmt/declarative" target="_blank">
+        <span class="link-icon">🔄</span>
+        <div><div class="link-title">Estado en Flutter</div><div class="link-url">docs.flutter.dev — state mgmt</div></div>
+      </a>
+    </div>
+  </section>
+
+  <!-- 3. CONCEPTOS GIS ─────────────────────────────────── -->
+  <section class="section">
+    <span class="section-label">Bloque 3</span>
+    <h2 class="section-title">Conceptos GIS esenciales</h2>
+    <p class="section-desc">
+      No necesitas ser geógrafo. Pero sí entender qué son coordenadas,
+      qué diferencia hay entre WMS y WFS, y por qué GeoJSON usa [lon, lat]
+      al revés de lo que parecería lógico.
+    </p>
+
+    <div class="concept-grid">
+      <div class="concept-card">
+        <span class="concept-icon">📍</span>
+        <div class="concept-name">Coordenadas geográficas</div>
+        <div class="concept-desc"><strong>Latitud:</strong> norte/sur (−90 a 90). <strong>Longitud:</strong> este/oeste (−180 a 180). La Paz: lat −16.50, lon −68.15. Dart usa siempre LatLng(lat, lon).</div>
+      </div>
+      <div class="concept-card">
+        <span class="concept-icon">🔢</span>
+        <div class="concept-name">Niveles de zoom</div>
+        <div class="concept-desc">Zoom 1 = planeta entero. Zoom 6 = país. Zoom 12 = ciudad. Zoom 16 = calle. Más zoom = más teselas = más detalle.</div>
+      </div>
+      <div class="concept-card">
+        <span class="concept-icon">🖼️</span>
+        <div class="concept-name">WMS — imagen renderizada</div>
+        <div class="concept-desc">El servidor GeoServer dibuja el mapa y devuelve un PNG. Rápido para mostrar, pero no puedes tocar ni leer los datos.</div>
+      </div>
+      <div class="concept-card">
+        <span class="concept-icon">📦</span>
+        <div class="concept-name">WFS — datos vectoriales</div>
+        <div class="concept-desc">GeoServer devuelve los datos crudos en GeoJSON. Puedes tocar cada polígono, leer atributos y analizarlos en la app.</div>
+      </div>
+      <div class="concept-card">
+        <span class="concept-icon">🧩</span>
+        <div class="concept-name">Tiles / Teselas</div>
+        <div class="concept-desc">El mapa se divide en imágenes de 256×256px llamadas teselas. flutter_map las descarga y ensambla automáticamente.</div>
+      </div>
+      <div class="concept-card">
+        <span class="concept-icon">📄</span>
+        <div class="concept-name">GeoJSON</div>
+        <div class="concept-desc">Formato estándar para datos geoespaciales en JSON. Un Feature tiene <code>geometry</code> (la forma) y <code>properties</code> (los atributos).</div>
+      </div>
+    </div>
+
+    <div class="callout callout-warn">
+      <span class="callout-icon">⚠️</span>
+      <div class="callout-body">
+        <div class="callout-title">El error más frecuente del curso</div>
+        GeoJSON usa <strong>[longitud, latitud]</strong> — al revés de LatLng(latitud, longitud) de flutter_map.
+        Si tus puntos aparecen en el océano, es este error. Recuérdalo: GeoJSON = [lon, lat].
+      </div>
+    </div>
+
+    <div class="code-label" style="margin-top:16px;">Estructura de un GeoJSON — lo exportaremos en la Clase 9</div>
+    <div class="code-block">{
+  <span class="cm">"type"</span>: <span class="s">"FeatureCollection"</span>,
+  <span class="cm">"features"</span>: [
+    {
+      <span class="cm">"type"</span>: <span class="s">"Feature"</span>,
+      <span class="cm">"geometry"</span>: {
+        <span class="cm">"type"</span>: <span class="s">"Point"</span>,
+        <span class="k">// ⚠ GeoJSON: [longitud, latitud]</span>
+        <span class="cm">"coordinates"</span>: [-68.1500, -16.5000]
+      },
+      <span class="cm">"properties"</span>: {
+        <span class="cm">"tipo"</span>: <span class="s">"árbol"</span>,
+        <span class="cm">"especie"</span>: <span class="s">"Molle"</span>
+      }
+    }
+  ]
+}</div>
+
+    <div class="links-grid">
+      <a class="link-card" href="https://geojson.io" target="_blank">
+        <span class="link-icon">🗺️</span>
+        <div><div class="link-title">geojson.io — editor visual</div><div class="link-url">geojson.io</div></div>
+      </a>
+      <a class="link-card" href="https://epsg.io/4326" target="_blank">
+        <span class="link-icon">🌐</span>
+        <div><div class="link-title">EPSG:4326 — sistema de coordenadas</div><div class="link-url">epsg.io/4326</div></div>
+      </a>
+      <a class="link-card" href="https://www.openstreetmap.org" target="_blank">
+        <span class="link-icon">🗺️</span>
+        <div><div class="link-title">OpenStreetMap — mapa base del curso</div><div class="link-url">openstreetmap.org</div></div>
+      </a>
+    </div>
+  </section>
+
+  <!-- 4. HERRAMIENTAS ──────────────────────────────────── -->
+  <section class="section">
+    <span class="section-label">Bloque 4</span>
+    <h2 class="section-title">Herramientas que debes tener instaladas</h2>
+    <p class="section-desc">Verifica que todo funciona antes de la primera clase.</p>
+
+    <div class="check-list">
+      <div class="check-item">
+        <div class="check-mark">1</div>
+        <div class="check-text">
+          <div class="check-bold">Flutter SDK (versión 3.27 o superior)</div>
+          <div class="check-sub">Ejecutar <code>flutter doctor</code> en la terminal. Debe mostrar todo en verde.</div>
+        </div>
+      </div>
+      <div class="check-item">
+        <div class="check-mark">2</div>
+        <div class="check-text">
+          <div class="check-bold">Android Studio o VS Code con extensión Flutter</div>
+          <div class="check-sub">Con al menos un emulador Android configurado (API 29 o superior recomendado).</div>
+        </div>
+      </div>
+      <div class="check-item">
+        <div class="check-mark">3</div>
+        <div class="check-text">
+          <div class="check-bold">Acceso al GeoServer del curso</div>
+          <div class="check-sub">El instructor compartirá la URL y credenciales antes de la Clase 3.</div>
+        </div>
+      </div>
+      <div class="check-item">
+        <div class="check-mark">4</div>
+        <div class="check-text">
+          <div class="check-bold">Dispositivo Android físico (opcional pero recomendado)</div>
+          <div class="check-sub">Para las clases de GPS en campo. El emulador no simula GPS real de forma confiable.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-ok" style="margin-top:18px;">
+      <span class="callout-icon">✓</span>
+      <div class="callout-body">
+        <div class="callout-title">Verificación rápida</div>
+        Crea un proyecto vacío con <code>flutter create prueba_gis</code>,
+        añade <code>flutter_map: ^8.0.0</code> al pubspec.yaml,
+        ejecuta <code>flutter pub get</code> y corre la app de ejemplo.
+        Si funciona, estás listo para el curso.
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. GLOSARIO RÁPIDO ───────────────────────────────── -->
+  <section class="section" style="margin-bottom:0;">
+    <span class="section-label">Glosario</span>
+    <h2 class="section-title">Términos clave del curso</h2>
+    <p class="section-desc">Palabras que aparecerán desde la primera clase.</p>
+
+    <div class="check-list">
+      <div class="check-item">
+        <div class="check-mark" style="font-size:9px;width:26px;height:26px;">LatLng</div>
+        <div class="check-text">
+          <div class="check-bold">LatLng(latitud, longitud)</div>
+          <div class="check-sub">La unidad básica de posición en flutter_map. Siempre lat primero, lon segundo.</div>
+        </div>
+      </div>
+      <div class="check-item">
+        <div class="check-mark" style="font-size:9px;width:26px;height:26px;">OSM</div>
+        <div class="check-text">
+          <div class="check-bold">OpenStreetMap</div>
+          <div class="check-sub">Mapa colaborativo y libre. Lo usamos como mapa base sin pagar ni registrarse.</div>
+        </div>
+      </div>
+      <div class="check-item">
+        <div class="check-mark" style="font-size:9px;width:26px;height:26px;">WMS</div>
+        <div class="check-text">
+          <div class="check-bold">Web Map Service</div>
+          <div class="check-sub">Estándar OGC. GeoServer devuelve una imagen PNG del mapa. Clases 3 del curso.</div>
+        </div>
+      </div>
+      <div class="check-item">
+        <div class="check-mark" style="font-size:9px;width:26px;height:26px;">WFS</div>
+        <div class="check-text">
+          <div class="check-bold">Web Feature Service</div>
+          <div class="check-sub">Estándar OGC. GeoServer devuelve datos vectoriales en GeoJSON. Clase 4.</div>
+        </div>
+      </div>
+      <div class="check-item">
+        <div class="check-mark" style="font-size:9px;width:26px;height:26px;">FMTC</div>
+        <div class="check-text">
+          <div class="check-bold">Flutter Map Tile Caching</div>
+          <div class="check-sub">Paquete para cachear y pre-descargar tiles. Permite usar el mapa sin internet. Clase 8.</div>
+        </div>
+      </div>
+      <div class="check-item">
+        <div class="check-mark" style="font-size:9px;width:26px;height:26px;">CQL</div>
+        <div class="check-text">
+          <div class="check-bold">Common Query Language</div>
+          <div class="check-sub">Filtros de GeoServer. Ejemplo: <code>departamento='LA PAZ'</code> para mostrar solo ese departamento.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="footer-left">
+    <span class="footer-badge">ARTECLAB</span>
+    <span class="footer-copy">
+      © <span class="auto-year"></span>
+      <a href="https://danielquisbert.com" target="_blank"> Daniel Quisbert</a>
+      · Material de repaso — Flutter GIS
+    </span>
+  </div>
+  <div class="footer-right">fluttergis.danielquisbert.com · <span class="auto-year"></span></div>
+</footer>
+
+<script>
+(function () {
+  var KEY = 'arteclab-theme';
+  function applyTheme(t) {
+    document.documentElement.setAttribute('data-theme', t);
+    localStorage.setItem(KEY, t);
+    var btn = document.getElementById('themeBtn');
+    btn.querySelector('.t-icon').textContent  = t === 'dark' ? '☀' : '◐';
+    btn.querySelector('.t-label').textContent = t === 'dark' ? 'Claro' : 'Oscuro';
+  }
+  document.addEventListener('DOMContentLoaded', function () {
+    var saved = localStorage.getItem(KEY);
+    var dark  = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    applyTheme(saved || (dark ? 'dark' : 'light'));
+    document.getElementById('themeBtn').addEventListener('click', function () {
+      applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    });
+    var y = new Date().getFullYear();
+    document.querySelectorAll('.auto-year').forEach(function(el){ el.textContent = y; });
+  });
+})();
+</script>
+</body>
+</html>
