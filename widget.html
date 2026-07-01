@@ -99,38 +99,10 @@ dependencies:
     );
   }
 }</div>
-<div class="callout callout-ok" style="margin-top:8px;"><span class="callout-icon">✓</span><div class="callout-body"><div class="callout-title">userAgentPackageName</div>Obligatorio en flutter_map 8.x. Usa el mismo package name de tu pubspec.yaml.</div></div>
-</div>
-<div><div class="code-label">El método _markerCurso()</div>
-<div class="code-block">Marker _markerCurso() {
-  <span class="k">return</span> Marker(
-    point: <span class="n">_laPaz</span>,
-    width: 40,
-    height: 40,
-    <span class="c">// El puntero señala</span>
-    <span class="c">// la coordenada exacta</span>
-    alignment: Alignment.topCenter,
-    child: Tooltip(
-      message: <span class="s">'ARTECLAB'</span>,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Color(<span class="n">0xFF006A6A</span>),
-          shape: BoxShape.circle,
-          boxShadow: [BoxShadow(
-            color: Colors.black26,
-            blurRadius: 4,
-          )],
-        ),
-        child: Icon(
-          Icons.location_on,
-          color: Colors.white,
-          size: 22,
-        ),
-      ),
-    ),
-  );
-}</div>
-<div class="callout callout-info" style="margin-top:8px;"><span class="callout-icon">🗺️</span><div class="callout-body"><div class="callout-title">La Paz en coordenadas</div>Latitud: -16.5000 · Longitud: -68.1500. Siempre lat primero, lon segundo en LatLng.</div></div>
+<div>
+<div class="callout callout-ok" style="margin-bottom:10px;"><span class="callout-icon">✓</span><div class="callout-body"><div class="callout-title">userAgentPackageName</div>Obligatorio en flutter_map 8.x. Usa el mismo package name de tu pubspec.yaml.</div></div>
+<div class="callout callout-info" style="margin-bottom:10px;"><span class="callout-icon">🗺️</span><div class="callout-body"><div class="callout-title">La Paz en coordenadas</div>Latitud: -16.5000 · Longitud: -68.1500. Siempre lat primero, lon segundo en LatLng.</div></div>
+<div class="callout callout-warn"><span class="callout-icon">👇</span><div class="callout-body"><div class="callout-title">_markerCurso()</div>El detalle completo del marcador lo vemos en el siguiente slide — lo generamos con la IA y corregimos el error que siempre olvida.</div></div>
 </div></div></div></div>
 
 <div class="slide slide-section"><div class="section-num">Hack #1</div><div class="section-title">Dark map automático:<br>el mapa que sabe el tema</div><div class="section-desc">CartoDB Dark Matter cuando el SO está en modo oscuro — sin que el usuario configure nada</div></div>
@@ -175,7 +147,7 @@ dependencies:
 <div class="callout callout-info"><span class="callout-icon">🌐</span><div class="callout-body"><div class="callout-title">Subdominios de CartoDB</div>Los subdominios a, b, c, d permiten paralizar la descarga de tiles usando 4 servidores simultáneos — el mapa carga 4x más rápido.</div></div>
 </div></div></div></div>
 
-<div class="slide slide-content"><div class="slide-label">IA como copiloto</div><div class="slide-title">Generamos el marcador con Claude</div><div class="slide-body">
+<div class="slide slide-content"><div class="slide-label">IA como copiloto</div><div class="slide-title">Generamos el marcador con la IA</div><div class="slide-body">
 <div class="two-col">
 <div><div class="code-label">Prompt que usamos</div>
 <div class="callout callout-info" style="margin-bottom:12px;"><span class="callout-icon">💬</span><div class="callout-body"><em>"Genera un widget Marker de flutter_map 8.x para mostrar en La Paz Bolivia (-16.50, -68.15). El marcador debe ser un Container circular con color teal, un ícono de ubicación blanco y un tooltip con el texto 'ARTECLAB'. Incluye el ancla correcta para que el puntero apunte al lugar exacto."</em></div></div>
