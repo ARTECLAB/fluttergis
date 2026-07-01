@@ -90,8 +90,38 @@ dependencies:
             <span class="s">'https://tile.openstreetmap.org/{z}/{x}/{y}.png'</span>,
           userAgentPackageName: <span class="s">'com.arteclab.geocollect'</span>,
         ),
-        MarkerLayer(markers: [_markerCurso(ctx)]),
+        MarkerLayer(markers: [_markerCurso()]),
       ],
+    );
+  }
+
+  <span class="c">// Marcador del curso — apunta a La Paz</span>
+  Marker _markerCurso() {
+    <span class="k">return</span> Marker(
+      point: <span class="n">_laPaz</span>,
+      width: 40,
+      height: 40,
+      <span class="c">// alignment hace que el puntero</span>
+      <span class="c">// señale la coordenada exacta</span>
+      alignment: Alignment.topCenter,
+      child: Tooltip(
+        message: <span class="s">'ARTECLAB'</span>,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Color(<span class="n">0xFF006A6A</span>),
+            shape: BoxShape.circle,
+            boxShadow: [BoxShadow(
+              color: Colors.black26,
+              blurRadius: 4,
+            )],
+          ),
+          child: Icon(
+            Icons.location_on,
+            color: Colors.white,
+            size: 22,
+          ),
+        ),
+      ),
     );
   }
 }</div></div>
