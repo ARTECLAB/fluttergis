@@ -67,13 +67,14 @@ dependencies:
 
 <div class="slide slide-content"><div class="slide-label">Primer mapa</div><div class="slide-title">El widget FlutterMap — estructura mínima</div><div class="slide-body">
 <div class="two-col">
-<div><div class="code-label">lib/main.dart</div>
+<div><div class="code-label">FlutterMap + TileLayer + MarkerLayer</div>
 <div class="code-block"><span class="k">import</span> <span class="s">'package:flutter/material.dart'</span>;
 <span class="k">import</span> <span class="s">'package:flutter_map/flutter_map.dart'</span>;
 <span class="k">import</span> <span class="s">'package:latlong2/latlong2.dart'</span>;
 
 <span class="k">class</span> <span class="n">MapaScreen</span> extends StatelessWidget {
-  <span class="k">static const</span> <span class="n">_laPaz</span> = LatLng(-16.5000, -68.1500);
+  <span class="k">static const</span> <span class="n">_laPaz</span> =
+    LatLng(-16.5000, -68.1500);
 
   @override
   Widget build(BuildContext ctx) {
@@ -86,48 +87,50 @@ dependencies:
       ),
       children: [
         TileLayer(
-          urlTemplate:
-            <span class="s">'https://tile.openstreetmap.org/{z}/{x}/{y}.png'</span>,
-          userAgentPackageName: <span class="s">'com.arteclab.geocollect'</span>,
+          urlTemplate: <span class="s">'https://tile'</span>
+            <span class="s">'.openstreetmap.org'</span>
+            <span class="s">'/{z}/{x}/{y}.png'</span>,
+          userAgentPackageName:
+            <span class="s">'com.arteclab.geocollect'</span>,
         ),
-        MarkerLayer(markers: [_markerCurso()]),
+        MarkerLayer(
+          markers: [_markerCurso()]),
       ],
     );
   }
-
-  <span class="c">// Marcador del curso — apunta a La Paz</span>
-  Marker _markerCurso() {
-    <span class="k">return</span> Marker(
-      point: <span class="n">_laPaz</span>,
-      width: 40,
-      height: 40,
-      <span class="c">// alignment hace que el puntero</span>
-      <span class="c">// señale la coordenada exacta</span>
-      alignment: Alignment.topCenter,
-      child: Tooltip(
-        message: <span class="s">'ARTECLAB'</span>,
-        child: Container(
-          decoration: BoxDecoration(
-            color: Color(<span class="n">0xFF006A6A</span>),
-            shape: BoxShape.circle,
-            boxShadow: [BoxShadow(
-              color: Colors.black26,
-              blurRadius: 4,
-            )],
-          ),
-          child: Icon(
-            Icons.location_on,
-            color: Colors.white,
-            size: 22,
-          ),
+}</div>
+<div class="callout callout-ok" style="margin-top:8px;"><span class="callout-icon">✓</span><div class="callout-body"><div class="callout-title">userAgentPackageName</div>Obligatorio en flutter_map 8.x. Usa el mismo package name de tu pubspec.yaml.</div></div>
+</div>
+<div><div class="code-label">El método _markerCurso()</div>
+<div class="code-block">Marker _markerCurso() {
+  <span class="k">return</span> Marker(
+    point: <span class="n">_laPaz</span>,
+    width: 40,
+    height: 40,
+    <span class="c">// El puntero señala</span>
+    <span class="c">// la coordenada exacta</span>
+    alignment: Alignment.topCenter,
+    child: Tooltip(
+      message: <span class="s">'ARTECLAB'</span>,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Color(<span class="n">0xFF006A6A</span>),
+          shape: BoxShape.circle,
+          boxShadow: [BoxShadow(
+            color: Colors.black26,
+            blurRadius: 4,
+          )],
+        ),
+        child: Icon(
+          Icons.location_on,
+          color: Colors.white,
+          size: 22,
         ),
       ),
-    );
-  }
-}</div></div>
-<div>
-<div class="callout callout-ok" style="margin-bottom:10px;"><span class="callout-icon">✓</span><div class="callout-body"><div class="callout-title">userAgentPackageName</div>Obligatorio en flutter_map 8.x para identificar tu app ante los servidores de tiles. Usa el mismo package name de tu pubspec.yaml.</div></div>
-<div class="callout callout-info"><span class="callout-icon">🗺️</span><div class="callout-body"><div class="callout-title">La Paz en coordenadas</div>Latitud: -16.5000 (sur del ecuador), Longitud: -68.1500 (oeste de Greenwich). Siempre: lat primero, lon segundo en LatLng.</div></div>
+    ),
+  );
+}</div>
+<div class="callout callout-info" style="margin-top:8px;"><span class="callout-icon">🗺️</span><div class="callout-body"><div class="callout-title">La Paz en coordenadas</div>Latitud: -16.5000 · Longitud: -68.1500. Siempre lat primero, lon segundo en LatLng.</div></div>
 </div></div></div></div>
 
 <div class="slide slide-section"><div class="section-num">Hack #1</div><div class="section-title">Dark map automático:<br>el mapa que sabe el tema</div><div class="section-desc">CartoDB Dark Matter cuando el SO está en modo oscuro — sin que el usuario configure nada</div></div>
