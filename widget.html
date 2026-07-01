@@ -67,29 +67,28 @@ dependencies:
 
 <div class="slide slide-content"><div class="slide-label">Primer mapa</div><div class="slide-title">El widget FlutterMap — estructura mínima</div><div class="slide-body">
 <div class="two-col">
-<div><div class="code-label">FlutterMap + TileLayer + MarkerLayer</div>
-<div class="code-block"><span class="k">import</span> <span class="s">'package:flutter/material.dart'</span>;
-<span class="k">import</span> <span class="s">'package:flutter_map/flutter_map.dart'</span>;
+<div><div class="code-label">lib/screens/mapa_screen.dart</div>
+<div class="code-block" style="font-size:11px;line-height:1.55;"><span class="k">import</span> <span class="s">'package:flutter_map/flutter_map.dart'</span>;
 <span class="k">import</span> <span class="s">'package:latlong2/latlong2.dart'</span>;
 
 <span class="k">class</span> <span class="n">MapaScreen</span> extends StatelessWidget {
-  <span class="k">static const</span> <span class="n">_laPaz</span> =
+  <span class="k">static const</span> _laPaz =
     LatLng(-16.5000, -68.1500);
 
   @override
-  Widget build(BuildContext ctx) {
-    <span class="k">return</span> FlutterMap(
+  Widget build(BuildContext ctx) =&gt;
+    FlutterMap(
       options: MapOptions(
-        initialCenter: <span class="n">_laPaz</span>,
+        initialCenter: _laPaz,
         initialZoom: 12,
         minZoom: 5,
         maxZoom: 18,
       ),
       children: [
         TileLayer(
-          urlTemplate: <span class="s">'https://tile'</span>
-            <span class="s">'.openstreetmap.org'</span>
-            <span class="s">'/{z}/{x}/{y}.png'</span>,
+          urlTemplate:
+            <span class="s">'https://tile.openstreetmap'</span>
+            <span class="s">'.org/{z}/{x}/{y}.png'</span>,
           userAgentPackageName:
             <span class="s">'com.arteclab.geocollect'</span>,
         ),
@@ -97,12 +96,19 @@ dependencies:
           markers: [_markerCurso()]),
       ],
     );
-  }
-}</div>
+
+  Marker _markerCurso() =&gt; Marker(
+    point: _laPaz,
+    width: 40, height: 40,
+    alignment: Alignment.topCenter,
+    child: Icon(Icons.location_on,
+      color: Color(0xFF006A6A), size: 32),
+  );
+}</div></div>
 <div>
 <div class="callout callout-ok" style="margin-bottom:10px;"><span class="callout-icon">✓</span><div class="callout-body"><div class="callout-title">userAgentPackageName</div>Obligatorio en flutter_map 8.x. Usa el mismo package name de tu pubspec.yaml.</div></div>
-<div class="callout callout-info" style="margin-bottom:10px;"><span class="callout-icon">🗺️</span><div class="callout-body"><div class="callout-title">La Paz en coordenadas</div>Latitud: -16.5000 · Longitud: -68.1500. Siempre lat primero, lon segundo en LatLng.</div></div>
-<div class="callout callout-warn"><span class="callout-icon">👇</span><div class="callout-body"><div class="callout-title">_markerCurso()</div>El detalle completo del marcador lo vemos en el siguiente slide — lo generamos con la IA y corregimos el error que siempre olvida.</div></div>
+<div class="callout callout-info" style="margin-bottom:10px;"><span class="callout-icon">🗺️</span><div class="callout-body"><div class="callout-title">La Paz en coordenadas</div>Latitud: -16.5000 · Longitud: -68.1500. Siempre lat primero, lon segundo.</div></div>
+<div class="callout callout-warn"><span class="callout-icon">👇</span><div class="callout-body"><div class="callout-title">alignment: Alignment.topCenter</div>Sin esto el marcador flota encima del punto. Lo vemos en detalle en el siguiente slide con la IA.</div></div>
 </div></div></div></div>
 
 <div class="slide slide-section"><div class="section-num">Hack #1</div><div class="section-title">Dark map automático:<br>el mapa que sabe el tema</div><div class="section-desc">CartoDB Dark Matter cuando el SO está en modo oscuro — sin que el usuario configure nada</div></div>
