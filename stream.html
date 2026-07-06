@@ -207,10 +207,10 @@
 <div class="callout callout-info" style="margin-top:10px;"><span class="callout-icon">📱</span><div class="callout-body"><div class="callout-title">Para este curso</div>Usamos <strong>primer plano</strong> — el usuario tiene la app abierta y visible mientras colecta datos. El rastreo en background queda como tema avanzado fuera del alcance de GeoCollect.</div></div>
 </div></div></div></div>
 
-<!-- 8. POLYLINE -->
-<div class="slide slide-content"><div class="slide-label">Trayectoria en el mapa</div><div class="slide-title">StreamBuilder + PolylineLayer</div><div class="slide-body">
+<!-- 8A. STREAMBUILDER + MAPCONTROLLER -->
+<div class="slide slide-content"><div class="slide-label">Trayectoria en el mapa · Parte 1 de 2</div><div class="slide-title">StreamBuilder + MapController — escuchando el GPS</div><div class="slide-body">
 <div class="two-col">
-<div><div class="code-label">lib/screens/mapa_screen.dart — build()</div>
+<div><div class="code-label">lib/screens/mapa_screen.dart — build(), parte 1</div>
 <div class="code-block" style="font-size:11px;"><span class="k">final</span> _trayectoria = &lt;LatLng&gt;[];
 <span class="k">final</span> _ctrl = MapController();
 
@@ -233,27 +233,42 @@ Widget build(BuildContext ctx) {
           initialZoom: 15,
         ),
         children: [
-          TileLayer(urlTemplate:
-            <span class="s">'https://tile.openstreetmap'</span>
-            <span class="s">'.org/{z}/{x}/{y}.png'</span>,
-            userAgentPackageName:
-              <span class="s">'com.arteclab.geocollect'</span>),
-          PolylineLayer(polylines: [
-            Polyline(
-              points: _trayectoria,
-              color: Color(<span class="n">0xFF006A6A</span>),
-              strokeWidth: <span class="n">4</span>)]),
-          MarkerLayer(markers: [
-            <span class="k">if</span> (snap.hasData)
-              _markerPosicion(snap.data!),
-          ]),
+          <span class="c">// las capas van aquí — parte 2 →</span>
         ],
       );
     },
   );
 }</div></div>
 <div>
-<div class="callout callout-ok" style="margin-bottom:10px;"><span class="callout-icon">✓</span><div class="callout-body"><div class="callout-title">Código listo para copiar</div>Este es el <code>build()</code> completo. Funciona con el <code>GpsService</code> de la diapositiva anterior — sin <code>...</code> ni partes faltantes.</div></div>
+<div class="callout callout-info" style="margin-bottom:10px;"><span class="callout-icon">🧭</span><div class="callout-body"><div class="callout-title">¿Qué es MapController?</div>Es el "control remoto" del mapa: permite mover la cámara por código, sin que el usuario haga pan o zoom manual. Aquí <code>_ctrl.move(pos, zoom)</code> recentra el mapa en cada nueva posición GPS.</div></div>
+<div class="callout callout-info"><span class="callout-icon">❓</span><div class="callout-body"><div class="callout-title">snap.hasData y snap.data!</div><code>snap</code> es un <code>AsyncSnapshot</code> que entrega <code>StreamBuilder</code> en cada evento. <code>hasData</code> confirma que ya llegó un valor del stream. El <code>!</code> es el operador "confía en mí" de Dart: le dice al compilador que <code>snap.data</code> no es <code>null</code> en este punto.</div></div>
+</div></div></div></div>
+
+<!-- 8B. FLUTTERMAP + POLYLINELAYER -->
+<div class="slide slide-content"><div class="slide-label">Trayectoria en el mapa · Parte 2 de 2</div><div class="slide-title">PolylineLayer y MarkerLayer — las capas visibles</div><div class="slide-body">
+<div class="two-col">
+<div><div class="code-label">lib/screens/mapa_screen.dart — children del FlutterMap</div>
+<div class="code-block" style="font-size:11px;"><span class="c">// Dentro de children: [ ... ] de la parte 1</span>
+
+TileLayer(urlTemplate:
+  <span class="s">'https://tile.openstreetmap'</span>
+  <span class="s">'.org/{z}/{x}/{y}.png'</span>,
+  userAgentPackageName:
+    <span class="s">'com.arteclab.geocollect'</span>),
+
+PolylineLayer(polylines: [
+  Polyline(
+    points: _trayectoria,
+    color: Color(<span class="n">0xFF006A6A</span>),
+    strokeWidth: <span class="n">4</span>)]),
+
+MarkerLayer(markers: [
+  <span class="k">if</span> (snap.hasData)
+    _markerPosicion(snap.data!),
+]),</div></div>
+<div>
+<div class="callout callout-info" style="margin-bottom:10px;"><span class="callout-icon">〰️</span><div class="callout-body"><div class="callout-title">PolylineLayer y Color hexadecimal</div><code>PolylineLayer</code> dibuja una línea que conecta, en orden, los puntos de <code>_trayectoria</code> — así se ve el recorrido del GPS. <code>Color(0xFF006A6A)</code> usa notación hex <strong>ARGB</strong>: <code>FF</code> es el canal alfa (opacidad — FF = 100% opaco) y <code>006A6A</code> es el color en RGB (el teal del curso).</div></div>
+<div class="callout callout-ok" style="margin-bottom:10px;"><span class="callout-icon">✓</span><div class="callout-body"><div class="callout-title">Código listo para copiar</div>Las partes 1 y 2 juntas son el <code>build()</code> completo. Funciona con el <code>GpsService</code> de las diapositivas anteriores — sin <code>...</code> ni partes faltantes.</div></div>
 <div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body">No usar <code>setState()</code> dentro del <code>StreamBuilder</code> — ya reconstruye automáticamente. Añadir setState() duplica los renders.</div></div>
 </div></div></div></div>
 
@@ -323,6 +338,8 @@ Widget build(BuildContext ctx) {
   <span class="k">return</span> total;
 }</div></div>
 <div>
+<div class="callout callout-info" style="margin-bottom:10px;"><span class="callout-icon">🌍</span><div class="callout-body"><div class="callout-title">¿Qué es R?</div><code>R</code> es el radio medio de la Tierra en metros (6.371 km). Haversine calcula distancia sobre una <strong>esfera</strong>, no en línea recta — por eso la fórmula necesita este valor.</div></div>
+<div class="callout callout-info" style="margin-bottom:10px;"><span class="callout-icon">📐</span><div class="callout-body"><div class="callout-title">dLat, dLon y _rad()</div><code>dLat</code>/<code>dLon</code> son la diferencia de latitud y longitud entre los dos puntos, ya en radianes. <code>_rad()</code> convierte grados → radianes porque <code>sin()</code>, <code>cos()</code> y <code>asin()</code> de <code>dart:math</code> solo trabajan en radianes.</div></div>
 <div class="callout callout-ok" style="margin-bottom:10px;"><span class="callout-icon">✓</span><div class="callout-body"><div class="callout-title">Verificación rápida</div><code>haversine(LatLng(-16.50,-68.15), LatLng(-17.78,-63.18))</code> debe dar ~547 km — La Paz → Santa Cruz.</div></div>
 <div class="callout callout-info"><span class="callout-icon">💬</span><div class="callout-body"><div class="callout-title">Prompt para la IA</div><em>"Implementa Haversine en Dart que devuelva distancia en metros entre dos LatLng de flutter_map. Sin dependencias externas."</em> — La IA lo genera bien aquí.</div></div>
 </div></div></div></div>
