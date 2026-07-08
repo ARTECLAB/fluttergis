@@ -26,7 +26,7 @@
 | `widget.html` | 1 | El mapa que late: flutter_map desde cero | 13 |
 | `stream.html` | 2 | GPS en tiempo real: el mapa que te sigue | 14 |
 | `layer.html` | 3 | Capas WMS desde GeoServer: el servidor habla | 10 |
-| `feature.html` | 4 | GeoJSON local: datos que puedes tocar | 12 |
+| `feature.html` | 4 | GeoJSON local: el mapa de provincias en tu app | 10 |
 | `collect.html` | 5 | Colecta de campo: el formulario que sabe dónde está | 9 |
 | `heatmap.html` | 6 | Mapa de calor: los datos que brillan | 8 |
 | `provider.html` | 7 | Arquitectura en 3 capas: la app que crece bien | 12 |
@@ -140,11 +140,11 @@ Los tiles se cargan como `Image.network` (no XHR), CORS no aplica en apps móvil
 | Dataset | Fuente | Clases |
 |---------|--------|--------|
 | Departamentos de Bolivia | GeoBolivia / instructor | 1, 3, 4, 5 |
-| Municipios de Bolivia (GeoJSON) | GeoBolivia / instructor | 4 |
+| Provincias de Bolivia (GeoJSON) | GeoBolivia / instructor | 4 |
 | Capas WMS/WFS del curso GeoServer | VM del instructor | 3, 4 |
 | 500 puntos simulados La Paz | Generados en Dart | 6 |
 
-Archivo GeoJSON de municipios: `assets/geo/municipios_bolivia.geojson`  
+Archivo GeoJSON de provincias: `assets/geo/provincias_bolivia.geojson` (112 provincias)  
 Declarar en `pubspec.yaml` bajo `flutter: assets:`.
 
 ---
@@ -157,7 +157,7 @@ Declarar en `pubspec.yaml` bajo `flutter: assets:`.
 - `widget.html` — estructura mínima FlutterMap, marcador completo, dark mode automático
 - `stream.html` — GPS completo: pubspec, permisos, GpsService, StreamBuilder, Haversine, slide de background
 - `layer.html` — WMS, CQL_FILTER, sin WFS, sin crossOrigin
-- `feature.html` — GeoJSON local assets/, compute(), PolygonLayer, cache SQLite
+- `feature.html` — GeoJSON local assets/ (provincias), compute(), PolygonLayer simple (sin tap ni cache — se ven en clases posteriores)
 - `collect.html` — sqflite, toMap/fromMap, offline-first, getLastKnownPosition
 - `heatmap.html` — WeightedLatLng, normalización min-max, filtro BBox
 - `provider.html` — arquitectura 3 capas, GpsService completo, sin Riverpod
