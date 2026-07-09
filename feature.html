@@ -63,8 +63,7 @@ List&lt;Map&gt; _parsear(String json) {
 }</div></div>
 <div>
 <div class="callout callout-ok" style="margin-bottom:10px;"><span class="callout-icon">✓</span><div class="callout-body"><div class="callout-title">rootBundle.loadString()</div>Lee cualquier archivo de <code>assets/</code> como texto. No requiere permisos, no necesita internet. Es síncrono en lectura pero lo envolvemos en async para no bloquear.</div></div>
-<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><div class="callout-title">compute() es obligatorio aquí</div>Parsear 112 provincias puede tardar 100-300ms. Sin compute() el mapa se congela visiblemente. Con compute() corre en un Isolate y la UI sigue fluida.</div></div>
-<div class="callout callout-info" style="margin-top:10px;"><span class="callout-icon">🧵</span><div class="callout-body"><div class="callout-title">¿Qué es un Isolate?</div>Es un hilo de ejecución aislado de Dart, con su propia memoria — no puede tocar la UI directamente. <code>compute()</code> lo crea, corre la función ahí, y devuelve el resultado al hilo principal cuando termina.</div></div>
+<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><div class="callout-title">compute() es obligatorio aquí</div>Parsear 112 provincias puede tardar 100-300ms y congelar el mapa. <code>compute()</code> corre esa función en un Isolate — un hilo aislado con su propia memoria — y la UI sigue fluida.</div></div>
 </div></div></div></div>
 
 <div class="slide slide-section"><div class="section-num">Error crítico</div><div class="section-title">GeoJSON: [lon, lat]<br>LatLng: (lat, lon)</div><div class="section-desc">El error más frecuente al mostrar datos geoespaciales en Flutter</div></div>

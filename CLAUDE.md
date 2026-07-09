@@ -166,20 +166,8 @@ Declarar en `pubspec.yaml` bajo `flutter: assets:`.
 - `release.html` — split-per-abi, obfuscación, App Bundle
 - `test/*.html` — 10 quizzes, 120 preguntas, sin WFS, sin Riverpod, sin Claude
 
-### ⚠️ Pendiente — problema de zoom en pantallas grandes
-El CSS `slides.css` necesita corrección definitiva:
-```css
-/* CAMBIAR en slides.css: */
-.slide.active {
-  justify-content: flex-start;  /* era: center */
-  padding-top: 32px;
-}
-/* Y en code-block, font-size base escalable: */
-.code-block {
-  font-size: clamp(10px, 1.1vw, 13px);
-}
-```
-Esta corrección afecta a **todos** los slides de ambos cursos (comparten slides.css).
+### ✅ Resuelto (2026-07-09) — problema de zoom en pantallas grandes
+`slides.css` ya usa `justify-content: flex-start` en `.slide.active` y `font-size: clamp(10px, 1.1vw, 13px)` en `.code-block`, en fluttergis y en geoserver (son dos copias separadas del archivo, no compartidas — hay que aplicar cualquier cambio de CSS en ambas).
 
 ### ⚠️ Pendiente — comentarios en código
 Todos los code-block deben tener comentarios explicativos en cada línea importante.  

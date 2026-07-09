@@ -27,7 +27,7 @@
 <tr><td>satelital <span style="opacity:.6">(ráster)</span></td><td><code style="font-size:11px">http://servidor:8080/geoserver/wms?LAYERS=geoserver3_curso:satelital</code></td></tr>
 </tbody></table>
 <div class="callout callout-ok" style="margin-top:12px;"><span class="callout-icon">🔗</span><div class="callout-body"><div class="callout-title">Un curso, dos aplicaciones</div>El curso GeoServer 3 publica las capas. Este curso (GeoCollect) las consume. Es el flujo de trabajo real de un proyecto GIS profesional.</div></div>
-<div class="callout callout-info" style="margin-top:8px;"><span class="callout-icon">🏷️</span><div class="callout-body"><div class="callout-title">Notación workspace:capa</div><code>geoserver3_curso:departamentos</code> — todo lo que se publica en GeoServer vive dentro de un <em>workspace</em> (espacio de nombres). El formato siempre es <code>workspace:nombre_capa</code>.</div></div>
+<div class="callout callout-info" style="margin-top:8px;"><span class="callout-icon">🏷️</span><div class="callout-body"><div class="callout-title">Notación workspace:capa</div><code>geoserver3_curso:departamentos</code> sigue el formato <code>workspace:nombre_capa</code> — el workspace es el espacio de nombres de GeoServer.</div></div>
 </div></div>
 
 <div class="slide slide-content"><div class="slide-label">Código esencial</div><div class="slide-title">TileLayer WMS — la forma correcta</div><div class="slide-body">
@@ -54,7 +54,7 @@
   <span class="c">// flutter_map carga tiles como Image.network</span>
 )</div></div>
 <div>
-<div class="callout callout-info" style="margin-bottom:10px;"><span class="callout-icon">🔎</span><div class="callout-body"><div class="callout-title">¿Qué es CQL_FILTER?</div>CQL (Common Query Language) es el lenguaje de filtro de GeoServer. <code>CQL_FILTER: "nombre='$_filtro'"</code> le pide al servidor que solo dibuje las entidades donde el atributo <code>nombre</code> coincida — el filtrado ocurre en el servidor, no en la app.</div></div>
+<div class="callout callout-info" style="margin-bottom:10px;"><span class="callout-icon">🔎</span><div class="callout-body"><div class="callout-title">¿Qué es CQL_FILTER?</div>El lenguaje de filtro de GeoServer. Le pide al servidor que solo dibuje las entidades donde un atributo coincida — el filtrado ocurre en el servidor, no en la app.</div></div>
 <div class="callout callout-warn" style="margin-bottom:10px;"><span class="callout-icon">🚨</span><div class="callout-body"><div class="callout-title">El error más frecuente</div>Añadir <code>additionalOptions: {'crossOrigin': 'anonymous'}</code> o headers CORS. En apps móviles Flutter las teselas van como Image.network — CORS no aplica. Esto rompe la carga silenciosamente.</div></div>
 <div class="callout callout-ok"><span class="callout-icon">✓</span><div class="callout-body"><code>transparent: true</code> activa TRANSPARENT=true en la petición WMS. Combinar siempre con <code>format: 'image/png'</code> — JPEG no tiene transparencia.</div></div>
 </div></div></div></div>
@@ -119,7 +119,7 @@ Slider(
 <div class="card card-gold"><div class="card-title">Lo que la IA hace bien</div><div class="card-desc">La estructura WMSTileLayerOptions, baseUrl, layers, format y transparent. Correcto al 90%.</div></div>
 <div class="card" style="border-color:var(--warn)"><div class="card-title">Lo que la IA suele añadir de más</div><div class="card-desc">additionalOptions con crossOrigin o headers de autenticación innecesarios. Esto rompe la carga de tiles en apps móviles.</div></div>
 </div></div>
-<div><div class="callout callout-info" style="margin-bottom:10px;"><span class="callout-icon">🌐</span><div class="callout-body"><div class="callout-title">EPSG:4326 y BBOX</div><code>EPSG:4326</code> es el código del sistema de coordenadas (lat/lon en grados, WGS84 — el mismo que usa GPS). <code>BBOX</code> es el rectángulo del área a dibujar. <strong>Ojo:</strong> en WMS 1.3.0 con EPSG:4326 el orden es <code>minLat,minLon,maxLat,maxLon</code> — al revés de lo que uno esperaría.</div></div>
+<div><div class="callout callout-info" style="margin-bottom:10px;"><span class="callout-icon">🌐</span><div class="callout-body"><div class="callout-title">EPSG:4326 y BBOX</div><code>EPSG:4326</code> es el sistema de coordenadas (lat/lon, el mismo que GPS). <code>BBOX</code> es el área a dibujar — <strong>ojo:</strong> en WMS 1.3.0 con EPSG:4326 el orden es <code>minLat,minLon,maxLat,maxLon</code>, al revés de lo esperado.</div></div>
 <div class="callout callout-warn"><span class="callout-icon">🔍</span><div class="callout-body"><div class="callout-title">Cómo detectar el error</div>Si los tiles del WMS no cargan pero la URL funciona en el navegador, busca en el código generado si hay crossOrigin, headers, o additionalOptions. Elimínalos.</div></div>
 <div class="code-label" style="margin-top:10px;">Diagnóstico rápido</div>
 <div class="code-block"><span class="c">// Probar la URL directamente</span>

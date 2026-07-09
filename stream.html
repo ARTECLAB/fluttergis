@@ -240,8 +240,8 @@ Widget build(BuildContext ctx) {
   );
 }</div></div>
 <div>
-<div class="callout callout-info" style="margin-bottom:10px;"><span class="callout-icon">🧭</span><div class="callout-body"><div class="callout-title">¿Qué es MapController?</div>Es el "control remoto" del mapa: permite mover la cámara por código, sin que el usuario haga pan o zoom manual. Aquí <code>_ctrl.move(pos, zoom)</code> recentra el mapa en cada nueva posición GPS.</div></div>
-<div class="callout callout-info"><span class="callout-icon">❓</span><div class="callout-body"><div class="callout-title">snap.hasData y snap.data!</div><code>snap</code> es un <code>AsyncSnapshot</code> que entrega <code>StreamBuilder</code> en cada evento. <code>hasData</code> confirma que ya llegó un valor del stream. El <code>!</code> es el operador "confía en mí" de Dart: le dice al compilador que <code>snap.data</code> no es <code>null</code> en este punto.</div></div>
+<div class="callout callout-info" style="margin-bottom:10px;"><span class="callout-icon">🧭</span><div class="callout-body"><div class="callout-title">MapController</div>Mueve la cámara del mapa por código. <code>_ctrl.move(pos, zoom)</code> recentra el mapa en cada nueva posición GPS.</div></div>
+<div class="callout callout-info"><span class="callout-icon">❓</span><div class="callout-body"><div class="callout-title">snap.hasData y snap.data!</div><code>hasData</code> confirma que ya llegó un valor del stream. <code>!</code> le dice a Dart "esto no es null, confía en mí".</div></div>
 </div></div></div></div>
 
 <!-- 8B. FLUTTERMAP + POLYLINELAYER -->
@@ -267,9 +267,9 @@ MarkerLayer(markers: [
     _markerPosicion(snap.data!),
 ]),</div></div>
 <div>
-<div class="callout callout-info" style="margin-bottom:10px;"><span class="callout-icon">〰️</span><div class="callout-body"><div class="callout-title">PolylineLayer y Color hexadecimal</div><code>PolylineLayer</code> dibuja una línea que conecta, en orden, los puntos de <code>_trayectoria</code> — así se ve el recorrido del GPS. <code>Color(0xFF006A6A)</code> usa notación hex <strong>ARGB</strong>: <code>FF</code> es el canal alfa (opacidad — FF = 100% opaco) y <code>006A6A</code> es el color en RGB (el teal del curso).</div></div>
-<div class="callout callout-ok" style="margin-bottom:10px;"><span class="callout-icon">✓</span><div class="callout-body"><div class="callout-title">Código listo para copiar</div>Las partes 1 y 2 juntas son el <code>build()</code> completo. Funciona con el <code>GpsService</code> de las diapositivas anteriores — sin <code>...</code> ni partes faltantes.</div></div>
-<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body">No usar <code>setState()</code> dentro del <code>StreamBuilder</code> — ya reconstruye automáticamente. Añadir setState() duplica los renders.</div></div>
+<div class="callout callout-info" style="margin-bottom:10px;"><span class="callout-icon">〰️</span><div class="callout-body"><div class="callout-title">PolylineLayer y Color hex</div>Dibuja una línea conectando, en orden, los puntos de <code>_trayectoria</code>. <code>0xFF006A6A</code> es ARGB: <code>FF</code> = opacidad, <code>006A6A</code> = color RGB.</div></div>
+<div class="callout callout-ok" style="margin-bottom:10px;"><span class="callout-icon">✓</span><div class="callout-body">Partes 1 y 2 juntas son el <code>build()</code> completo — sin <code>...</code> ni partes faltantes.</div></div>
+<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body">No uses <code>setState()</code> dentro del <code>StreamBuilder</code> — ya reconstruye solo.</div></div>
 </div></div></div></div>
 
 <!-- 9. MARKER POSICION ACTUAL -->
@@ -338,8 +338,7 @@ MarkerLayer(markers: [
   <span class="k">return</span> total;
 }</div></div>
 <div>
-<div class="callout callout-info" style="margin-bottom:10px;"><span class="callout-icon">🌍</span><div class="callout-body"><div class="callout-title">¿Qué es R?</div><code>R</code> es el radio medio de la Tierra en metros (6.371 km). Haversine calcula distancia sobre una <strong>esfera</strong>, no en línea recta — por eso la fórmula necesita este valor.</div></div>
-<div class="callout callout-info" style="margin-bottom:10px;"><span class="callout-icon">📐</span><div class="callout-body"><div class="callout-title">dLat, dLon y _rad()</div><code>dLat</code>/<code>dLon</code> son la diferencia de latitud y longitud entre los dos puntos, ya en radianes. <code>_rad()</code> convierte grados → radianes porque <code>sin()</code>, <code>cos()</code> y <code>asin()</code> de <code>dart:math</code> solo trabajan en radianes.</div></div>
+<div class="callout callout-info" style="margin-bottom:10px;"><span class="callout-icon">🌍</span><div class="callout-body"><div class="callout-title">¿Qué es R?</div>El radio medio de la Tierra en metros (6.371 km) — Haversine mide distancia sobre una esfera, no en línea recta. <code>_rad()</code> convierte grados a radianes porque así trabajan <code>sin()</code>/<code>cos()</code>/<code>asin()</code>.</div></div>
 <div class="callout callout-ok" style="margin-bottom:10px;"><span class="callout-icon">✓</span><div class="callout-body"><div class="callout-title">Verificación rápida</div><code>haversine(LatLng(-16.50,-68.15), LatLng(-17.78,-63.18))</code> debe dar ~547 km — La Paz → Santa Cruz.</div></div>
 <div class="callout callout-info"><span class="callout-icon">💬</span><div class="callout-body"><div class="callout-title">Prompt para la IA</div><em>"Implementa Haversine en Dart que devuelva distancia en metros entre dos LatLng de flutter_map. Sin dependencias externas."</em> — La IA lo genera bien aquí.</div></div>
 </div></div></div></div>
