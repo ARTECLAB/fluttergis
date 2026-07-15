@@ -305,8 +305,11 @@ Future&lt;<span class="k">void</span>&gt; guardarColecta(Colecta c) <span class=
   }
 }
 
-<span class="c">// Escuchar reconexión automáticamente</span>
-<span class="k">void</span> escucharConectividad() {
+<span class="c">// Escuchar reconexión automáticamente.
+// listen() devuelve una StreamSubscription:
+// la pantalla la guarda solo para poder
+// cancelarla en dispose() — como el GPS</span>
+StreamSubscription escucharConectividad() =&gt;
   Connectivity().onConnectivityChanged
     .listen((result) {
       <span class="k">if</span> (!result.contains(
@@ -314,7 +317,6 @@ Future&lt;<span class="k">void</span>&gt; guardarColecta(Colecta c) <span class=
         sincronizar();
       }
     });
-}
 
 Future&lt;<span class="k">void</span>&gt; sincronizar() <span class="k">async</span> {
   <span class="k">final</span> pendientes =
