@@ -27,7 +27,7 @@
 | `stream.html` | 2 | GPS en tiempo real: el mapa que te sigue | 14 |
 | `layer.html` | 3 | Capas WMS desde GeoServer: el servidor habla | 10 |
 | `feature.html` | 4 | GeoJSON local: el mapa de provincias en tu app | 10 |
-| `collect.html` | 5 | Colecta de campo: el formulario que sabe dónde está | 9 |
+| `collect.html` | 5 | Colecta de campo: el formulario que sabe dónde está | 12 |
 | `heatmap.html` | 6 | Mapa de calor: los datos que brillan | 8 |
 | `provider.html` | 7 | Arquitectura en 3 capas: la app que crece bien | 12 |
 | `offline.html` | 8 | Offline Maps: cuando no hay señal | 8 |
@@ -158,7 +158,7 @@ Declarar en `pubspec.yaml` bajo `flutter: assets:`.
 - `stream.html` — GPS completo: pubspec, permisos, GpsService, StreamBuilder, Haversine, slide de background
 - `layer.html` — WMS, CQL_FILTER, sin WFS, sin crossOrigin
 - `feature.html` — GeoJSON local assets/ (provincias), compute(), PolygonLayer simple (sin tap ni cache — se ven en clases posteriores)
-- `collect.html` — sqflite, toMap/fromMap, offline-first, getLastKnownPosition
+- `collect.html` — pubspec.yaml + permisos (CAMERA, ACCESS_NETWORK_STATE), sqflite, toMap/fromMap, offline-first, getLastKnownPosition, CollectScreen (pantalla completa integrando GPS+foto+DB)
 - `heatmap.html` — WeightedLatLng, normalización min-max, filtro BBox
 - `provider.html` — arquitectura 3 capas, GpsService completo, sin Riverpod
 - `offline.html` — FMTC, descarga región, modo avión GIS, sin ProviderScope

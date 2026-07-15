@@ -9,6 +9,34 @@
 <p class="cover-sub">sqflite · GPS automático · fotos comprimidas · offline-first · sincronización</p>
 <div class="cover-pills"><span class="cover-pill">⏱ 2 horas</span><span class="cover-pill">🗄️ SQLite</span><span class="cover-pill">👨‍💻 Daniel Quisbert</span></div></div>
 
+<div class="slide slide-content"><div class="slide-label">Configuración — paso obligatorio</div><div class="slide-title">pubspec.yaml y permisos de Android</div><div class="slide-body">
+<div class="two-col">
+<div><div class="code-label">pubspec.yaml — añadir 4 paquetes nuevos</div>
+<div class="code-block" style="font-size:11.5px;">dependencies:
+  flutter_map: ^8.0.0
+  latlong2: ^0.9.0
+  geolocator: ^13.0.0
+  <span class="c"># Colecta offline — añadir estas cuatro:</span>
+  sqflite: ^2.0.0
+  path: ^1.8.0
+  path_provider: ^2.0.0
+  image_picker: ^1.0.0
+  connectivity_plus: ^6.0.0</div>
+<div class="code-label" style="margin-top:12px;">android/app/src/main/AndroidManifest.xml</div>
+<div class="code-block" style="font-size:11px;">&lt;manifest ...&gt;
+  <span class="c">&lt;!-- Cámara para image_picker --&gt;</span>
+  &lt;uses-permission android:name=
+    "android.permission.CAMERA"/&gt;
+  <span class="c">&lt;!-- Estado de red para connectivity_plus --&gt;</span>
+  &lt;uses-permission android:name=
+    "android.permission.ACCESS_NETWORK_STATE"/&gt;
+
+  &lt;application ...&gt;</div></div>
+<div>
+<div class="callout callout-warn" style="margin-bottom:10px;"><span class="callout-icon">⚠️</span><div class="callout-body"><div class="callout-title">Sin CAMERA, la foto falla</div><code>ImagePicker().pickImage(source: ImageSource.camera)</code> se cierra sola o lanza excepción si falta el permiso en el Manifest — no basta con pedirlo en runtime.</div></div>
+<div class="callout callout-ok"><span class="callout-icon">✓</span><div class="callout-body"><div class="callout-title">¿Para qué es cada paquete?</div><code>sqflite</code>+<code>path</code>: base de datos local. <code>path_provider</code>: encontrar dónde guardar el .db en cada plataforma. <code>image_picker</code>: tomar fotos. <code>connectivity_plus</code>: detectar cuándo hay internet para sincronizar.</div></div>
+</div></div></div></div>
+
 <div class="slide slide-content"><div class="slide-label">El modelo de datos</div><div class="slide-title">La clase Colecta — toMap() y fromMap()</div><div class="slide-body">
 <div class="two-col"><div><div class="code-label">lib/models/colecta.dart</div>
 <div class="code-block">class Colecta {
@@ -178,13 +206,78 @@ Future&lt;void&gt; _sincronizar() async {
 <div class="callout callout-info"><span class="callout-icon">📡</span><div class="callout-body">onConnectivityChanged es un Stream que emite cuando cambia la red — el dispositivo detecta la reconexión automáticamente y dispara la sincronización.</div></div>
 </div></div></div></div>
 
-<div class="slide slide-content"><div class="slide-label">IA como copiloto</div><div class="slide-title">Generar el modelo Colecta con la IA</div><div class="slide-body">
-<div class="callout callout-info" style="margin-bottom:14px;"><span class="callout-icon">💬</span><div class="callout-body"><em>"Genera el modelo Dart 'Colecta' con campos: id, tipo, descripcion, latitud, longitud, fotoPath, timestamp, sincronizado. Con toMap() y fromMap() para sqflite. Incluye validaciones básicas."</em></div></div>
+<div class="slide slide-content"><div class="slide-label">Cómo se usa · Parte 1 de 2</div><div class="slide-title">CollectScreen — la pantalla que junta todo</div><div class="slide-body">
+<div class="two-col">
+<div><div class="code-label">lib/screens/collect_screen.dart — build()</div>
+<div class="code-block" style="font-size:11px;"><span class="c">// _tipoCtrl y _descCtrl: TextEditingController</span>
+<span class="c">// declarados junto a _pos y _fotoPath</span>
+Widget build(BuildContext ctx) {
+  <span class="k">return</span> Scaffold(
+    appBar: AppBar(title: Text(<span class="s">'Nueva colecta'</span>)),
+    body: Padding(
+      padding: EdgeInsets.all(16),
+      child: Column(children: [
+        TextField(controller: _tipoCtrl,
+          decoration: InputDecoration(
+            labelText: <span class="s">'Tipo'</span>)),
+        <span class="c">// _pos viene de _cargarPosicion()</span>
+        _pos == <span class="k">null</span>
+          ? CircularProgressIndicator()
+          : Text(<span class="s">'📍 ${_pos!.latitude}, '</span>
+              <span class="s">'${_pos!.longitude}'</span>),
+        ElevatedButton.icon(
+          onPressed: _tomarFoto,
+          icon: Icon(Icons.camera_alt),
+          label: Text(<span class="s">'Tomar foto'</span>)),
+        <span class="c">// Deshabilitado hasta tener GPS</span>
+        ElevatedButton(
+          onPressed:
+            _pos == <span class="k">null</span> ? <span class="k">null</span> : _guardar,
+          child: Text(<span class="s">'Guardar colecta'</span>)),
+      ]),
+    ),
+  );
+}</div></div>
+<div>
+<div class="callout callout-info" style="margin-bottom:10px;"><span class="callout-icon">🧩</span><div class="callout-body"><div class="callout-title">Esta pantalla no enseña nada nuevo</div>Solo conecta lo de las diapositivas anteriores: <code>_pos</code> y <code>_tomarFoto()</code> son del formulario con GPS, <code>_guardar()</code> (siguiente diapositiva) usa <code>Colecta</code> y <code>guardarColecta()</code>.</div></div>
+<div class="callout callout-ok"><span class="callout-icon">✓</span><div class="callout-body"><div class="callout-title">onPressed: null deshabilita el botón</div>Mientras <code>_pos</code> es <code>null</code> (todavía no llegó el GPS), el botón "Guardar" aparece gris y no se puede tocar — evita guardar una colecta sin coordenadas.</div></div>
+</div></div></div></div>
+
+<div class="slide slide-content"><div class="slide-label">Cómo se usa · Parte 2 de 2</div><div class="slide-title">_guardar() — arma el Colecta y lo guarda offline-first</div><div class="slide-body">
+<div class="two-col">
+<div><div class="code-label">lib/screens/collect_screen.dart — _guardar()</div>
+<div class="code-block" style="font-size:11px;">Future&lt;<span class="k">void</span>&gt; _guardar() <span class="k">async</span> {
+  <span class="k">final</span> ahora =
+    DateTime.now().millisecondsSinceEpoch;
+  <span class="k">final</span> c = Colecta(
+    id: ahora,
+    tipo: _tipoCtrl.text,
+    descripcion: _descCtrl.text,
+    latitud: _pos!.latitude,
+    longitud: _pos!.longitude,
+    fotoPath: _fotoPath,
+    timestamp: ahora,
+    sincronizado: <span class="k">false</span>,
+  );
+
+  <span class="c">// Guarda local y sincroniza si hay red</span>
+  <span class="k">await</span> guardarColecta(c);
+
+  <span class="k">if</span> (!mounted) <span class="k">return</span>;
+  Navigator.pop(ctx); <span class="c">// volver al mapa</span>
+}</div></div>
+<div>
+<div class="callout callout-ok" style="margin-bottom:10px;"><span class="callout-icon">✓</span><div class="callout-body"><div class="callout-title">sincronizado: false siempre al crear</div>La colecta nueva nunca nace sincronizada — eso lo decide <code>guardarColecta()</code> según si hay internet en ese momento, no la pantalla.</div></div>
+<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><div class="callout-title">if (!mounted) antes de Navigator.pop</div><code>await guardarColecta(c)</code> es asíncrono — si el usuario cierra la pantalla mientras espera, <code>ctx</code> ya no es válido. <code>mounted</code> evita ese crash.</div></div>
+</div></div></div></div>
+
+<div class="slide slide-content"><div class="slide-label">IA como copiloto</div><div class="slide-title">Generar CollectScreen con la IA</div><div class="slide-body">
+<div class="callout callout-info" style="margin-bottom:14px;"><span class="callout-icon">💬</span><div class="callout-body"><em>"Genera un StatefulWidget CollectScreen en Flutter que muestre un formulario (tipo, descripción), la posición GPS actual, un botón para tomar foto con image_picker, y un botón Guardar que arme un objeto Colecta y llame a guardarColecta(). El botón Guardar debe estar deshabilitado hasta tener GPS."</em></div></div>
 <div class="two-col"><div><div class="cards" style="gap:8px;">
-<div class="card card-gold"><div class="card-title">Lo que la IA hace bien</div><div class="card-desc">La estructura de la clase, los campos, el constructor, y la mayor parte de toMap()/fromMap(). Correcto al 85%.</div></div>
-<div class="card" style="border-color:var(--warn)"><div class="card-title">Errores típicos de la IA</div><div class="card-desc">1) Pasar bool directamente a SQLite sin convertir a 0/1. 2) Olvidar el campo sincronizado en el schema SQL. 3) No marcar latitud/longitud como NOT NULL en el CREATE TABLE.</div></div>
+<div class="card card-gold"><div class="card-title">Lo que la IA hace bien</div><div class="card-desc">El layout con Column, los TextField, el ElevatedButton.icon para la foto. Correcto al 80%.</div></div>
+<div class="card" style="border-color:var(--warn)"><div class="card-title">Errores típicos de la IA</div><div class="card-desc">1) Deja el botón Guardar siempre activo, sin el <code>onPressed: _pos == null ? null : _guardar</code>. 2) Olvida <code>if (!mounted)</code> antes de usar <code>context</code> tras un <code>await</code>. 3) Pone <code>sincronizado: true</code> por defecto — rompe el offline-first.</div></div>
 </div></div>
-<div><div class="callout callout-warn"><span class="callout-icon">✓</span><div class="callout-body"><div class="callout-title">Checklist después de generar</div>Verificar: 1) sincronizado ? 1 : 0 en toMap(), 2) m['sincronizado'] == 1 en fromMap(), 3) REAL NOT NULL en latitud y longitud del schema SQL.</div></div></div>
+<div><div class="callout callout-warn"><span class="callout-icon">🔍</span><div class="callout-body"><div class="callout-title">Verificación rápida</div>Abre la app sin GPS activado: el botón "Guardar" debe verse deshabilitado. Actívalo, espera a ver las coordenadas, y recién ahí debe habilitarse.</div></div></div>
 </div></div></div>
 
 <div class="slide slide-content"><div class="slide-label">Resumen</div><div class="slide-title">Lo que aprendiste hoy</div><div class="slide-body">
@@ -196,6 +289,7 @@ Future&lt;void&gt; _sincronizar() async {
 <li>imageQuality: 30 comprime de 3MB a ~80KB — multiplica x37 la capacidad de almacenamiento en campo</li>
 <li>offline-first: guardar local siempre, sincronizar con sincronizado=0 cuando llega internet</li>
 <li>onConnectivityChanged dispara la sincronización automáticamente al reconectar</li>
+<li>CollectScreen conecta todo: formulario + GPS + foto + guardarColecta() en una sola pantalla</li>
 </ul>
 <div><div class="callout callout-info"><span class="callout-icon">🔥</span><div class="callout-body"><div class="callout-title">Próxima clase</div>Mapa de calor de tus colectas — los datos que brillan.</div></div></div>
 </div></div></div>
