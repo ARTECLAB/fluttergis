@@ -27,7 +27,7 @@
 | `stream.html` | 2 | GPS en tiempo real: el mapa que te sigue | 14 |
 | `layer.html` | 3 | Capas WMS desde GeoServer: el servidor habla | 10 |
 | `feature.html` | 4 | GeoJSON local: el mapa de provincias en tu app | 10 |
-| `collect.html` | 5 | Colecta de campo: toca el mapa, captura el punto | 16 |
+| `collect.html` | 5 | Colecta de campo: toca el mapa, captura el punto | 20 |
 | `heatmap.html` | 6 | Mapa de calor: los datos que brillan | 8 |
 | `provider.html` | 7 | Arquitectura en 3 capas: la app que crece bien | 12 |
 | `offline.html` | 8 | Offline Maps: cuando no hay señal | 8 |
@@ -76,7 +76,7 @@ lib/
 │   ├── wms_service.dart      ← URLs WMS, filtros CQL, opciones de capa
 │   └── export_service.dart   ← GeoJSON, CSV, share_plus
 ├── screens/
-│   ├── map_screen.dart       ← FlutterMap + GpsService + capas WMS + onTap captura punto
+│   ├── map_screen.dart       ← FlutterMap + GpsService + capas WMS + onTap captura punto + Marker por colecta guardada
 │   ├── collect_screen.dart   ← Recibe LatLng punto por constructor + foto + ColectaDb
 │   ├── heatmap_screen.dart   ← HeatMapLayer + ColectaDb
 │   └── export_screen.dart    ← botones + ExportService
@@ -158,7 +158,7 @@ Declarar en `pubspec.yaml` bajo `flutter: assets:`.
 - `stream.html` — GPS completo: pubspec, permisos, GpsService, StreamBuilder, Haversine, slide de background
 - `layer.html` — WMS, CQL_FILTER, sin WFS, sin crossOrigin
 - `feature.html` — GeoJSON local assets/ (provincias), compute(), PolygonLayer simple (sin tap ni cache — se ven en clases posteriores)
-- `collect.html` — reescrita (2026-07-15): el punto ya no se pide al GPS al abrir el formulario — se captura con onTap en el mapa (MapaScreen, Clases 1-2) y viaja a CollectScreen como parámetro del constructor (LatLng punto). pubspec.yaml + permisos (CAMERA, ACCESS_NETWORK_STATE), sqflite, toMap/fromMap, offline-first, CollectScreen en 3 partes (build, foto, guardar)
+- `collect.html` — reescrita (2026-07-15): el punto ya no se pide al GPS al abrir el formulario — se captura con onTap en el mapa (MapaScreen, Clases 1-2) y viaja a CollectScreen como parámetro del constructor (LatLng punto). pubspec.yaml + permisos (CAMERA, ACCESS_NETWORK_STATE), sqflite, toMap/fromMap, offline-first, CollectScreen en 3 partes (build, foto, guardar). Cierra el ciclo: ColectaDB.listar() + _cargarColectas() muestran las colectas guardadas como Marker en el mapa al volver del formulario, con GestureDetector para ver el detalle al tocar (color según sincronizado) — ya no es un formulario aislado, es una app de recolección real
 - `heatmap.html` — WeightedLatLng, normalización min-max, filtro BBox
 - `provider.html` — arquitectura 3 capas, GpsService completo, sin Riverpod
 - `offline.html` — FMTC, descarga región, modo avión GIS, sin ProviderScope
