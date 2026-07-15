@@ -257,19 +257,22 @@ TileLayer(urlTemplate:
     <span class="s">'com.arteclab.geocollect'</span>),
 
 PolylineLayer(polylines: [
-  Polyline(
-    points: _trayectoria,
-    color: Color(<span class="n">0xFF006A6A</span>),
-    strokeWidth: <span class="n">4</span>)]),
+  <span class="c">// Sin esto: crash al abrir el mapa — PolylineLayer</span>
+  <span class="c">// no acepta una lista de puntos vacía</span>
+  <span class="k">if</span> (_trayectoria.length &gt; 1)
+    Polyline(
+      points: _trayectoria,
+      color: Color(<span class="n">0xFF006A6A</span>),
+      strokeWidth: <span class="n">4</span>)]),
 
 MarkerLayer(markers: [
   <span class="k">if</span> (snap.hasData)
     _markerPosicion(snap.data!),
 ]),</div></div>
 <div>
+<div class="callout callout-warn" style="margin-bottom:10px;"><span class="callout-icon">🚨</span><div class="callout-body"><div class="callout-title">Sin el if, la app crashea</div><code>_trayectoria</code> empieza vacía — antes de que llegue el primer GPS, <code>PolylineLayer</code> lanza <code>LatLngBounds cannot be created with an empty List</code>. El <code>if (_trayectoria.length &gt; 1)</code> evita dibujar la línea hasta tener al menos 2 puntos.</div></div>
 <div class="callout callout-info" style="margin-bottom:10px;"><span class="callout-icon">〰️</span><div class="callout-body"><div class="callout-title">PolylineLayer y Color hex</div>Dibuja una línea conectando, en orden, los puntos de <code>_trayectoria</code>. <code>0xFF006A6A</code> es ARGB: <code>FF</code> = opacidad, <code>006A6A</code> = color RGB.</div></div>
-<div class="callout callout-ok" style="margin-bottom:10px;"><span class="callout-icon">✓</span><div class="callout-body">Partes 1 y 2 juntas son el <code>build()</code> completo — sin <code>...</code> ni partes faltantes.</div></div>
-<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body">No uses <code>setState()</code> dentro del <code>StreamBuilder</code> — ya reconstruye solo.</div></div>
+<div class="callout callout-ok"><span class="callout-icon">✓</span><div class="callout-body">Partes 1 y 2 juntas son el <code>build()</code> completo — sin <code>...</code> ni partes faltantes. No uses <code>setState()</code> dentro del <code>StreamBuilder</code> — ya reconstruye solo.</div></div>
 </div></div></div></div>
 
 <!-- 9. MARKER POSICION ACTUAL -->

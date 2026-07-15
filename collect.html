@@ -283,43 +283,46 @@
 
 <div class="slide slide-content"><div class="slide-label">Offline-first</div><div class="slide-title">Guardar local + sincronizar cuando hay internet</div><div class="slide-body">
 <div class="two-col"><div><div class="code-label">Ciclo offline-first completo</div>
-<div class="code-block">// Al guardar la colecta:
-Future&lt;void&gt; guardarColecta(
-    Colecta c) async {
-  // Siempre guardar local primero
-  await ColectaDB.insertar(c
-    .copyWith(sincronizado: false));
+<div class="code-block" style="font-size:11px;"><span class="c">// Al guardar la colecta:</span>
+Future&lt;<span class="k">void</span>&gt; guardarColecta(Colecta c) <span class="k">async</span> {
+  <span class="c">// Siempre guardar local primero</span>
+  <span class="k">await</span> ColectaDB.insertar(
+    c.copyWith(sincronizado: <span class="k">false</span>));
 
-  // Intentar sincronizar si hay internet
-  final conn = await Connectivity()
+  <span class="c">// connectivity_plus 6.x devuelve una LISTA</span>
+  <span class="k">final</span> conn = <span class="k">await</span> Connectivity()
     .checkConnectivity();
-  if (conn != ConnectivityResult.none) {
-    await _sincronizar();
+  <span class="k">if</span> (!conn.contains(ConnectivityResult.none)) {
+    <span class="k">await</span> _sincronizar();
   }
 }
 
-// Escuchar reconexion automaticamente
-void _listenConectividad() {
+<span class="c">// Escuchar reconexión automáticamente</span>
+<span class="k">void</span> _listenConectividad() {
   Connectivity().onConnectivityChanged
     .listen((result) {
-      if (result != ConnectivityResult.none) {
+      <span class="k">if</span> (!result.contains(
+          ConnectivityResult.none)) {
         _sincronizar();
       }
     });
 }
 
-Future&lt;void&gt; _sincronizar() async {
-  final pendientes =
-    await ColectaDB.pendientes();
-  for (final c in pendientes) {
-    // Publicar en GeoServer via REST
-    await _publicarEnGeoServer(c);
-    // Marcar como sincronizado
-    await ColectaDB.marcarSincronizado(c.id);
+Future&lt;<span class="k">void</span>&gt; _sincronizar() <span class="k">async</span> {
+  <span class="k">final</span> pendientes =
+    <span class="k">await</span> ColectaDB.pendientes();
+  <span class="k">for</span> (<span class="k">final</span> c <span class="k">in</span> pendientes) {
+    <span class="k">try</span> {
+      <span class="k">await</span> _publicarEnGeoServer(c);
+      <span class="k">await</span> ColectaDB.marcarSincronizado(c.id);
+    } <span class="k">catch</span> (_) {
+      <span class="c">// Sigue con las demás; esta se reintenta después</span>
+    }
   }
 }</div></div>
-<div><div class="callout callout-ok" style="margin-bottom:10px;"><span class="callout-icon">✓</span><div class="callout-body"><div class="callout-title">Flujo offline-first</div>1. Guardar en SQLite → 2. Intentar sincronizar → 3. Si no hay internet: esperar. 4. Al reconectar: sincronizar automáticamente. Nunca se pierde una colecta.</div></div>
-<div class="callout callout-info"><span class="callout-icon">📡</span><div class="callout-body">onConnectivityChanged es un Stream que emite cuando cambia la red — el dispositivo detecta la reconexión automáticamente y dispara la sincronización.</div></div>
+<div><div class="callout callout-warn" style="margin-bottom:10px;"><span class="callout-icon">🚨</span><div class="callout-body"><div class="callout-title">conn != ConnectivityResult.none ya no compila</div>Desde <code>connectivity_plus: ^6.0.0</code>, <code>checkConnectivity()</code> devuelve <code>List&lt;ConnectivityResult&gt;</code>, no un solo valor. Hay que usar <code>.contains(ConnectivityResult.none)</code>, igual en <code>onConnectivityChanged</code>.</div></div>
+<div class="callout callout-ok" style="margin-bottom:10px;"><span class="callout-icon">✓</span><div class="callout-body"><div class="callout-title">Flujo offline-first</div>1. Guardar en SQLite → 2. Intentar sincronizar → 3. Si no hay internet: esperar. 4. Al reconectar: sincronizar automáticamente. Nunca se pierde una colecta.</div></div>
+<div class="callout callout-info"><span class="callout-icon">🛡️</span><div class="callout-body">El <code>try/catch</code> dentro del <code>for</code> evita que una colecta que falla al sincronizar detenga a las demás — sin él, un solo error corta el resto de la sincronización.</div></div>
 </div></div></div></div>
 
 <div class="slide slide-content"><div class="slide-label">Cómo se usa · Parte 1 de 3</div><div class="slide-title">CollectScreen — recibe el punto, ya no lo pide al GPS</div><div class="slide-body">
