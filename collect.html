@@ -268,8 +268,16 @@
   showDialog(context: context,
     builder: (_) =&gt; AlertDialog(
       title: Text(c.tipo),
-      content: Text(c.descripcion.isEmpty
-        ? <span class="s">'Sin descripción'</span> : c.descripcion),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          <span class="c">// La foto de campo, si existe</span>
+          <span class="k">if</span> (c.fotoPath != <span class="k">null</span>)
+            Image.file(File(c.fotoPath!),
+              height: 140, fit: BoxFit.cover),
+          Text(c.descripcion.isEmpty
+            ? <span class="s">'Sin descripción'</span> : c.descripcion),
+        ]),
       actions: [TextButton(
         onPressed: () =&gt; Navigator.pop(context),
         child: Text(<span class="s">'Cerrar'</span>))],
@@ -282,8 +290,8 @@
 </div></div></div></div>
 
 <div class="slide slide-content"><div class="slide-label">Offline-first</div><div class="slide-title">Guardar local + sincronizar cuando hay internet</div><div class="slide-body">
-<div class="two-col"><div><div class="code-label">Ciclo offline-first completo</div>
-<div class="code-block" style="font-size:11px;"><span class="c">// Al guardar la colecta:</span>
+<div class="two-col"><div><div class="code-label">lib/services/colecta_service.dart — ciclo offline-first</div>
+<div class="code-block" style="font-size:11px;"><span class="c">// En la clase ColectaService — al guardar:</span>
 Future&lt;<span class="k">void</span>&gt; guardarColecta(Colecta c) <span class="k">async</span> {
   <span class="c">// Siempre guardar local primero</span>
   <span class="k">await</span> ColectaDB.insertar(
@@ -293,22 +301,22 @@ Future&lt;<span class="k">void</span>&gt; guardarColecta(Colecta c) <span class=
   <span class="k">final</span> conn = <span class="k">await</span> Connectivity()
     .checkConnectivity();
   <span class="k">if</span> (!conn.contains(ConnectivityResult.none)) {
-    <span class="k">await</span> _sincronizar();
+    <span class="k">await</span> sincronizar();
   }
 }
 
 <span class="c">// Escuchar reconexión automáticamente</span>
-<span class="k">void</span> _listenConectividad() {
+<span class="k">void</span> escucharConectividad() {
   Connectivity().onConnectivityChanged
     .listen((result) {
       <span class="k">if</span> (!result.contains(
           ConnectivityResult.none)) {
-        _sincronizar();
+        sincronizar();
       }
     });
 }
 
-Future&lt;<span class="k">void</span>&gt; _sincronizar() <span class="k">async</span> {
+Future&lt;<span class="k">void</span>&gt; sincronizar() <span class="k">async</span> {
   <span class="k">final</span> pendientes =
     <span class="k">await</span> ColectaDB.pendientes();
   <span class="k">for</span> (<span class="k">final</span> c <span class="k">in</span> pendientes) {
@@ -387,6 +395,7 @@ Future&lt;<span class="k">void</span>&gt; _sincronizar() <span class="k">async</
 <div class="kv"><span class="kv-key">Capacidad campo</span><span class="kv-val">1000 fotos en 80MB vs 3GB</span></div>
 </div>
 <div class="callout callout-ok" style="margin-top:10px;"><span class="callout-icon">📸</span><div class="callout-body">Esta parte no cambió respecto al diseño anterior — comprimir la foto sigue siendo igual de importante sin importar de dónde vino el punto GPS.</div></div>
+<div class="callout callout-warn" style="margin-top:10px;"><span class="callout-icon">⚠️</span><div class="callout-body"><div class="callout-title">img.path es temporal</div><code>image_picker</code> deja la foto en el <strong>caché</strong> del sistema — Android puede borrarla. Antes de guardar la colecta, copiarla con <code>File(...).copy()</code> al directorio de <code>getApplicationDocumentsDirectory()</code> (path_provider), el mismo lugar permanente donde vive <code>geocollect.db</code>.</div></div>
 </div></div></div></div>
 
 <div class="slide slide-content"><div class="slide-label">Cómo se usa · Parte 3 de 3</div><div class="slide-title">_guardar() — arma el Colecta con widget.punto y lo guarda offline-first</div><div class="slide-body">
@@ -407,18 +416,18 @@ Future&lt;<span class="k">void</span>&gt; _sincronizar() <span class="k">async</
   );
 
   <span class="c">// Guarda local y sincroniza si hay red</span>
-  <span class="k">await</span> guardarColecta(c);
+  <span class="k">await</span> ColectaService.guardarColecta(c);
 
   <span class="k">if</span> (!mounted) <span class="k">return</span>;
   Navigator.pop(ctx); <span class="c">// volver al mapa</span>
 }</div></div>
 <div>
 <div class="callout callout-ok" style="margin-bottom:10px;"><span class="callout-icon">✓</span><div class="callout-body"><div class="callout-title">sincronizado: false siempre al crear</div>La colecta nueva nunca nace sincronizada — eso lo decide <code>guardarColecta()</code> según si hay internet en ese momento, no la pantalla.</div></div>
-<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><div class="callout-title">if (!mounted) antes de Navigator.pop</div><code>await guardarColecta(c)</code> es asíncrono — si el usuario cierra la pantalla mientras espera, <code>ctx</code> ya no es válido. <code>mounted</code> evita ese crash.</div></div>
+<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body"><div class="callout-title">if (!mounted) antes de Navigator.pop</div><code>await ColectaService.guardarColecta(c)</code> es asíncrono — si el usuario cierra la pantalla mientras espera, <code>ctx</code> ya no es válido. <code>mounted</code> evita ese crash.</div></div>
 </div></div></div></div>
 
 <div class="slide slide-content"><div class="slide-label">IA como copiloto</div><div class="slide-title">Generar CollectScreen con la IA</div><div class="slide-body">
-<div class="callout callout-info" style="margin-bottom:14px;"><span class="callout-icon">💬</span><div class="callout-body"><em>"Genera un StatefulWidget CollectScreen en Flutter que reciba un LatLng 'punto' obligatorio por el constructor. Debe mostrar un campo de texto (tipo), el punto recibido, un botón para tomar foto con image_picker, y un botón Guardar que arme un objeto Colecta usando ese punto y llame a guardarColecta(). No debe pedirle nada al GPS — el punto ya llega listo."</em></div></div>
+<div class="callout callout-info" style="margin-bottom:14px;"><span class="callout-icon">💬</span><div class="callout-body"><em>"Genera un StatefulWidget CollectScreen en Flutter que reciba un LatLng 'punto' obligatorio por el constructor. Debe mostrar un campo de texto (tipo), el punto recibido, un botón para tomar foto con image_picker, y un botón Guardar que arme un objeto Colecta usando ese punto y llame a ColectaService.guardarColecta(). No debe pedirle nada al GPS — el punto ya llega listo."</em></div></div>
 <div class="two-col"><div><div class="cards" style="gap:8px;">
 <div class="card card-gold"><div class="card-title">Lo que la IA hace bien</div><div class="card-desc">El layout con Column, los TextField, el ElevatedButton.icon para la foto, y el parámetro requerido del constructor. Correcto al 80%.</div></div>
 <div class="card" style="border-color:var(--warn)"><div class="card-title">Errores típicos de la IA</div><div class="card-desc">1) Agrega de todos modos un <code>Geolocator.getCurrentPosition()</code> "por si acaso" — duplica lo que ya resolvió el mapa. 2) Olvida <code>if (!mounted)</code> antes de usar <code>context</code> tras un <code>await</code>. 3) Pone <code>sincronizado: true</code> por defecto — rompe el offline-first.</div></div>

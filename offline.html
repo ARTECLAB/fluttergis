@@ -102,7 +102,7 @@ await downloader.cancel();</div></div>
 
 <div class="slide slide-content"><div class="slide-label">Conectividad automatica</div><div class="slide-title">Switch online/offline transparente con connectivity_plus</div><div class="slide-body">
 <div class="two-col"><div><div class="code-label">Cambio automatico de modo</div>
-<div class="code-block">class _MapState extends ConsumerState&lt;MapScreen&gt; {
+<div class="code-block">class _MapaState extends State&lt;MapaScreen&gt; {
   var _esOnline = true;
 
   @override
@@ -112,12 +112,12 @@ await downloader.cancel();</div></div>
     Connectivity().onConnectivityChanged
       .listen((result) {
         final online =
-          result != ConnectivityResult.none;
+          !result.contains(ConnectivityResult.none);
         if (online != _esOnline) {
           setState(() =&gt; _esOnline = online);
           if (online) {
             // Al reconectar: sincronizar
-            ref.read(colectasProvider.notifier)
+            ColectaService
               .sincronizar();
           }
         }

@@ -69,16 +69,17 @@ lib/
 ├── models/
 │   └── colecta.dart          ← Clase Colecta: campos, toMap(), fromMap()
 ├── data/
-│   ├── colecta_db.dart       ← SQLite: INSERT, SELECT, UPDATE, pendientes
+│   ├── colecta_db.dart       ← ColectaDB — SQLite: INSERT, SELECT, UPDATE, pendientes
 │   └── geoserver_api.dart    ← http GET/POST a GeoServer REST API
 ├── services/
 │   ├── gps_service.dart      ← Stream GPS, permisos, Haversine, pause/resume
+│   ├── colecta_service.dart  ← ColectaService: guardar local + sincronizar (connectivity_plus)
 │   ├── wms_service.dart      ← URLs WMS, filtros CQL, opciones de capa
 │   └── export_service.dart   ← GeoJSON, CSV, share_plus
 ├── screens/
-│   ├── map_screen.dart       ← FlutterMap + GpsService + capas WMS + onTap captura punto + Marker por colecta guardada
-│   ├── collect_screen.dart   ← Recibe LatLng punto por constructor + foto + ColectaDb
-│   ├── heatmap_screen.dart   ← HeatMapLayer + ColectaDb
+│   ├── mapa_screen.dart      ← FlutterMap + GpsService + capas WMS + onTap captura punto + Marker por colecta guardada
+│   ├── collect_screen.dart   ← Recibe LatLng punto por constructor + foto + ColectaService
+│   ├── heatmap_screen.dart   ← HeatMapLayer + ColectaDB
 │   └── export_screen.dart    ← botones + ExportService
 └── widgets/
     ├── layer_panel.dart      ← Toggle + Slider de capas WMS
@@ -89,6 +90,13 @@ lib/
 Las flechas solo bajan: `UI → Services → Data`.  
 `Data` nunca importa `Services`. `Services` nunca importa widgets de Flutter.  
 Si un archivo de `data/` tiene `import 'package:flutter/material.dart'`, está mal.
+
+### Nombres canónicos (app y slides deben coincidir — verificado 2026-07-15)
+- `MapaScreen` / `_MapaState` / `mapa_screen.dart` — **nunca** MapScreen ni map_screen.dart
+- `ColectaDB` (con B mayúscula) — **nunca** ColectaDb
+- `ColectaService` (lib/services/colecta_service.dart): `guardarColecta()`, `sincronizar()`, `escucharConectividad()`, `_publicarEnGeoServer()`
+- `GpsService`: `iniciar()`, `pausar()`, `reanudar()`, `detener()`, getter `posicion`
+- La app de referencia vive en `carpetanueva/geocollect_app/`
 
 ### Sin Riverpod
 El curso usa arquitectura de 3 capas con `setState()` y `StreamBuilder`.  
