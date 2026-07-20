@@ -52,7 +52,7 @@ sqflite: ^2.0.0              # SQLite local
 path_provider: ^2.0.0        # rutas del sistema de archivos
 http: ^1.0.0                 # peticiones HTTP (WMS, REST API GeoServer)
 connectivity_plus: ^6.0.0    # estado de red, sync automática
-flutter_map_heatmap: latest  # HeatMapLayer, WeightedLatLng
+flutter_map_heatmap_fix: ^1.0.0   # fork de flutter_map_heatmap compatible con flutter_map ^8.0.0 — HeatMapLayer, WeightedLatLng
 flutter_map_tile_caching: latest  # FMTC, cache y descarga offline
 image_picker: latest         # fotos de campo
 share_plus: ^10.0.0          # exportar y compartir archivos
@@ -141,6 +141,12 @@ Este error coloca los puntos en el océano Pacífico.
 **No usar** `crossOrigin: 'anonymous'` en `TileLayer` con WMS.  
 Los tiles se cargan como `Image.network` (no XHR), CORS no aplica en apps móviles.
 
+### Heatmap — flutter_map_heatmap_fix, no flutter_map_heatmap (corregido 2026-07-20)
+El paquete original `flutter_map_heatmap` (última versión pub.dev) exige `flutter_map >=7.0.0 <8.0.0` — incompatible con el `flutter_map: ^8.0.0` del curso, pub falla al resolver dependencias.  
+Usar **`flutter_map_heatmap_fix`** (fork actualizado para `flutter_map ^8.0.0`).  
+`WeightedLatLng` tiene constructor **posicional**: `WeightedLatLng(latLng, intensity)` — nunca `intensity:` como parámetro nombrado, no existe.  
+`HeatMapLayer` se pinta como un `TileLayer` interno cacheado por URL — `setState()` solo **no** repinta el heatmap. Hace falta un `StreamController<void>` pasado como `reset:` y llamar `_reset.add(null)` cada vez que cambian los datos o `heatMapOptions`; cerrarlo en `dispose()`.
+
 ---
 
 ## Datos del curso
@@ -167,7 +173,7 @@ Declarar en `pubspec.yaml` bajo `flutter: assets:`.
 - `layer.html` — WMS, CQL_FILTER, sin WFS, sin crossOrigin
 - `feature.html` — GeoJSON local assets/ (provincias), compute(), PolygonLayer simple (sin tap ni cache — se ven en clases posteriores)
 - `collect.html` — reescrita (2026-07-15): el punto ya no se pide al GPS al abrir el formulario — se captura con onTap en el mapa (MapaScreen, Clases 1-2) y viaja a CollectScreen como parámetro del constructor (LatLng punto). pubspec.yaml + permisos (CAMERA, ACCESS_NETWORK_STATE), sqflite, toMap/fromMap, offline-first, CollectScreen en 3 partes (build, foto, guardar). Cierra el ciclo: ColectaDB.listar() + _cargarColectas() muestran las colectas guardadas como Marker en el mapa al volver del formulario, con GestureDetector para ver el detalle al tocar (color según sincronizado) — ya no es un formulario aislado, es una app de recolección real
-- `heatmap.html` — WeightedLatLng, normalización min-max, filtro BBox
+- `heatmap.html` — corregida (2026-07-20): paquete `flutter_map_heatmap_fix` en vez de `flutter_map_heatmap` (incompatible con flutter_map ^8.0.0), constructor posicional de WeightedLatLng, patrón StreamController `reset:` para que el Slider realmente repinte el heatmap. WeightedLatLng, normalización min-max, filtro BBox. Nav-dots corregidos de 12 a 8 (coinciden con las slides reales)
 - `provider.html` — arquitectura 3 capas, GpsService completo, sin Riverpod
 - `offline.html` — FMTC, descarga región, modo avión GIS, sin ProviderScope
 - `export.html` — GeoJSON Dart puro, CSV, share_plus, REST API GeoServer
