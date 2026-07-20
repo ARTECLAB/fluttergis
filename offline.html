@@ -1,12 +1,12 @@
 <!DOCTYPE html><html lang="es" data-theme="light"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Clase 8 — Offline Maps con FMTC · GeoCollect · ARTECLAB</title><link rel="stylesheet" href="assets/slides.css"></head><body><div class="deck">
-<div class="topbar"><div class="topbar-left"><span class="tb-badge">ARTECLAB</span><span class="tb-course">GeoCollect — Flutter GIS</span><span class="tb-class">Clase 8</span></div><div class="topbar-right"><span class="slide-counter" id="slideCounter"><span>1</span> / 8</span><button class="theme-btn" id="themeBtn"><span class="t-icon">◐</span><span class="t-label">Oscuro</span></button><button class="fs-btn" id="fsBtn">⛶</button></div></div>
+<div class="topbar"><div class="topbar-left"><span class="tb-badge">ARTECLAB</span><span class="tb-course">GeoCollect — Flutter GIS</span><span class="tb-class">Clase 8</span></div><div class="topbar-right"><span class="slide-counter" id="slideCounter"><span>1</span> / 7</span><button class="theme-btn" id="themeBtn"><span class="t-icon">◐</span><span class="t-label">Oscuro</span></button><button class="fs-btn" id="fsBtn">⛶</button></div></div>
 <div class="progress-wrap"><div class="progress-fill" id="progressFill"></div></div>
 <div class="slides-wrap">
 
 <div class="slide slide-cover"><div class="cover-grid"></div>
 <div class="cover-tag"><span class="cover-dot"></span> Clase 8 · <span class="auto-year"></span></div>
 <h1 class="cover-title">Offline Maps:<br><em>cuando no hay señal</em></h1>
-<p class="cover-sub">FMTC · descarga de La Paz · modo avion GIS · conectividad automatica</p>
+<p class="cover-sub">FMTC · descarga de La Paz · estimacion y progreso · modo avion GIS</p>
 <div class="cover-pills"><span class="cover-pill">⏱ 2 horas</span><span class="cover-pill">✈️ Offline</span><span class="cover-pill">👨‍💻 Daniel Quisbert</span></div></div>
 
 <div class="slide slide-content"><div class="slide-label">El problema del campo</div><div class="slide-title">Por que offline-first no es opcional en GIS movil</div><div class="slide-body">
@@ -56,7 +56,7 @@ TileLayer(
 <div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body">La API cambio en FMTC v10: ya no existe <code>FlutterMapTileCaching.initialise()</code> ni <code>FMTCTileProviderSettings</code>. Se inicializa con <code>FMTCObjectBoxBackend()</code> y el tile provider se construye con <code>FMTCTileProvider</code> directamente.</div></div>
 </div></div></div></div>
 
-<div class="slide slide-section"><div class="section-num">Hack</div><div class="section-title">Descargar La Paz<br>antes de salir al campo</div><div class="section-desc">Estimacion de tamano + progreso + cancelacion</div></div>
+<div class="slide slide-section"><div class="section-num">Hack</div><div class="section-title">Descargar La Paz<br>antes de salir al campo</div><div class="section-desc">Estimacion de tamano + progreso + pausa/cancelacion</div></div>
 
 <div class="slide slide-content"><div class="slide-label">Hack bueno de la clase</div><div class="slide-title">Descarga de region con progreso y estimacion</div><div class="slide-body">
 <div class="two-col"><div><div class="code-label">Descargar tiles de La Paz (zoom 10-16)</div>
@@ -94,41 +94,8 @@ download.downloadProgress.listen((p) {
 await const FMTCStore('campo_laPaz')
   .download.cancel();</div></div>
 <div><div class="callout callout-info" style="margin-bottom:10px;"><span class="callout-icon">📊</span><div class="callout-body"><div class="callout-title">Estimacion tipica La Paz</div>Zoom 10-16: ~15,000 tiles, ~45MB (a ~3KB/tile). Zoom 10-14: ~1,000 tiles, ~3MB. <code>check()</code> solo devuelve la cantidad de tiles — el tamano en MB se calcula multiplicando por un promedio, FMTC no lo entrega directo.</div></div>
-<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body">Descargar sin estimacion previa puede llenar el almacenamiento del dispositivo. Con BBox grande y zoom 17+, puede ser varios GB.</div></div>
-</div></div></div></div>
-
-<div class="slide slide-content"><div class="slide-label">Conectividad automatica</div><div class="slide-title">Switch online/offline transparente con connectivity_plus</div><div class="slide-body">
-<div class="two-col"><div><div class="code-label">Cambio automatico de modo</div>
-<div class="code-block">class _MapaState extends State&lt;MapaScreen&gt; {
-  var _esOnline = true;
-
-  @override
-  void initState() {
-    super.initState();
-    // Escuchar cambios de red
-    Connectivity().onConnectivityChanged
-      .listen((result) {
-        final online =
-          !result.contains(ConnectivityResult.none);
-        if (online != _esOnline) {
-          setState(() =&gt; _esOnline = online);
-          if (online) {
-            // Al reconectar: sincronizar
-            ColectaService
-              .sincronizar();
-          }
-        }
-      });
-  }
-
-  // El TileLayer cambia segun conectividad:
-  // Online: descarga tiles nuevos + cachea
-  // Offline: usa solo FMTC cache
-  // El codigo del TileLayer es identico
-  // FMTC maneja todo transparentemente
-}</div></div>
-<div><div class="callout callout-ok" style="margin-bottom:10px;"><span class="callout-icon">✓</span><div class="callout-body">FMTC maneja el cambio online/offline transparentemente — el TileLayer es identico en ambos modos. La app no necesita codigo adicional para el cambio.</div></div>
-<div class="callout callout-info"><span class="callout-icon">⚡</span><div class="callout-body">Al reconectar, lanzar la sincronizacion de colectas pendientes — el ciclo offline-first completo: campo sin señal, regreso con datos, sincronizacion automatica.</div></div>
+<div class="callout callout-warn" style="margin-bottom:10px;"><span class="callout-icon">⚠️</span><div class="callout-body">Descargar sin estimacion previa puede llenar el almacenamiento del dispositivo. Con BBox grande y zoom 17+, puede ser varios GB.</div></div>
+<div class="callout callout-info"><span class="callout-icon">⏸️</span><div class="callout-body"><div class="callout-title">Pausar y reanudar</div>Ademas de cancel(), FMTC tiene download.pause() y download.resume() — util si al estudiante se le acaba la bateria o el WiFi se corta a medio camino, sin perder lo ya descargado.</div></div>
 </div></div></div></div>
 
 <div class="slide slide-content"><div class="slide-label">Resumen</div><div class="slide-title">Lo que aprendiste hoy</div><div class="slide-body">
@@ -138,7 +105,7 @@ await const FMTCStore('campo_laPaz')
 <li>BrowseLoadingStrategy.cacheFirst: usa cache si existe, descarga de red si no — transparente para la app</li>
 <li>check() cuenta los tiles de una region antes de descargar — el tamano en MB se estima multiplicando por un promedio por tile</li>
 <li>La Paz zoom 10-16: ~15,000 tiles, ~45MB — descargable en WiFi antes del campo</li>
-<li>connectivity_plus.onConnectivityChanged dispara la sincronizacion de colectas al reconectar</li>
+<li>pause() y resume() permiten cortar y continuar una descarga larga sin perder lo ya guardado</li>
 <li>Modo avion GIS: FMTC + SQLite + GPS = app 100% funcional sin señal de celular</li>
 </ul>
 <div><div class="callout callout-info"><span class="callout-icon">📤</span><div class="callout-body"><div class="callout-title">Proxima clase</div>Exportar y compartir — GeoJSON, CSV y publicar directamente en GeoServer.</div></div></div>
@@ -154,6 +121,6 @@ await const FMTCStore('campo_laPaz')
 </div>
 </div>
 <div class="navbar"><button class="nav-btn" id="btnPrev">← Anterior</button>
-<div class="nav-dots"><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button></div>
+<div class="nav-dots"><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button></div>
 <button class="nav-btn" id="btnNext">Siguiente →</button></div>
 </div><script src="assets/slides.js"></script></body></html>

@@ -30,7 +30,7 @@
 | `collect.html` | 5 | Colecta de campo: toca el mapa, captura el punto | 20 |
 | `heatmap.html` | 6 | Mapa de calor: los datos que brillan | 9 |
 | `provider.html` | 7 | Arquitectura en 3 capas: la app que crece bien | 12 |
-| `offline.html` | 8 | Offline Maps: cuando no hay señal | 8 |
+| `offline.html` | 8 | Offline Maps: cuando no hay señal | 7 |
 | `export.html` | 9 | Exportar y compartir: los datos que viajan | 7 |
 | `release.html` | 10 | GeoCollect completa: proyecto final y APK | 8 |
 
@@ -179,7 +179,7 @@ Declarar en `pubspec.yaml` bajo `flutter: assets:`.
 - `collect.html` — reescrita (2026-07-15): el punto ya no se pide al GPS al abrir el formulario — se captura con onTap en el mapa (MapaScreen, Clases 1-2) y viaja a CollectScreen como parámetro del constructor (LatLng punto). pubspec.yaml + permisos (CAMERA, ACCESS_NETWORK_STATE), sqflite, toMap/fromMap, offline-first, CollectScreen en 3 partes (build, foto, guardar). Cierra el ciclo: ColectaDB.listar() + _cargarColectas() muestran las colectas guardadas como Marker en el mapa al volver del formulario, con GestureDetector para ver el detalle al tocar (color según sincronizado) — ya no es un formulario aislado, es una app de recolección real
 - `heatmap.html` — corregida (2026-07-20): paquete `flutter_map_heatmap_fix` en vez de `flutter_map_heatmap` (incompatible con flutter_map ^8.0.0), constructor posicional de WeightedLatLng, patrón StreamController `reset:` para que el Slider realmente repinte el heatmap. Se agregó una slide conceptual "Que es normalizar?" con ejemplo numérico antes de la slide de código — antes el min-max saltaba directo al código sin explicar el concepto. 9 slides, nav-dots corregidos de 12 a 9
 - `provider.html` — arquitectura 3 capas, GpsService completo, sin Riverpod
-- `offline.html` — corregida (2026-07-20): faltaba un `</div>` de cierre en la 2.ª slide que anidaba TODAS las slides siguientes (3-8) y el navbar dentro de ella — al no ser `.active` quedaban ocultas, por eso "no se veía nada" al navegar. Además la API de FMTC estaba desactualizada a v10: `FlutterMapTileCaching.initialise()` → `FMTCObjectBoxBackend().initialise()`, `getTileProvider(FMTCTileProviderSettings(...))` (deprecado) → `FMTCTileProvider(stores: {...}, loadingStrategy: ...)`, y `download.check()` ya no devuelve tamaño en MB (solo cuenta tiles — hay que estimar el tamaño multiplicando por un promedio por tile). Nav-dots corregidos de 12 a 8
+- `offline.html` — corregida (2026-07-20): faltaba un `</div>` de cierre en la 2.ª slide que anidaba TODAS las slides siguientes y el navbar dentro de ella — al no ser `.active` quedaban ocultas, por eso "no se veía nada" al navegar. La API de FMTC estaba desactualizada a v10: `FlutterMapTileCaching.initialise()` → `FMTCObjectBoxBackend().initialise()`, `getTileProvider(FMTCTileProviderSettings(...))` (deprecado) → `FMTCTileProvider(stores: {...}, loadingStrategy: ...)`, y `download.check()` ya no devuelve tamaño en MB (solo cuenta tiles — hay que estimar el tamaño multiplicando por un promedio por tile). Se eliminó la slide "Conectividad automatica" (connectivity_plus) — ya se enseña en `collect.html` Clase 5 (ColectaService.escucharConectividad()) y era redundante aquí; en su lugar se agregó un callout sobre `download.pause()`/`resume()`. 7 slides, nav-dots corregidos de 12 a 7
 - `export.html` — GeoJSON Dart puro, CSV, share_plus, REST API GeoServer
 - `release.html` — split-per-abi, obfuscación, App Bundle
 - `test/*.html` — 10 quizzes, 120 preguntas, sin WFS, sin Riverpod, sin Claude
