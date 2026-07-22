@@ -31,7 +31,7 @@
 | `heatmap.html` | 6 | Mapa de calor: los datos que brillan | 9 |
 | `provider.html` | 7 | Arquitectura en 3 capas: la app que crece bien | 12 |
 | `offline.html` | 8 | Offline Maps: cuando no hay señal | 7 |
-| `export.html` | 9 | Exportar y compartir: los datos que viajan | 7 |
+| `export.html` | 9 | Exportar y compartir: los datos que viajan | 9 |
 | `release.html` | 10 | GeoCollect completa: proyecto final y APK | 8 |
 
 ### Quizzes (subcarpeta test/)
@@ -180,8 +180,8 @@ Declarar en `pubspec.yaml` bajo `flutter: assets:`.
 - `heatmap.html` — corregida (2026-07-20): paquete `flutter_map_heatmap_fix` en vez de `flutter_map_heatmap` (incompatible con flutter_map ^8.0.0), constructor posicional de WeightedLatLng, patrón StreamController `reset:` para que el Slider realmente repinte el heatmap. Se agregó una slide conceptual "Que es normalizar?" con ejemplo numérico antes de la slide de código — antes el min-max saltaba directo al código sin explicar el concepto. 9 slides, nav-dots corregidos de 12 a 9
 - `provider.html` — arquitectura 3 capas, GpsService completo, sin Riverpod
 - `offline.html` — corregida (2026-07-20): faltaba un `</div>` de cierre en la 2.ª slide que anidaba TODAS las slides siguientes y el navbar dentro de ella — al no ser `.active` quedaban ocultas, por eso "no se veía nada" al navegar. La API de FMTC estaba desactualizada a v10: `FlutterMapTileCaching.initialise()` → `FMTCObjectBoxBackend().initialise()`, `getTileProvider(FMTCTileProviderSettings(...))` (deprecado) → `FMTCTileProvider(stores: {...}, loadingStrategy: ...)`, y `download.check()` ya no devuelve tamaño en MB (solo cuenta tiles — hay que estimar el tamaño multiplicando por un promedio por tile). Se eliminó la slide "Conectividad automatica" (connectivity_plus) — ya se enseña en `collect.html` Clase 5 (ColectaService.escucharConectividad()) y era redundante aquí; en su lugar se agregó un callout sobre `download.pause()`/`resume()`. 7 slides, nav-dots corregidos de 12 a 7
-- `export.html` — GeoJSON Dart puro, CSV, share_plus, REST API GeoServer
-- `release.html` — split-per-abi, obfuscación, App Bundle
+- `export.html` — corregida (2026-07-22): se eliminó el "publicar en GeoServer via REST" (el curso no tiene esa infraestructura disponible para los estudiantes) — la app publica a GeoServer solo se mencionaba en este slide, no se implementa. Se agregó una slide de código para CSV en Dart puro (antes solo se mencionaba CSV en una card, sin código — `colectasACsv()` + `_csvSafe()`) y una slide nueva de integración con el proyecto (export_screen.dart → export_service.dart → colecta_db.dart, siguiendo la regla de arquitectura de Clase 7). Redacciones reescritas para ser más ilustrativas (ejemplos concretos, analogías). 9 slides, nav-dots corregidos de 12 a 9 (estaban desincronizados con las 7 slides reales antes de esta revisión)
+- `release.html` — corregida (2026-07-22): se eliminó la tabla de ponderación por porcentaje de la slide "Presentación del proyecto" (Criterio/Puntos%/Evaluación) — ahora es una lista de pasos sin puntaje, con un callout aclarando que es una guía de demo, no una rúbrica de notas. Se quitó la referencia a "publicado en GeoServer del instructor" del criterio de exportar (alineado con la corrección de `export.html`). split-per-abi, obfuscación, App Bundle
 - `test/*.html` — 10 quizzes, 120 preguntas, sin WFS, sin Riverpod, sin Claude
 
 ### ✅ Resuelto (2026-07-09) — problema de zoom en pantallas grandes

@@ -80,15 +80,14 @@ flutter build appbundle --release
 </div></div></div></div>
 
 <div class="slide slide-content"><div class="slide-label">Presentacion del proyecto</div><div class="slide-title">Lo que cada estudiante mostrara</div><div class="slide-body">
-<table class="compare-table"><thead><tr><th>Criterio</th><th>Puntos</th><th>Lo que se evalua</th></tr></thead>
-<tbody>
-<tr><td><strong>Mapa base + capas</strong></td><td>20%</td><td>Dark mode auto, al menos 1 capa WMS de GeoServer activa</td></tr>
-<tr><td><strong>GPS + trayectoria</strong></td><td>20%</td><td>Stream GPS funcionando, Polyline visible</td></tr>
-<tr><td><strong>Colecta de campo</strong></td><td>25%</td><td>Formulario GPS + foto + SQLite + offline-first</td></tr>
-<tr><td><strong>Heatmap de colectas</strong></td><td>20%</td><td>Heatmap con normalizacion por atributo</td></tr>
-<tr><td><strong>Exportar y publicar</strong></td><td>15%</td><td>GeoJSON valido, publicado en GeoServer del instructor</td></tr>
-</tbody></table>
-<div class="callout callout-ok" style="margin-top:14px;"><span class="callout-icon">🎯</span><div class="callout-body"><div class="callout-title">Demo de 5 minutos</div>1) Abrir la app en dispositivo real. 2) Mostrar el mapa con la capa WMS activa. 3) Colectar un punto en vivo. 4) Ver el heatmap actualizado. 5) Exportar y mostrar en geojson.io.</div></div>
+<div class="steps">
+<div class="step"><div class="step-num">1</div><div class="step-text"><div class="step-title">Mapa base + capas</div><div class="step-desc">Dark mode automatico, al menos 1 capa WMS de GeoServer activa en el mapa</div></div></div>
+<div class="step"><div class="step-num">2</div><div class="step-text"><div class="step-title">GPS + trayectoria</div><div class="step-desc">Stream GPS funcionando en vivo, Polyline de trayectoria visible</div></div></div>
+<div class="step"><div class="step-num">3</div><div class="step-text"><div class="step-title">Colecta de campo</div><div class="step-desc">Formulario con GPS + foto + SQLite, funcionando offline-first</div></div></div>
+<div class="step"><div class="step-num">4</div><div class="step-text"><div class="step-title">Heatmap de colectas</div><div class="step-desc">Heatmap con normalizacion por atributo, actualizado con las colectas guardadas</div></div></div>
+<div class="step"><div class="step-num">5</div><div class="step-text"><div class="step-title">Exportar y compartir</div><div class="step-desc">GeoJSON y CSV validos, compartidos con share_plus o previsualizados en geojson.io</div></div></div>
+</div>
+<div class="callout callout-info" style="margin-top:14px;"><span class="callout-icon">🎯</span><div class="callout-body"><div class="callout-title">Demo de 5 minutos, no examen</div>No hay ponderacion ni nota por criterio — esta es una guia de lo que conviene mostrar, no una rubrica de puntos. 1) Abrir la app en dispositivo real. 2) Mostrar el mapa con la capa WMS activa. 3) Colectar un punto en vivo. 4) Ver el heatmap actualizado. 5) Exportar y mostrar en geojson.io.</div></div>
 </div></div>
 
 <div class="slide slide-content"><div class="slide-label">Cierre del curso</div><div class="slide-title">Lo que aprendiste en 10 clases</div><div class="slide-body">
@@ -101,7 +100,7 @@ flutter build appbundle --release
 <div class="card card-gold"><div class="card-title">Clase 6</div><div class="card-desc">Heatmap, normalizacion, filtro BBox, Slider</div></div>
 <div class="card"><div class="card-title">Clase 7</div><div class="card-desc">Arquitectura 3 capas: UI, Services, Data</div></div>
 <div class="card"><div class="card-title">Clase 8</div><div class="card-desc">FMTC, descarga de region, modo avion GIS</div></div>
-<div class="card"><div class="card-title">Clase 9</div><div class="card-desc">GeoJSON puro, share_plus, REST API GeoServer</div></div>
+<div class="card"><div class="card-title">Clase 9</div><div class="card-desc">GeoJSON puro, CSV puro, share_plus, preview en geojson.io</div></div>
 <div class="card card-gold" style="grid-column: span 2;"><div class="card-title">Clase 10</div><div class="card-desc">APK release, split-per-abi, obfuscacion, flutter_launcher_icons — GeoCollect publicada</div></div>
 </div></div></div>
 
