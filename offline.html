@@ -1,12 +1,12 @@
 <!DOCTYPE html><html lang="es" data-theme="light"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Clase 8 — Offline Maps con FMTC · GeoCollect · ARTECLAB</title><link rel="stylesheet" href="assets/slides.css"></head><body><div class="deck">
-<div class="topbar"><div class="topbar-left"><span class="tb-badge">ARTECLAB</span><span class="tb-course">GeoCollect — Flutter GIS</span><span class="tb-class">Clase 8</span></div><div class="topbar-right"><span class="slide-counter" id="slideCounter"><span>1</span> / 7</span><button class="theme-btn" id="themeBtn"><span class="t-icon">◐</span><span class="t-label">Oscuro</span></button><button class="fs-btn" id="fsBtn">⛶</button></div></div>
+<div class="topbar"><div class="topbar-left"><span class="tb-badge">ARTECLAB</span><span class="tb-course">GeoCollect — Flutter GIS</span><span class="tb-class">Clase 8</span></div><div class="topbar-right"><span class="slide-counter" id="slideCounter"><span>1</span> / 9</span><button class="theme-btn" id="themeBtn"><span class="t-icon">◐</span><span class="t-label">Oscuro</span></button><button class="fs-btn" id="fsBtn">⛶</button></div></div>
 <div class="progress-wrap"><div class="progress-fill" id="progressFill"></div></div>
 <div class="slides-wrap">
 
 <div class="slide slide-cover"><div class="cover-grid"></div>
 <div class="cover-tag"><span class="cover-dot"></span> Clase 8 · <span class="auto-year"></span></div>
 <h1 class="cover-title">Offline Maps:<br><em>cuando no hay señal</em></h1>
-<p class="cover-sub">FMTC · descarga de La Paz · estimacion y progreso · modo avion GIS</p>
+<p class="cover-sub">FMTC · descarga del area visible · advertencias de tamano · modo avion GIS</p>
 <div class="cover-pills"><span class="cover-pill">⏱ 2 horas</span><span class="cover-pill">✈️ Offline</span><span class="cover-pill">👨‍💻 Daniel Quisbert</span></div></div>
 
 <div class="slide slide-content"><div class="slide-label">El problema del campo</div><div class="slide-title">Por que offline-first no es opcional en GIS movil</div><div class="slide-body">
@@ -14,36 +14,37 @@
 <div class="callout callout-warn" style="margin-bottom:10px;"><span class="callout-icon">📡</span><div class="callout-body"><div class="callout-title">Realidad del trabajo de campo</div>En municipios rurales de Bolivia la cobertura 4G es irregular o inexistente. Una app que depende de internet para mostrar el mapa es inutil en estas condiciones.</div></div>
 <div class="callout callout-ok"><span class="callout-icon">✓</span><div class="callout-body"><div class="callout-title">Modo avion GIS completo</div>Tiles del mapa base desde FMTC cache. GeoJSON desde SQLite. GPS del dispositivo. Colectas guardadas local. La app es 100% operativa sin señal.</div></div>
 </div><div><div class="kv-list">
-<div class="kv"><span class="kv-key">Tiles base (FMTC)</span><span class="kv-val">OSM, CartoDB — descargados antes del campo</span></div>
+<div class="kv"><span class="kv-key">Tiles base (FMTC)</span><span class="kv-val">OSM — descargados antes del campo, a proposito</span></div>
 <div class="kv"><span class="kv-key">Capas vectoriales</span><span class="kv-val">SQLite cache con TTL (Clase 4)</span></div>
 <div class="kv"><span class="kv-key">GPS</span><span class="kv-val">Funciona sin internet — señal satelite</span></div>
 <div class="kv"><span class="kv-key">Colectas</span><span class="kv-val">SQLite local, sincroniza al volver</span></div>
 </div></div></div></div></div>
 
-<div class="slide slide-content"><div class="slide-label">Setup FMTC</div><div class="slide-title">Inicializar y crear el store de tiles</div><div class="slide-body">
-<div class="two-col"><div><div class="code-label">Configurar FMTC en main()</div>
+<div class="slide slide-content"><div class="slide-label">Setup FMTC</div><div class="slide-title">Inicializar el store y conectarlo al mapa</div><div class="slide-body">
+<div class="two-col"><div><div class="code-label">main() + TileLayer con FMTC</div>
 <div class="code-block">void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Inicializa el backend de FMTC (ObjectBox)
   await FMTCObjectBoxBackend().initialise();
 
-  // Crear el store para los mapas de campo
-  await const FMTCStore('campo_laPaz')
+  // Crea el store si no existe todavia
+  await const FMTCStore('descargas')
     .manage.create();
 
-  runApp(GeoCollectApp());
+  runApp(const GeoCollectApp());
 }
 
-// Usar FMTC en TileLayer:
+// tileProvider del TileLayer del mapa:
 TileLayer(
   urlTemplate:
     'https://tile.openstreetmap.org'
     '/{z}/{x}/{y}.png',
   tileProvider: FMTCTileProvider(
     stores: {
-      'campo_laPaz':
-        BrowseStoreStrategy.readUpdateCreate,
+      // read: SOLO lee el store, nunca
+      // escribe -- navegar no cachea nada
+      'descargas': BrowseStoreStrategy.read,
     },
     loadingStrategy:
       BrowseLoadingStrategy.cacheFirst,
@@ -52,63 +53,116 @@ TileLayer(
     'com.arteclab.geocollect',
 )</div></div>
 <div><div class="callout callout-ok" style="margin-bottom:10px;"><span class="callout-icon">✓</span><div class="callout-body"><div class="callout-title">BrowseLoadingStrategy.cacheFirst</div>FMTC intenta primero el cache local, y si no existe el tile, lo descarga de la red. En campo sin internet, solo usa lo que ya tiene.</div></div>
-<div class="callout callout-info"><span class="callout-icon">📦</span><div class="callout-body">FMTC organiza los tiles en stores — como carpetas. Puedes tener un store para la ciudad y otro para el area rural, y cambiar entre ellos. <code>readUpdateCreate</code> permite leer, actualizar y crear tiles en ese store.</div></div>
+<div class="callout callout-info" style="margin-bottom:10px;"><span class="callout-icon">🤔</span><div class="callout-body"><div class="callout-title">Por que read y no readUpdateCreate?</div>FMTC tambien permite cachear automaticamente todo lo que navegas. Pero eso crece sin control y no garantiza haber recorrido TODA tu zona de trabajo antes de perder señal. Con <code>read</code>, lo unico que llena el cache es el boton de descarga: predecible, "lo que descargaste es lo que tienes".</div></div>
 <div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body">La API cambio en FMTC v10: ya no existe <code>FlutterMapTileCaching.initialise()</code> ni <code>FMTCTileProviderSettings</code>. Se inicializa con <code>FMTCObjectBoxBackend()</code> y el tile provider se construye con <code>FMTCTileProvider</code> directamente.</div></div>
 </div></div></div></div>
 
-<div class="slide slide-section"><div class="section-num">Hack</div><div class="section-title">Descargar La Paz<br>antes de salir al campo</div><div class="section-desc">Estimacion de tamano + progreso + pausa/cancelacion</div></div>
+<div class="slide slide-section"><div class="section-num">Hack</div><div class="section-title">Descargar lo que ves,<br>no una region fija</div><div class="section-desc">Estimacion + advertencia de tamano + buen comportamiento con el servidor gratuito</div></div>
 
-<div class="slide slide-content"><div class="slide-label">Hack bueno de la clase</div><div class="slide-title">Descarga de region con progreso y estimacion</div><div class="slide-body">
-<div class="two-col"><div><div class="code-label">Descargar tiles de La Paz (zoom 10-16)</div>
-<div class="code-block">// BBox La Paz + region descargable
-final region = RectangleRegion(
-  LatLngBounds(
-    LatLng(-16.62, -68.25), // SW
-    LatLng(-16.38, -67.95), // NE
-  ),
-).toDownloadable(
-  minZoom: 10, maxZoom: 16,
-  options: TileLayer(
-    urlTemplate:
-      'https://tile.openstreetmap.org'
-      '/{z}/{x}/{y}.png'),
-);
+<div class="slide slide-content"><div class="slide-label">Hack bueno de la clase · Parte 1 de 2</div><div class="slide-title">Capturar el area visible del mapa, no un BBox fijo</div><div class="slide-body">
+<div class="two-col"><div><div class="code-label">Region a partir de lo que se ve AHORA</div>
+<div class="code-block">// Se captura el area que el mapa muestra
+// en este momento, no una region fija
+final bounds =
+  mapController.camera.visibleBounds;
+final zoomActual = mapController.camera.zoom;
 
-// 1. Contar tiles y estimar tamano
-final tiles = await const FMTCStore('campo_laPaz')
-  .download.check(region);
-final estMB = tiles * 3 / 1024; // ~3KB/tile
-// Mostrar dialogo: "~$tiles tiles · ~$estMB MB"
+final z = zoomActual.round();
+final region = RectangleRegion(bounds)
+  .toDownloadable(
+    // Un nivel mas alejado: no perder
+    // tiles con un paneo chico
+    minZoom: (z - 1).clamp(1, 19),
+    // 3 niveles mas cercanos: poder
+    // acercarse sin señal al punto exacto
+    maxZoom: (z + 3).clamp(1, 19),
+    options: TileLayer(
+      urlTemplate:
+        'https://tile.openstreetmap.org'
+        '/{z}/{x}/{y}.png',
+      userAgentPackageName:
+        'com.arteclab.geocollect',
+    ),
+  );
 
-// 2. Iniciar descarga en primer plano
-final download = const FMTCStore('campo_laPaz')
-  .download.startForeground(region: region);
+// Contar tiles y estimar tamano ANTES
+// de descargar -- nunca a ciegas
+final tiles = await const FMTCStore(
+  'descargas').download.countTiles(region);
+final estMB = tiles * 3 / 1024; // ~3KB/tile</div></div>
+<div><div class="callout callout-ok" style="margin-bottom:10px;"><span class="callout-icon">🗺️</span><div class="callout-body"><div class="callout-title">Como las apps de mapas offline reales</div>Google Maps, Organic Maps: navegas hasta la zona que te interesa y descargas exactamente eso — no una region que alguien mas eligio por ti de antemano.</div></div>
+<div class="callout callout-warn" style="margin-bottom:10px;"><span class="callout-icon">⚠️</span><div class="callout-body">Si la estimacion supera ~2000 tiles, hay que avisar antes de descargar: puede tardar varios minutos, o el servidor gratuito puede cortar la descarga a la mitad (siguiente slide).</div></div>
+<div class="callout callout-info"><span class="callout-icon">📐</span><div class="callout-body"><code>countTiles()</code> reemplaza a <code>check()</code>, deprecado en FMTC v10.1 — mismo resultado, nombre mas claro.</div></div>
+</div></div></div></div>
 
-// 3. Escuchar progreso (record con 2 streams)
+<div class="slide slide-content"><div class="slide-label">Hack bueno de la clase · Parte 2 de 2</div><div class="slide-title">tile.openstreetmap.org no es para descarga masiva</div><div class="slide-body">
+<div class="two-col"><div><div class="code-label">Descargar siendo buen ciudadano del server</div>
+<div class="code-block">// Mas lento que el default, pero mas
+// respetuoso del servidor gratuito
+final download = const FMTCStore(
+  'descargas').download.startForeground(
+    region: region,
+    parallelThreads: 2, // default: 5
+    rateLimit: 10, // tiles/segundo max
+  );
+
+DownloadProgress? _ultimoProgreso;
+
 download.downloadProgress.listen((p) {
-  setState(() =&gt;
-    _porcentaje = p.percentageProgress);
+  setState(() {
+    _progreso = p.percentageProgress;
+    _ultimoProgreso = p; // para el resumen
+  });
+}, onDone: () {
+  // El stream se cierra IGUAL si termino
+  // solo o si se cancelo -- por eso hay
+  // que comparar tiles reales vs esperados
+  final p = _ultimoProgreso!;
+  final completo = p.successfulTilesCount
+    &gt;= p.maxTilesCount;
+  // Mostrar SnackBar: completo o
+  // incompleto, con los numeros reales
 });
 
-// 4. Cancelar si el usuario lo pide
-await const FMTCStore('campo_laPaz')
-  .download.cancel();</div></div>
-<div><div class="callout callout-info" style="margin-bottom:10px;"><span class="callout-icon">📊</span><div class="callout-body"><div class="callout-title">Estimacion tipica La Paz</div>Zoom 10-16: ~15,000 tiles, ~45MB (a ~3KB/tile). Zoom 10-14: ~1,000 tiles, ~3MB. <code>check()</code> solo devuelve la cantidad de tiles — el tamano en MB se calcula multiplicando por un promedio, FMTC no lo entrega directo.</div></div>
-<div class="callout callout-warn" style="margin-bottom:10px;"><span class="callout-icon">⚠️</span><div class="callout-body">Descargar sin estimacion previa puede llenar el almacenamiento del dispositivo. Con BBox grande y zoom 17+, puede ser varios GB.</div></div>
-<div class="callout callout-info"><span class="callout-icon">⏸️</span><div class="callout-body"><div class="callout-title">Pausar y reanudar</div>Ademas de cancel(), FMTC tiene download.pause() y download.resume() — util si al estudiante se le acaba la bateria o el WiFi se corta a medio camino, sin perder lo ya descargado.</div></div>
+// download.pause() / .resume() existen
+// si se corta el WiFi a medio camino</div></div>
+<div><div class="callout callout-warn" style="margin-bottom:10px;"><span class="callout-icon">🚫</span><div class="callout-body"><div class="callout-title">La politica de uso de OSM lo prohibe</div>tile.openstreetmap.org es gratuito y publico — su politica de uso prohibe expresamente la descarga masiva ("bulk downloading"). Con miles de tiles seguidos, el servidor empieza a rechazar peticiones a la mitad. flutter_map hasta imprime una advertencia sobre esto al iniciar la app.</div></div>
+<div class="callout callout-info" style="margin-bottom:10px;"><span class="callout-icon">🪪</span><div class="callout-body">El <code>userAgentPackageName</code> tambien va en la descarga masiva, no solo en el mapa en vivo — OSM exige un User-Agent identificable, sin el es mas facil que el servidor rechace las peticiones.</div></div>
+<div class="callout callout-ok"><span class="callout-icon">✓</span><div class="callout-body"><div class="callout-title">"Termino" no siempre significa "se descargo todo"</div>Comparar <code>successfulTilesCount</code> con <code>maxTilesCount</code> es la unica forma de confirmar si la descarga realmente se completo, o si se corto a medias sin que se note.</div></div>
+</div></div></div></div>
+
+<div class="slide slide-content"><div class="slide-label">Verificacion</div><div class="slide-title">Como saber que el mapa SI esta usando lo descargado</div><div class="slide-body">
+<div class="two-col"><div><div class="code-label">Estadisticas reales del store</div>
+<div class="code-block">// Cuantos tiles hay, cuanto pesan, y
+// cuantas veces se usaron de verdad
+Future&lt;({int tiles, double sizeMB,
+    int hits, int misses})&gt;
+    estadisticas() async {
+  final s = await const FMTCStore(
+    'descargas').stats.all;
+  return (
+    tiles: s.length,
+    sizeMB: s.size / 1024,
+    hits: s.hits,     // servido del cache
+    misses: s.misses, // pedido a la red
+  );
+}</div></div>
+<div><div class="callout callout-warn" style="margin-bottom:10px;"><span class="callout-icon">👀</span><div class="callout-body"><div class="callout-title">Un tile de cache y uno de red se ven IGUAL</div>No hay ninguna señal visual que diga de donde vino un tile. <code>hits</code> subiendo mientras navegas dentro del area descargada es la unica forma de comprobar que el cache realmente se esta usando.</div></div>
+<div class="callout callout-info" style="margin-bottom:10px;"><span class="callout-icon">📍</span><div class="callout-body"><div class="callout-title">Cuidado al probar modo avion</div>La Clase 2 hace que el mapa siga tu GPS real en cada actualizacion. Si al probar te alejas del area que descargaste (o tu GPS real esta en otro lado), el mapa se recentra fuera del cache — y ahi si, sin red, no hay tile que mostrar. Apagar la Ubicacion antes de activar modo avion evita esto.</div></div>
+<div class="callout callout-ok"><span class="callout-icon">✓</span><div class="callout-body">La prueba definitiva sigue siendo modo avion real, pero el panel de estadisticas permite comprobarlo en vivo, en clase, sin depender del WiFi del aula.</div></div>
 </div></div></div></div>
 
 <div class="slide slide-content"><div class="slide-label">Resumen</div><div class="slide-title">Lo que aprendiste hoy</div><div class="slide-body">
 <div class="two-col">
 <ul class="slide-list">
-<li>FMTC organiza tiles en stores — crear el store con manage.create() antes de descargar o cachear</li>
-<li>BrowseLoadingStrategy.cacheFirst: usa cache si existe, descarga de red si no — transparente para la app</li>
-<li>check() cuenta los tiles de una region antes de descargar — el tamano en MB se estima multiplicando por un promedio por tile</li>
-<li>La Paz zoom 10-16: ~15,000 tiles, ~45MB — descargable en WiFi antes del campo</li>
-<li>pause() y resume() permiten cortar y continuar una descarga larga sin perder lo ya guardado</li>
-<li>Modo avion GIS: FMTC + SQLite + GPS = app 100% funcional sin señal de celular</li>
+<li>FMTC con BrowseStoreStrategy.read: navegar el mapa NO cachea nada por su cuenta — solo el boton de descarga llena el store</li>
+<li>La region a descargar se arma con el area VISIBLE del mapa (visibleBounds + zoom actual), no un BBox fijo — igual que Google Maps u Organic Maps</li>
+<li>countTiles() (no check(), deprecado) estima tiles antes de descargar; el tamano se calcula multiplicando por un promedio de KB por tile</li>
+<li>tile.openstreetmap.org prohibe la descarga masiva — parallelThreads bajo, rateLimit y userAgentPackageName reducen el riesgo de que el servidor corte la descarga</li>
+<li>El stream de progreso se cierra igual si la descarga termina bien o se cancela — comparar successfulTilesCount vs maxTilesCount confirma si de verdad se completo</li>
+<li>Un tile de cache y uno de red se ven igual: hits/misses via FMTCStore.stats es la unica forma de comprobar que el mapa usa lo descargado, sin cortar la señal</li>
 </ul>
-<div><div class="callout callout-info"><span class="callout-icon">📤</span><div class="callout-body"><div class="callout-title">Proxima clase</div>Exportar y compartir — GeoJSON, CSV y publicar directamente en GeoServer.</div></div></div>
+<div><div class="callout callout-info"><span class="callout-icon">📤</span><div class="callout-body"><div class="callout-title">Proxima clase</div>Exportar y compartir — GeoJSON, CSV y preview instantaneo en geojson.io.</div></div></div>
 </div></div></div>
 
 <div class="slide slide-cover"><div class="cover-grid"></div>
@@ -121,6 +175,6 @@ await const FMTCStore('campo_laPaz')
 </div>
 </div>
 <div class="navbar"><button class="nav-btn" id="btnPrev">← Anterior</button>
-<div class="nav-dots"><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button></div>
+<div class="nav-dots"><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button><button class="nav-dot"></button></div>
 <button class="nav-btn" id="btnNext">Siguiente →</button></div>
 </div><script src="assets/slides.js"></script></body></html>

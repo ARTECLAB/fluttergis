@@ -28,11 +28,11 @@ Dominio: `fluttergis.danielquisbert.com` · 10 clases × 2h = 20h · Nivel bási
 | 5 | [Colecta de campo: el formulario que sabe dónde está](https://fluttergis.danielquisbert.com/collect.html) | 9 | [Quiz](https://fluttergis.danielquisbert.com/test/collect.html) |
 | 6 | [Mapa de calor: los datos que brillan](https://fluttergis.danielquisbert.com/heatmap.html) | 8 | [Quiz](https://fluttergis.danielquisbert.com/test/heatmap.html) |
 | 7 | [Arquitectura en 3 capas: la app que crece bien](https://fluttergis.danielquisbert.com/provider.html) | 14 | [Quiz](https://fluttergis.danielquisbert.com/test/provider.html) |
-| 8 | [Offline Maps: cuando no hay señal](https://fluttergis.danielquisbert.com/offline.html) | 8 | [Quiz](https://fluttergis.danielquisbert.com/test/offline.html) |
-| 9 | [Exportar y compartir: los datos que viajan](https://fluttergis.danielquisbert.com/export.html) | 7 | [Quiz](https://fluttergis.danielquisbert.com/test/export.html) |
+| 8 | [Offline Maps: cuando no hay señal](https://fluttergis.danielquisbert.com/offline.html) | 9 | [Quiz](https://fluttergis.danielquisbert.com/test/offline.html) |
+| 9 | [Exportar y compartir: los datos que viajan](https://fluttergis.danielquisbert.com/export.html) | 9 | [Quiz](https://fluttergis.danielquisbert.com/test/export.html) |
 | 10 | [GeoCollect completa: proyecto final y APK](https://fluttergis.danielquisbert.com/release.html) | 8 | [Quiz](https://fluttergis.danielquisbert.com/test/release.html) |
 
-> Conteo de slides verificado contra el HTML real. Ojo: en `provider.html`, `heatmap.html`, `offline.html`, `export.html` y `release.html` el contador visible en la propia página (topbar/nav-dots) no coincide con este número real — pendiente de corregir, ya reportado antes.
+> Conteo de slides verificado contra el HTML real. `offline.html` y `export.html` ya se corrigieron (2026-07-22): el contador topbar y los nav-dots ahora coinciden con las slides reales. Ojo: en `provider.html`, `heatmap.html` y `release.html` el contador visible en la propia página (topbar/nav-dots) todavía puede no coincidir con este número — pendiente de corregir, ya reportado antes.
 
 ---
 
