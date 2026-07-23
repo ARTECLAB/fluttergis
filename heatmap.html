@@ -9,11 +9,11 @@
 <p class="cover-sub">WeightedLatLng · normalización min-max · filtro BBox · 500 puntos de La Paz</p>
 <div class="cover-pills"><span class="cover-pill">⏱ 2 horas</span><span class="cover-pill">🔥 Heatmap</span><span class="cover-pill">👨‍💻 Daniel Quisbert</span></div></div>
 
-<div class="slide slide-content"><div class="slide-label">Por que heatmap</div><div class="slide-title">El problema que resuelve — antes y después</div><div class="slide-body">
+<div class="slide slide-content"><div class="slide-label">Por qué heatmap</div><div class="slide-title">El problema que resuelve — antes y después</div><div class="slide-body">
 <div class="two-col"><div><div class="callout callout-warn" style="margin-bottom:12px;"><span class="callout-icon">❌</span><div class="callout-body"><div class="callout-title">500 marcadores individuales</div>El mapa se llena de pines solapados. La densidad de eventos es invisible. El usuario no puede distinguir nada.</div></div>
 <div class="callout callout-ok"><span class="callout-icon">✓</span><div class="callout-body"><div class="callout-title">Heatmap de los mismos 500 puntos</div>Las zonas de alta concentración aparecen rojas, las de baja densidad azules. El patrón espacial es inmediatamente evidente.</div></div></div>
-<div><div class="callout callout-warn" style="margin-bottom:10px;"><span class="callout-icon">⚠️</span><div class="callout-body"><div class="callout-title">flutter_map_heatmap original — no lo uses</div>La ultima version publicada exige <code>flutter_map &gt;=7.0.0 &lt;8.0.0</code>. Como el curso usa <code>flutter_map: ^8.0.0</code>, pub.dev rechaza la instalacion por conflicto de versiones.</div></div>
-<div class="callout callout-ok" style="margin-bottom:10px;"><span class="callout-icon">📦</span><div class="callout-body"><div class="callout-title">Paquete del curso</div><code>flutter_map_heatmap_fix</code> — fork actualizado para <code>flutter_map ^8.0.0</code>. Se añade en pubspec.yaml y se integra como una capa mas en FlutterMap children, igual que cualquier TileLayer.</div></div>
+<div><div class="callout callout-warn" style="margin-bottom:10px;"><span class="callout-icon">⚠️</span><div class="callout-body"><div class="callout-title">flutter_map_heatmap original — no lo uses</div>La última versión publicada exige <code>flutter_map &gt;=7.0.0 &lt;8.0.0</code>. Como el curso usa <code>flutter_map: ^8.0.0</code>, pub.dev rechaza la instalación por conflicto de versiones.</div></div>
+<div class="callout callout-ok" style="margin-bottom:10px;"><span class="callout-icon">📦</span><div class="callout-body"><div class="callout-title">Paquete del curso</div><code>flutter_map_heatmap_fix</code> — fork actualizado para <code>flutter_map ^8.0.0</code>. Se añade en pubspec.yaml y se integra como una capa más en FlutterMap children, igual que cualquier TileLayer.</div></div>
 <div class="callout callout-info"><span class="callout-icon">📊</span><div class="callout-body">Heatmap vs Coropleta: heatmap muestra densidad continua de eventos puntuales; coropleta colorea áreas discretas por valor estadístico.</div></div>
 </div></div></div></div>
 
@@ -42,36 +42,36 @@ final _puntos = generarPuntosLaPaz(500);</div></div>
 
 <div class="slide slide-section"><div class="section-num">Hack</div><div class="section-title">Normalizar por atributo<br>+ filtrar por BBox</div><div class="section-desc">No todos los puntos valen igual — la densidad informada es mejor que la densidad contada</div></div>
 
-<div class="slide slide-content"><div class="slide-label">Antes del codigo</div><div class="slide-title">Que es normalizar? — la misma idea, con numeros</div><div class="slide-body">
-<div class="two-col"><div><div class="callout callout-info" style="margin-bottom:10px;"><span class="callout-icon">🤔</span><div class="callout-body"><div class="callout-title">El problema</div>Cada punto tiene una 'intensidad' que puede venir en cualquier escala — severidad de 1 a 10, poblacion en miles, lo que sea. WeightedLatLng necesita ese peso siempre en el mismo rango: 0.0 (frio) a 1.0 (caliente). Normalizar es <em>reescalar</em> cualquier escala de entrada a ese rango fijo de salida.</div></div>
+<div class="slide slide-content"><div class="slide-label">Antes del código</div><div class="slide-title">¿Qué es normalizar? — la misma idea, con números</div><div class="slide-body">
+<div class="two-col"><div><div class="callout callout-info" style="margin-bottom:10px;"><span class="callout-icon">🤔</span><div class="callout-body"><div class="callout-title">El problema</div>Cada punto tiene una 'intensidad' que puede venir en cualquier escala — severidad de 1 a 10, población en miles, lo que sea. WeightedLatLng necesita ese peso siempre en el mismo rango: 0.0 (frío) a 1.0 (caliente). Normalizar es <em>reescalar</em> cualquier escala de entrada a ese rango fijo de salida.</div></div>
 <div class="code-label">Ejemplo con 4 incidentes (severidad 1-10)</div>
 <div class="kv-list">
-<div class="kv"><span class="kv-key">severidad 2 (la mas baja)</span><span class="kv-val">→ 0.0</span></div>
+<div class="kv"><span class="kv-key">severidad 2 (la más baja)</span><span class="kv-val">→ 0.0</span></div>
 <div class="kv"><span class="kv-key">severidad 5</span><span class="kv-val">→ 0.375</span></div>
 <div class="kv"><span class="kv-key">severidad 8</span><span class="kv-val">→ 0.75</span></div>
-<div class="kv"><span class="kv-key">severidad 10 (la mas alta)</span><span class="kv-val">→ 1.0</span></div>
+<div class="kv"><span class="kv-key">severidad 10 (la más alta)</span><span class="kv-val">→ 1.0</span></div>
 </div></div>
-<div><div class="callout callout-ok" style="margin-bottom:10px;"><span class="callout-icon">🧮</span><div class="callout-body"><div class="callout-title">La formula, paso a paso</div>(valor - minimo) / (maximo - minimo). Resta el minimo del grupo para que el mas bajo arranque en 0. Divide por el rango total (maximo - minimo) para que el mas alto termine en 1. Todo lo demas queda proporcional entre los dos extremos — por eso severidad 5, a mitad de camino entre 2 y 10, da 0.375 y no 0.5.</div></div>
+<div><div class="callout callout-ok" style="margin-bottom:10px;"><span class="callout-icon">🧮</span><div class="callout-body"><div class="callout-title">La fórmula, paso a paso</div>(valor - mínimo) / (máximo - mínimo). Resta el mínimo del grupo para que el más bajo arranque en 0. Divide por el rango total (máximo - mínimo) para que el más alto termine en 1. Todo lo demás queda proporcional entre los dos extremos — por eso severidad 5, a mitad de camino entre 2 y 10, da 0.375 y no 0.5.</div></div>
 <div class="callout callout-warn" style="margin-bottom:10px;"><span class="callout-icon">⚠️</span><div class="callout-body"><div class="callout-title">Sin normalizar, el heatmap miente</div>Si usas la intensidad cruda, un dataset de severidad 1-10 se pinta casi todo rojo (todo "parece alto") y uno de 0.0-1.0 se ve apagado. El gradiente de color solo tiene sentido si el rango de entrada siempre es 0.0-1.0, sin importar la escala original del dato.</div></div>
-<div class="callout callout-info"><span class="callout-icon">🔀</span><div class="callout-body"><div class="callout-title">Por que filtrar ANTES de normalizar</div>buildHeatmap primero recorta por BBox y recien despues calcula min/max. Si normalizaras con el min/max de todo el pais, los puntos de La Paz podrian salir todos parecidos (poco contraste). Al normalizar solo lo visible, cada vista del mapa recalcula su propio contraste.</div></div>
+<div class="callout callout-info"><span class="callout-icon">🔀</span><div class="callout-body"><div class="callout-title">Por qué filtrar ANTES de normalizar</div>buildHeatmap primero recorta por BBox y recién después calcula min/max. Si normalizaras con el min/max de todo el país, los puntos de La Paz podrían salir todos parecidos (poco contraste). Al normalizar solo lo visible, cada vista del mapa recalcula su propio contraste.</div></div>
 </div></div></div></div>
 
-<div class="slide slide-content"><div class="slide-label">Hack bueno de la clase</div><div class="slide-title">buildHeatmap — normalizacion min-max y filtro de BBox visible</div><div class="slide-body">
-<div class="two-col"><div><div class="code-label">buildHeatmap — el metodo clave</div>
+<div class="slide slide-content"><div class="slide-label">Hack bueno de la clase</div><div class="slide-title">buildHeatmap — normalización min-max y filtro de BBox visible</div><div class="slide-body">
+<div class="two-col"><div><div class="code-label">buildHeatmap — el método clave</div>
 <div class="code-block">import 'dart:math' as math;
 
 List&lt;WeightedLatLng&gt; buildHeatmap(
     List&lt;Map&gt; puntos,
     LatLngBounds bounds) {
 
-  // 1. Solo puntos en el area visible
+  // 1. Solo puntos en el área visible
   final vis = puntos.where((p) =&gt;
     bounds.contains(
       LatLng(p['lat'], p['lon'])))
     .toList();
   if (vis.isEmpty) return [];
 
-  // 2. Normalizacion min-max
+  // 2. Normalización min-max
   final vals = vis.map(
     (p) =&gt; p['intensidad'] as double).toList();
   final mn = vals.reduce(math.min);
@@ -80,19 +80,19 @@ List&lt;WeightedLatLng&gt; buildHeatmap(
 
   // 3. Construir WeightedLatLng
   // (constructor posicional: latLng, intensity —
-  // sin nombre de parametro)
+  // sin nombre de parámetro)
   return vis.map((p) =&gt; WeightedLatLng(
     LatLng(p['lat'], p['lon']),
     rango == 0 ? 0.5
       : (p['intensidad'] - mn) / rango,
   )).toList();
 }</div></div>
-<div><div class="callout callout-ok" style="margin-bottom:10px;"><span class="callout-icon">⚡</span><div class="callout-body"><div class="callout-title">BBox filter = rendimiento</div>Con 10,000 puntos en Bolivia y el mapa mostrando La Paz, filtrar por bounds reduce de 10,000 a ~500 puntos — el heatmap se calcula 20x mas rapido.</div></div>
-<div class="callout callout-info"><span class="callout-icon">📐</span><div class="callout-body">Obtener el BBox actual: mapController.camera.visibleBounds — devuelve los limites norte, sur, este, oeste del area visible.</div></div>
+<div><div class="callout callout-ok" style="margin-bottom:10px;"><span class="callout-icon">⚡</span><div class="callout-body"><div class="callout-title">BBox filter = rendimiento</div>Con 10,000 puntos en Bolivia y el mapa mostrando La Paz, filtrar por bounds reduce de 10,000 a ~500 puntos — el heatmap se calcula 20x más rápido.</div></div>
+<div class="callout callout-info"><span class="callout-icon">📐</span><div class="callout-body">Obtener el BBox actual: mapController.camera.visibleBounds — devuelve los límites norte, sur, este, oeste del área visible.</div></div>
 </div></div></div></div>
 
-<div class="slide slide-content"><div class="slide-label">Codigo completo</div><div class="slide-title">HeatMapLayer en FlutterMap con Slider de radio</div><div class="slide-body">
-<div class="two-col"><div><div class="code-label">Integracion en FlutterMap</div>
+<div class="slide slide-content"><div class="slide-label">Código completo</div><div class="slide-title">HeatMapLayer en FlutterMap con Slider de radio</div><div class="slide-body">
+<div class="two-col"><div><div class="code-label">Integración en FlutterMap</div>
 <div class="code-block">import 'dart:async';
 double _radio = 30;
 final _ctrl = MapController();
@@ -122,29 +122,29 @@ Slider(
   },
 )</div></div>
 <div><div class="callout callout-warn" style="margin-bottom:10px;"><span class="callout-icon">⚠️</span><div class="callout-body"><div class="callout-title">setState() solo no repinta el heatmap</div>HeatMapLayer dibuja sus manchas de calor como teselas de un TileLayer interno, cacheadas por URL. Esa URL solo cambia cuando el stream <code>reset</code> emite un evento — por eso hace falta <code>_reset.add(null)</code> cada vez que cambian los datos o las opciones.</div></div>
-<div class="callout callout-info"><span class="callout-icon">💬</span><div class="callout-body"><div class="callout-title">Prompt para la IA</div>"Tengo List&lt;Map&gt; con lat, lon e intensidad. Genera el codigo para normalizar los pesos al rango 0.0-1.0 y construir List&lt;WeightedLatLng&gt; para flutter_map_heatmap_fix." — La IA lo genera bien aqui.</div></div>
+<div class="callout callout-info"><span class="callout-icon">💬</span><div class="callout-body"><div class="callout-title">Prompt para la IA</div>"Tengo List&lt;Map&gt; con lat, lon e intensidad. Genera el código para normalizar los pesos al rango 0.0-1.0 y construir List&lt;WeightedLatLng&gt; para flutter_map_heatmap_fix." — La IA lo genera bien aquí.</div></div>
 </div></div></div></div>
 
 <div class="slide slide-content"><div class="slide-label">Resumen</div><div class="slide-title">Lo que aprendiste hoy</div><div class="slide-body">
 <div class="two-col">
 <ul class="slide-list">
 <li>Heatmap resuelve el solapamiento de marcadores mostrando densidad como gradiente continuo</li>
-<li>WeightedLatLng(latLng, intensity) — constructor posicional, cada punto contribuye segun su peso normalizado de 0.0 a 1.0</li>
-<li>Normalizacion min-max: (valor - min) / (max - min) mapea cualquier rango a 0.0-1.0</li>
-<li>Filtrar por visibleBounds reduce el dataset de miles a cientos — rendimiento critico</li>
-<li>mapController.camera.visibleBounds da los limites del area visible en pantalla en tiempo real</li>
+<li>WeightedLatLng(latLng, intensity) — constructor posicional, cada punto contribuye según su peso normalizado de 0.0 a 1.0</li>
+<li>Normalización min-max: (valor - min) / (max - min) mapea cualquier rango a 0.0-1.0</li>
+<li>Filtrar por visibleBounds reduce el dataset de miles a cientos — rendimiento crítico</li>
+<li>mapController.camera.visibleBounds da los límites del área visible en pantalla en tiempo real</li>
 <li>Slider + setState() cambia el radio, pero solo se ve reflejado al emitir un evento por el stream reset — cerrarlo en dispose()</li>
 </ul>
-<div><div class="callout callout-info"><span class="callout-icon">⚡</span><div class="callout-body"><div class="callout-title">Proxima clase</div>Arquitectura en 3 capas — la app que crece ordenada y limpia.</div></div></div>
+<div><div class="callout callout-info"><span class="callout-icon">⚡</span><div class="callout-body"><div class="callout-title">Próxima clase</div>Arquitectura en 3 capas — la app que crece ordenada y limpia.</div></div></div>
 </div></div></div>
 
 <div class="slide slide-cover"><div class="cover-grid"></div>
 <div class="cover-tag"><span class="cover-dot"></span> Fin de la Clase 6</div>
 <h1 class="cover-title">Los datos de campo<br><em>brillan en el mapa.</em></h1>
-<p class="cover-sub">Proxima clase: Arquitectura en 3 capas y codigo limpio.</p>
+<p class="cover-sub">Próxima clase: Arquitectura en 3 capas y código limpio.</p>
 <div style="max-width:460px;width:100%;position:relative;">
 <div class="quiz-cta"><div class="quiz-cta-text"><div class="quiz-cta-title">Cuestionario — Clase 6: Mapa de calor</div><div class="quiz-cta-sub">12 preguntas · 2 intentos</div></div><a href="test/heatmap.html" target="_blank">Ir al cuestionario →</a></div></div>
-<div class="cover-pills" style="margin-top:20px;"><span class="cover-pill">Proxima: Arquitectura 3 capas</span><span class="cover-pill">flutter_map_heatmap_fix instalado</span></div>
+<div class="cover-pills" style="margin-top:20px;"><span class="cover-pill">Próxima: Arquitectura 3 capas</span><span class="cover-pill">flutter_map_heatmap_fix instalado</span></div>
 </div>
 </div>
 <div class="navbar"><button class="nav-btn" id="btnPrev">← Anterior</button>

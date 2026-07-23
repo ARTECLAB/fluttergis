@@ -17,24 +17,24 @@
 <div><div class="code-label">El problema — todo mezclado en un solo widget</div>
 <div class="code-block"><span class="k">class</span> <span class="n">MapaScreen</span> extends StatefulWidget {
 
-  <span class="c">// GPS directo aqui</span>
+  <span class="c">// GPS directo aquí</span>
   <span class="k">late</span> StreamSubscription _gpsSub;
 
-  <span class="c">// HTTP directo aqui</span>
+  <span class="c">// HTTP directo aquí</span>
   Future&lt;<span class="k">void</span>&gt; _cargarMunicipios() <span class="k">async</span> {
     <span class="k">final</span> resp = <span class="k">await</span> http.get(...);
     <span class="k">final</span> data = jsonDecode(resp.body);
-    <span class="c">// ... 50 lineas de parseo</span>
+    <span class="c">// ... 50 líneas de parseo</span>
   }
 
-  <span class="c">// SQLite directo aqui</span>
+  <span class="c">// SQLite directo aquí</span>
   Future&lt;<span class="k">void</span>&gt; _guardar(Colecta c) <span class="k">async</span> {
     <span class="k">final</span> db = <span class="k">await</span> openDatabase(...);
     <span class="k">await</span> db.insert(<span class="s">'colectas'</span>, c.toMap());
   }
 
-  <span class="c">// Y tambien toda la UI aqui</span>
-  Widget build(...) { <span class="c">/* 200 lineas */</span> }
+  <span class="c">// Y también toda la UI aquí</span>
+  Widget build(...) { <span class="c">/* 200 líneas */</span> }
 }</div></div>
 <div>
 <div class="callout callout-warn" style="margin-bottom:12px;"><span class="callout-icon">⚠️</span><div class="callout-body"><div class="callout-title">El síntoma</div>Un archivo de 400 líneas donde está todo mezclado: la UI, el GPS, el HTTP y la base de datos. Si cambias SQLite por otro storage, tienes que tocar el widget.</div></div>
@@ -57,7 +57,7 @@
 <div class="slide slide-content"><div class="slide-label">Capa Data</div><div class="slide-title">Modelo + acceso a SQLite separados en dos archivos</div><div class="slide-body">
 <div class="two-col">
 <div><div class="code-label">lib/models/colecta.dart — el modelo</div>
-<div class="code-block"><span class="c">// Solo datos: campos y conversion Map</span>
+<div class="code-block"><span class="c">// Solo datos: campos y conversión Map</span>
 <span class="k">class</span> <span class="n">Colecta</span> {
   <span class="k">final</span> int id;
   <span class="k">final</span> String tipo;
@@ -161,7 +161,7 @@
       });
   }
 
-  <span class="c">// Haversine vive aqui, no en la UI</span>
+  <span class="c">// Haversine vive aquí, no en la UI</span>
   <span class="k">double</span> distancia(
       LatLng a, LatLng b) { <span class="c">/* ... */</span> }
 

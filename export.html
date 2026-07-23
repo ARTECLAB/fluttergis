@@ -9,16 +9,16 @@
 <p class="cover-sub">GeoJSON en Dart puro · CSV en Dart puro · share_plus · geojson.io</p>
 <div class="cover-pills"><span class="cover-pill">⏱ 2 horas</span><span class="cover-pill">📤 Export</span><span class="cover-pill">👨‍💻 Daniel Quisbert</span></div></div>
 
-<div class="slide slide-content"><div class="slide-label">Por que exportar</div><div class="slide-title">Los datos que se quedan solo en el celular no sirven a nadie</div><div class="slide-body">
-<div class="two-col-6040"><div><div class="callout callout-info" style="margin-bottom:12px;"><span class="callout-icon">🤔</span><div class="callout-body"><div class="callout-title">El problema que resolvemos hoy</div>Hasta la Clase 8, las colectas de campo viven solo en el SQLite del celular que las capturo. Si ese celular se pierde, se rompe o simplemente lo usa otra persona, los datos no existen para nadie mas. Exportar es la forma de sacar esos datos del celular y ponerlos en manos de quien los necesita.</div></div>
-<div class="callout callout-ok"><span class="callout-icon">👥</span><div class="callout-body"><div class="callout-title">Dos publicos, dos formatos</div>No todos los que reciben los datos de campo son especialistas GIS. Por eso GeoCollect exporta a <strong>dos formatos distintos</strong>, cada uno pensado para quien lo va a abrir.</div></div>
+<div class="slide slide-content"><div class="slide-label">Por qué exportar</div><div class="slide-title">Los datos que se quedan solo en el celular no sirven a nadie</div><div class="slide-body">
+<div class="two-col-6040"><div><div class="callout callout-info" style="margin-bottom:12px;"><span class="callout-icon">🤔</span><div class="callout-body"><div class="callout-title">El problema que resolvemos hoy</div>Hasta la Clase 8, las colectas de campo viven solo en el SQLite del celular que las capturó. Si ese celular se pierde, se rompe o simplemente lo usa otra persona, los datos no existen para nadie más. Exportar es la forma de sacar esos datos del celular y ponerlos en manos de quien los necesita.</div></div>
+<div class="callout callout-ok"><span class="callout-icon">👥</span><div class="callout-body"><div class="callout-title">Dos públicos, dos formatos</div>No todos los que reciben los datos de campo son especialistas GIS. Por eso GeoCollect exporta a <strong>dos formatos distintos</strong>, cada uno pensado para quien lo va a abrir.</div></div>
 </div>
 <div><div class="cards" style="gap:10px;">
-<div class="card card-gold"><span class="card-icon">🗺️</span><div class="card-title">GeoJSON — para el equipo GIS</div><div class="card-desc">Formato estandar para datos vectoriales. Lo abren QGIS, geojson.io, Leaflet y OpenLayers sin conversion. Guarda geometria (donde esta el punto) y atributos (que se colecto) en un solo archivo de texto.</div></div>
-<div class="card card-blue"><span class="card-icon">📊</span><div class="card-title">CSV — para todos los demas</div><div class="card-desc">Lo abre Excel, Google Sheets o cualquier responsable de proyecto sin instalar nada. La latitud y la longitud aparecen como columnas normales, junto al resto de atributos de cada colecta.</div></div>
+<div class="card card-gold"><span class="card-icon">🗺️</span><div class="card-title">GeoJSON — para el equipo GIS</div><div class="card-desc">Formato estándar para datos vectoriales. Lo abren QGIS, geojson.io, Leaflet y OpenLayers sin conversión. Guarda geometría (dónde está el punto) y atributos (qué se colectó) en un solo archivo de texto.</div></div>
+<div class="card card-blue"><span class="card-icon">📊</span><div class="card-title">CSV — para todos los demás</div><div class="card-desc">Lo abre Excel, Google Sheets o cualquier responsable de proyecto sin instalar nada. La latitud y la longitud aparecen como columnas normales, junto al resto de atributos de cada colecta.</div></div>
 </div></div></div></div></div>
 
-<div class="slide slide-content"><div class="slide-label">GeoJSON en Dart puro</div><div class="slide-title">Convertir List&lt;Colecta&gt; a un FeatureCollection valido</div><div class="slide-body">
+<div class="slide slide-content"><div class="slide-label">GeoJSON en Dart puro</div><div class="slide-title">Convertir List&lt;Colecta&gt; a un FeatureCollection válido</div><div class="slide-body">
 <div class="two-col"><div><div class="code-label">lib/services/export_service.dart — parte 1</div>
 <div class="code-block">String colectasAGeoJson(
     List&lt;Colecta&gt; colectas) {
@@ -32,7 +32,7 @@
       'coordinates': [c.longitud, c.latitud],
     },
     'properties': {
-      <span class="c">// Todo lo que no es geometria va aqui</span>
+      <span class="c">// Todo lo que no es geometría va aquí</span>
       'id': c.id,
       'tipo': c.tipo,
       'descripcion': c.descripcion,
@@ -55,13 +55,13 @@
 <div class="code-block">Future&lt;void&gt; exportarGeoJson(
     List&lt;Colecta&gt; colectas) async {
   final json = colectasAGeoJson(colectas);
-  <span class="c">// path_provider da una carpeta valida</span>
+  <span class="c">// path_provider da una carpeta válida</span>
   <span class="c">// tanto en Android como en iOS</span>
   final dir =
     await getApplicationDocumentsDirectory();
   final file =
     File('${dir.path}/colectas.geojson');
-  <span class="c">// Escritura asincrona: no bloquea la UI</span>
+  <span class="c">// Escritura asíncrona: no bloquea la UI</span>
   await file.writeAsString(json);
   <span class="c">// share_plus abre el selector nativo</span>
   <span class="c">// del sistema: WhatsApp, correo, Drive...</span>
@@ -70,7 +70,7 @@
     text: 'Colectas GeoCollect — ARTECLAB',
   );
 }</div>
-<div class="callout callout-warn" style="margin-top:10px;"><span class="callout-icon">⚠️</span><div class="callout-body"><div class="callout-title">El error mas frecuente del curso</div>Invertir el orden y escribir <code>[c.latitud, c.longitud]</code> coloca los puntos en el oceano. La regla para recordarlo: en GeoJSON las coordenadas se leen igual que en un plano cartesiano, primero el eje X (longitud) y despues el eje Y (latitud).</div></div>
+<div class="callout callout-warn" style="margin-top:10px;"><span class="callout-icon">⚠️</span><div class="callout-body"><div class="callout-title">El error más frecuente del curso</div>Invertir el orden y escribir <code>[c.latitud, c.longitud]</code> coloca los puntos en el océano. La regla para recordarlo: en GeoJSON las coordenadas se leen igual que en un plano cartesiano, primero el eje X (longitud) y después el eje Y (latitud).</div></div>
 </div></div></div></div>
 
 <div class="slide slide-content"><div class="slide-label">CSV en Dart puro</div><div class="slide-title">La misma lista de colectas, ahora como filas y columnas</div><div class="slide-body">
@@ -78,7 +78,7 @@
 <div class="code-block">String colectasACsv(
     List&lt;Colecta&gt; colectas) {
   <span class="c">// StringBuffer arma el texto sin crear</span>
-  <span class="c">// un String nuevo en cada linea</span>
+  <span class="c">// un String nuevo en cada línea</span>
   final buffer = StringBuffer();
 
   <span class="c">// Primera fila: encabezados de columna</span>
@@ -88,7 +88,7 @@
 
   for (final c in colectas) {
     <span class="c">// _csvSafe evita que una coma dentro</span>
-    <span class="c">// de la descripcion rompa las columnas</span>
+    <span class="c">// de la descripción rompa las columnas</span>
     buffer.writeln([
       c.id,
       c.tipo,
@@ -113,9 +113,9 @@ String _csvSafe(String texto) {
   }
   return texto;
 }</div></div>
-<div><div class="callout callout-ok" style="margin-bottom:10px;"><span class="callout-icon">✓</span><div class="callout-body"><div class="callout-title">lat/lon como columnas normales</div>A diferencia de GeoJSON, en CSV no hay una regla de orden que respetar: latitud y longitud son dos columnas mas, con el nombre que les pongamos en el encabezado. Excel y Sheets las grafican en un mapa con "Insertar &gt; Mapa" sin ningun paso adicional.</div></div>
-<div class="callout callout-info"><span class="callout-icon">💬</span><div class="callout-body">Prompt para la IA: "Escribe una funcion Dart que convierta List&lt;Colecta&gt; a un String CSV, escapando comas y comillas en el campo descripcion." La IA suele olvidar el escape de comillas dobles — revisar esa parte con un dato de prueba que tenga comas.</div></div>
-<div class="callout callout-warn" style="margin-top:10px;"><span class="callout-icon">⚠️</span><div class="callout-body">Guardar y compartir el CSV usa el mismo patron que el GeoJSON: <code>File(...).writeAsString(csv)</code> seguido de <code>Share.shareXFiles(...)</code>. Por eso conviene juntarlos en un solo metodo — lo vemos en la siguiente slide.</div></div>
+<div><div class="callout callout-ok" style="margin-bottom:10px;"><span class="callout-icon">✓</span><div class="callout-body"><div class="callout-title">lat/lon como columnas normales</div>A diferencia de GeoJSON, en CSV no hay una regla de orden que respetar: latitud y longitud son dos columnas más, con el nombre que les pongamos en el encabezado. Excel y Sheets las grafican en un mapa con "Insertar &gt; Mapa" sin ningún paso adicional.</div></div>
+<div class="callout callout-info"><span class="callout-icon">💬</span><div class="callout-body">Prompt para la IA: "Escribe una función Dart que convierta List&lt;Colecta&gt; a un String CSV, escapando comas y comillas en el campo descripción." La IA suele olvidar el escape de comillas dobles — revisar esa parte con un dato de prueba que tenga comas.</div></div>
+<div class="callout callout-warn" style="margin-top:10px;"><span class="callout-icon">⚠️</span><div class="callout-body">Guardar y compartir el CSV usa el mismo patrón que el GeoJSON: <code>File(...).writeAsString(csv)</code> seguido de <code>Share.shareXFiles(...)</code>. Por eso conviene juntarlos en un solo método — lo vemos en la siguiente slide.</div></div>
 </div></div></div></div>
 
 <div class="slide slide-section"><div class="section-num">Hack</div><div class="section-title">Preview en geojson.io<br>sin instalar nada</div><div class="section-desc">Un link compartible generado en Dart con base64 — se abre en cualquier navegador, sin servidor propio</div></div>
@@ -161,43 +161,43 @@ Future&lt;void&gt; exportarTodo(
     text: 'Colectas GeoCollect — ARTECLAB',
   );
 }</div></div>
-<div><div class="callout callout-ok" style="margin-bottom:10px;"><span class="callout-icon">✓</span><div class="callout-body"><div class="callout-title">Por que este hack importa</div>El link codifica el GeoJSON completo dentro de la URL. Quien lo recibe por WhatsApp lo abre en el navegador de su celular y ve los puntos en el mapa al instante, sin instalar QGIS ni tener acceso a ningun servidor. Funciona bien hasta archivos de unos 500KB — con mas colectas que eso, conviene compartir el archivo en vez del link.</div></div>
-<div class="callout callout-info"><span class="callout-icon">📎</span><div class="callout-body"><div class="callout-title">Un solo boton, dos archivos</div><code>Share.shareXFiles</code> acepta una lista, no un solo archivo. Adjuntar el GeoJSON y el CSV en la misma llamada evita que el usuario tenga que exportar dos veces y cubre a los dos publicos con una sola accion.</div></div>
+<div><div class="callout callout-ok" style="margin-bottom:10px;"><span class="callout-icon">✓</span><div class="callout-body"><div class="callout-title">Por qué este hack importa</div>El link codifica el GeoJSON completo dentro de la URL. Quien lo recibe por WhatsApp lo abre en el navegador de su celular y ve los puntos en el mapa al instante, sin instalar QGIS ni tener acceso a ningún servidor. Funciona bien hasta archivos de unos 500KB — con más colectas que eso, conviene compartir el archivo en vez del link.</div></div>
+<div class="callout callout-info"><span class="callout-icon">📎</span><div class="callout-body"><div class="callout-title">Un solo botón, dos archivos</div><code>Share.shareXFiles</code> acepta una lista, no un solo archivo. Adjuntar el GeoJSON y el CSV en la misma llamada evita que el usuario tenga que exportar dos veces y cubre a los dos públicos con una sola acción.</div></div>
 </div></div></div></div>
 
-<div class="slide slide-content"><div class="slide-label">Integracion</div><div class="slide-title">Como se conecta esto con el resto de GeoCollect</div><div class="slide-body">
+<div class="slide slide-content"><div class="slide-label">Integración</div><div class="slide-title">Cómo se conecta esto con el resto de GeoCollect</div><div class="slide-body">
 <div class="two-col"><div><div class="kv-list">
-<div class="kv"><span class="kv-key" style="min-width:170px;color:var(--accent)">screens/export_screen.dart</span><span class="kv-val">Muestra 3 botones: GeoJSON, CSV, Ambos + preview. Sin logica propia.</span></div>
+<div class="kv"><span class="kv-key" style="min-width:170px;color:var(--accent)">screens/export_screen.dart</span><span class="kv-val">Muestra 3 botones: GeoJSON, CSV, Ambos + preview. Sin lógica propia.</span></div>
 <div class="kv"><span class="kv-key" style="min-width:170px;color:var(--muted);">on pressed</span><span class="kv-val">Llama a ExportService, nunca escribe archivos directamente desde la UI</span></div>
 </div>
 <div style="margin-top:14px;" class="kv-list">
 <div class="kv"><span class="kv-key" style="min-width:170px;color:var(--accent)">services/export_service.dart</span><span class="kv-val">colectasAGeoJson() · colectasACsv() · generarLinkPreview() · exportarTodo()</span></div>
 <div class="kv"><span class="kv-key" style="min-width:170px;color:var(--muted);">data/colecta_db.dart</span><span class="kv-val">ColectaDB.listar() entrega la List&lt;Colecta&gt; que ExportService convierte</span></div>
 </div></div>
-<div><div class="callout callout-ok" style="margin-bottom:10px;"><span class="callout-icon">🔗</span><div class="callout-body"><div class="callout-title">La regla de la arquitectura, aplicada aqui</div>Igual que en el resto del proyecto (Clase 7), las flechas solo bajan: ExportScreen pide los datos a ColectaDB, se los pasa a ExportService, y ExportService entrega el archivo listo para compartir. La pantalla nunca arma el GeoJSON ni el CSV por su cuenta.</div></div>
-<div class="callout callout-info"><span class="callout-icon">🧭</span><div class="callout-body"><div class="callout-title">De donde salen las colectas a exportar</div>ExportScreen pide todas las colectas guardadas con <code>ColectaDB.listar()</code> — las mismas que ya se ven como Marker en el mapa desde la Clase 5. Exportar no es un modulo aislado: reusa los datos que la app ya viene coleccionando.</div></div>
+<div><div class="callout callout-ok" style="margin-bottom:10px;"><span class="callout-icon">🔗</span><div class="callout-body"><div class="callout-title">La regla de la arquitectura, aplicada aquí</div>Igual que en el resto del proyecto (Clase 7), las flechas solo bajan: ExportScreen pide los datos a ColectaDB, se los pasa a ExportService, y ExportService entrega el archivo listo para compartir. La pantalla nunca arma el GeoJSON ni el CSV por su cuenta.</div></div>
+<div class="callout callout-info"><span class="callout-icon">🧭</span><div class="callout-body"><div class="callout-title">De dónde salen las colectas a exportar</div>ExportScreen pide todas las colectas guardadas con <code>ColectaDB.listar()</code> — las mismas que ya se ven como Marker en el mapa desde la Clase 5. Exportar no es un módulo aislado: reúsa los datos que la app ya viene coleccionando.</div></div>
 </div></div></div></div>
 
 <div class="slide slide-content"><div class="slide-label">Resumen</div><div class="slide-title">Lo que aprendiste hoy</div><div class="slide-body">
 <div class="two-col">
 <ul class="slide-list">
-<li>GeoJSON en Dart puro: FeatureCollection con features tipo Point — coordinates: [lon, lat], nunca al reves</li>
+<li>GeoJSON en Dart puro: FeatureCollection con features tipo Point — coordinates: [lon, lat], nunca al revés</li>
 <li>CSV en Dart puro: StringBuffer + join(',') + escape de comas y comillas en _csvSafe()</li>
-<li>lon antes que lat en GeoJSON — al reves que LatLng(lat, lon) de flutter_map, por eso el error es tan comun</li>
+<li>lon antes que lat en GeoJSON — al revés que LatLng(lat, lon) de flutter_map, por eso el error es tan común</li>
 <li>share_plus.ShareXFiles comparte uno o varios archivos con WhatsApp, correo o Drive en una sola llamada</li>
-<li>Link geojson.io con base64: preview inmediato compartible sin servidor propio, util hasta ~500KB</li>
+<li>Link geojson.io con base64: preview inmediato compartible sin servidor propio, útil hasta ~500KB</li>
 <li>ExportScreen solo llama a ExportService — la misma regla de arquitectura de siempre, sin excepciones</li>
 </ul>
-<div><div class="callout callout-info"><span class="callout-icon">🚀</span><div class="callout-body"><div class="callout-title">Proxima y ultima clase</div>GeoCollect completa — compilar el APK, iconos, obfuscacion y presentacion del proyecto final.</div></div></div>
+<div><div class="callout callout-info"><span class="callout-icon">🚀</span><div class="callout-body"><div class="callout-title">Próxima y última clase</div>GeoCollect completa — compilar el APK, iconos, obfuscación y presentación del proyecto final.</div></div></div>
 </div></div></div>
 
 <div class="slide slide-cover"><div class="cover-grid"></div>
 <div class="cover-tag"><span class="cover-dot"></span> Fin de la Clase 9</div>
 <h1 class="cover-title">Los datos salen<br><em>de la app al mundo.</em></h1>
-<p class="cover-sub">Ultima clase: GeoCollect completa — APK, publicacion y presentacion final.</p>
+<p class="cover-sub">Última clase: GeoCollect completa — APK, publicación y presentación final.</p>
 <div style="max-width:460px;width:100%;position:relative;">
 <div class="quiz-cta"><div class="quiz-cta-text"><div class="quiz-cta-title">Cuestionario — Clase 9: Exportar</div><div class="quiz-cta-sub">12 preguntas · 2 intentos</div></div><a href="test/export.html" target="_blank">Ir al cuestionario →</a></div></div>
-<div class="cover-pills" style="margin-top:20px;"><span class="cover-pill">Ultima clase: Proyecto final</span><span class="cover-pill">Trae tu GeoCollect funcionando</span></div>
+<div class="cover-pills" style="margin-top:20px;"><span class="cover-pill">Última clase: Proyecto final</span><span class="cover-pill">Trae tu GeoCollect funcionando</span></div>
 </div>
 </div>
 <div class="navbar"><button class="nav-btn" id="btnPrev">← Anterior</button>

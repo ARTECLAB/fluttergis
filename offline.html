@@ -6,17 +6,17 @@
 <div class="slide slide-cover"><div class="cover-grid"></div>
 <div class="cover-tag"><span class="cover-dot"></span> Clase 8 · <span class="auto-year"></span></div>
 <h1 class="cover-title">Offline Maps:<br><em>cuando no hay señal</em></h1>
-<p class="cover-sub">FMTC · descarga del area visible · advertencias de tamano · modo avion GIS</p>
+<p class="cover-sub">FMTC · descarga del área visible · advertencias de tamaño · modo avión GIS</p>
 <div class="cover-pills"><span class="cover-pill">⏱ 2 horas</span><span class="cover-pill">✈️ Offline</span><span class="cover-pill">👨‍💻 Daniel Quisbert</span></div></div>
 
-<div class="slide slide-content"><div class="slide-label">El problema del campo</div><div class="slide-title">Por que offline-first no es opcional en GIS movil</div><div class="slide-body">
+<div class="slide slide-content"><div class="slide-label">El problema del campo</div><div class="slide-title">Por qué offline-first no es opcional en GIS móvil</div><div class="slide-body">
 <div class="two-col"><div>
-<div class="callout callout-warn" style="margin-bottom:10px;"><span class="callout-icon">📡</span><div class="callout-body"><div class="callout-title">Realidad del trabajo de campo</div>En municipios rurales de Bolivia la cobertura 4G es irregular o inexistente. Una app que depende de internet para mostrar el mapa es inutil en estas condiciones.</div></div>
-<div class="callout callout-ok"><span class="callout-icon">✓</span><div class="callout-body"><div class="callout-title">Modo avion GIS completo</div>Tiles del mapa base desde FMTC cache. GeoJSON desde SQLite. GPS del dispositivo. Colectas guardadas local. La app es 100% operativa sin señal.</div></div>
+<div class="callout callout-warn" style="margin-bottom:10px;"><span class="callout-icon">📡</span><div class="callout-body"><div class="callout-title">Realidad del trabajo de campo</div>En municipios rurales de Bolivia la cobertura 4G es irregular o inexistente. Una app que depende de internet para mostrar el mapa es inútil en estas condiciones.</div></div>
+<div class="callout callout-ok"><span class="callout-icon">✓</span><div class="callout-body"><div class="callout-title">Modo avión GIS completo</div>Tiles del mapa base desde FMTC cache. GeoJSON desde SQLite. GPS del dispositivo. Colectas guardadas local. La app es 100% operativa sin señal.</div></div>
 </div><div><div class="kv-list">
-<div class="kv"><span class="kv-key">Tiles base (FMTC)</span><span class="kv-val">OSM — descargados antes del campo, a proposito</span></div>
+<div class="kv"><span class="kv-key">Tiles base (FMTC)</span><span class="kv-val">OSM — descargados antes del campo, a propósito</span></div>
 <div class="kv"><span class="kv-key">Capas vectoriales</span><span class="kv-val">SQLite cache con TTL (Clase 4)</span></div>
-<div class="kv"><span class="kv-key">GPS</span><span class="kv-val">Funciona sin internet — señal satelite</span></div>
+<div class="kv"><span class="kv-key">GPS</span><span class="kv-val">Funciona sin internet — señal satélite</span></div>
 <div class="kv"><span class="kv-key">Colectas</span><span class="kv-val">SQLite local, sincroniza al volver</span></div>
 </div></div></div></div></div>
 
@@ -28,7 +28,7 @@
   // Inicializa el backend de FMTC (ObjectBox)
   await FMTCObjectBoxBackend().initialise();
 
-  // Crea el store si no existe todavia
+  // Crea el store si no existe todavía
   await const FMTCStore('descargas')
     .manage.create();
 
@@ -53,16 +53,16 @@ TileLayer(
     'com.arteclab.geocollect',
 )</div></div>
 <div><div class="callout callout-ok" style="margin-bottom:10px;"><span class="callout-icon">✓</span><div class="callout-body"><div class="callout-title">BrowseLoadingStrategy.cacheFirst</div>FMTC intenta primero el cache local, y si no existe el tile, lo descarga de la red. En campo sin internet, solo usa lo que ya tiene.</div></div>
-<div class="callout callout-info" style="margin-bottom:10px;"><span class="callout-icon">🤔</span><div class="callout-body"><div class="callout-title">Por que read y no readUpdateCreate?</div>FMTC tambien permite cachear automaticamente todo lo que navegas. Pero eso crece sin control y no garantiza haber recorrido TODA tu zona de trabajo antes de perder señal. Con <code>read</code>, lo unico que llena el cache es el boton de descarga: predecible, "lo que descargaste es lo que tienes".</div></div>
-<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body">La API cambio en FMTC v10: ya no existe <code>FlutterMapTileCaching.initialise()</code> ni <code>FMTCTileProviderSettings</code>. Se inicializa con <code>FMTCObjectBoxBackend()</code> y el tile provider se construye con <code>FMTCTileProvider</code> directamente.</div></div>
+<div class="callout callout-info" style="margin-bottom:10px;"><span class="callout-icon">🤔</span><div class="callout-body"><div class="callout-title">Por qué read y no readUpdateCreate?</div>FMTC también permite cachear automáticamente todo lo que navegas. Pero eso crece sin control y no garantiza haber recorrido TODA tu zona de trabajo antes de perder señal. Con <code>read</code>, lo único que llena el cache es el botón de descarga: predecible, "lo que descargaste es lo que tienes".</div></div>
+<div class="callout callout-warn"><span class="callout-icon">⚠️</span><div class="callout-body">La API cambió en FMTC v10: ya no existe <code>FlutterMapTileCaching.initialise()</code> ni <code>FMTCTileProviderSettings</code>. Se inicializa con <code>FMTCObjectBoxBackend()</code> y el tile provider se construye con <code>FMTCTileProvider</code> directamente.</div></div>
 </div></div></div></div>
 
-<div class="slide slide-section"><div class="section-num">Hack</div><div class="section-title">Descargar lo que ves,<br>no una region fija</div><div class="section-desc">Estimacion + advertencia de tamano + buen comportamiento con el servidor gratuito</div></div>
+<div class="slide slide-section"><div class="section-num">Hack</div><div class="section-title">Descargar lo que ves,<br>no una región fija</div><div class="section-desc">Estimación + advertencia de tamaño + buen comportamiento con el servidor gratuito</div></div>
 
-<div class="slide slide-content"><div class="slide-label">Hack bueno de la clase · Parte 1 de 2</div><div class="slide-title">Capturar el area visible del mapa, no un BBox fijo</div><div class="slide-body">
-<div class="two-col"><div><div class="code-label">Region a partir de lo que se ve AHORA</div>
-<div class="code-block">// Se captura el area que el mapa muestra
-// en este momento, no una region fija
+<div class="slide slide-content"><div class="slide-label">Hack bueno de la clase · Parte 1 de 2</div><div class="slide-title">Capturar el área visible del mapa, no un BBox fijo</div><div class="slide-body">
+<div class="two-col"><div><div class="code-label">Región a partir de lo que se ve AHORA</div>
+<div class="code-block">// Se captura el área que el mapa muestra
+// en este momento, no una región fija
 final bounds =
   mapController.camera.visibleBounds;
 final zoomActual = mapController.camera.zoom;
@@ -70,10 +70,10 @@ final zoomActual = mapController.camera.zoom;
 final z = zoomActual.round();
 final region = RectangleRegion(bounds)
   .toDownloadable(
-    // Un nivel mas alejado: no perder
+    // Un nivel más alejado: no perder
     // tiles con un paneo chico
     minZoom: (z - 1).clamp(1, 19),
-    // 3 niveles mas cercanos: poder
+    // 3 niveles más cercanos: poder
     // acercarse sin señal al punto exacto
     maxZoom: (z + 3).clamp(1, 19),
     options: TileLayer(
@@ -85,25 +85,25 @@ final region = RectangleRegion(bounds)
     ),
   );
 
-// Contar tiles y estimar tamano ANTES
+// Contar tiles y estimar tamaño ANTES
 // de descargar -- nunca a ciegas
 final tiles = await const FMTCStore(
   'descargas').download.countTiles(region);
 final estMB = tiles * 3 / 1024; // ~3KB/tile</div></div>
-<div><div class="callout callout-ok" style="margin-bottom:10px;"><span class="callout-icon">🗺️</span><div class="callout-body"><div class="callout-title">Como las apps de mapas offline reales</div>Google Maps, Organic Maps: navegas hasta la zona que te interesa y descargas exactamente eso — no una region que alguien mas eligio por ti de antemano.</div></div>
-<div class="callout callout-warn" style="margin-bottom:10px;"><span class="callout-icon">⚠️</span><div class="callout-body">Si la estimacion supera ~2000 tiles, hay que avisar antes de descargar: puede tardar varios minutos, o el servidor gratuito puede cortar la descarga a la mitad (siguiente slide).</div></div>
-<div class="callout callout-info"><span class="callout-icon">📐</span><div class="callout-body"><code>countTiles()</code> reemplaza a <code>check()</code>, deprecado en FMTC v10.1 — mismo resultado, nombre mas claro.</div></div>
+<div><div class="callout callout-ok" style="margin-bottom:10px;"><span class="callout-icon">🗺️</span><div class="callout-body"><div class="callout-title">Cómo las apps de mapas offline reales</div>Google Maps, Organic Maps: navegas hasta la zona que te interesa y descargas exactamente eso — no una región que alguien más eligió por ti de antemano.</div></div>
+<div class="callout callout-warn" style="margin-bottom:10px;"><span class="callout-icon">⚠️</span><div class="callout-body">Si la estimación supera ~2000 tiles, hay que avisar antes de descargar: puede tardar varios minutos, o el servidor gratuito puede cortar la descarga a la mitad (siguiente slide).</div></div>
+<div class="callout callout-info"><span class="callout-icon">📐</span><div class="callout-body"><code>countTiles()</code> reemplaza a <code>check()</code>, deprecado en FMTC v10.1 — mismo resultado, nombre más claro.</div></div>
 </div></div></div></div>
 
 <div class="slide slide-content"><div class="slide-label">Hack bueno de la clase · Parte 2 de 2</div><div class="slide-title">tile.openstreetmap.org no es para descarga masiva</div><div class="slide-body">
 <div class="two-col"><div><div class="code-label">Descargar siendo buen ciudadano del server</div>
-<div class="code-block">// Mas lento que el default, pero mas
+<div class="code-block">// Más lento que el default, pero más
 // respetuoso del servidor gratuito
 final download = const FMTCStore(
   'descargas').download.startForeground(
     region: region,
     parallelThreads: 2, // default: 5
-    rateLimit: 10, // tiles/segundo max
+    rateLimit: 10, // tiles/segundo máx
   );
 
 DownloadProgress? _ultimoProgreso;
@@ -114,27 +114,27 @@ download.downloadProgress.listen((p) {
     _ultimoProgreso = p; // para el resumen
   });
 }, onDone: () {
-  // El stream se cierra IGUAL si termino
-  // solo o si se cancelo -- por eso hay
+  // El stream se cierra IGUAL si terminó
+  // solo o si se canceló -- por eso hay
   // que comparar tiles reales vs esperados
   final p = _ultimoProgreso!;
   final completo = p.successfulTilesCount
     &gt;= p.maxTilesCount;
   // Mostrar SnackBar: completo o
-  // incompleto, con los numeros reales
+  // incompleto, con los números reales
 });
 
 // download.pause() / .resume() existen
 // si se corta el WiFi a medio camino</div></div>
-<div><div class="callout callout-warn" style="margin-bottom:10px;"><span class="callout-icon">🚫</span><div class="callout-body"><div class="callout-title">La politica de uso de OSM lo prohibe</div>tile.openstreetmap.org es gratuito y publico — su politica de uso prohibe expresamente la descarga masiva ("bulk downloading"). Con miles de tiles seguidos, el servidor empieza a rechazar peticiones a la mitad. flutter_map hasta imprime una advertencia sobre esto al iniciar la app.</div></div>
-<div class="callout callout-info" style="margin-bottom:10px;"><span class="callout-icon">🪪</span><div class="callout-body">El <code>userAgentPackageName</code> tambien va en la descarga masiva, no solo en el mapa en vivo — OSM exige un User-Agent identificable, sin el es mas facil que el servidor rechace las peticiones.</div></div>
-<div class="callout callout-ok"><span class="callout-icon">✓</span><div class="callout-body"><div class="callout-title">"Termino" no siempre significa "se descargo todo"</div>Comparar <code>successfulTilesCount</code> con <code>maxTilesCount</code> es la unica forma de confirmar si la descarga realmente se completo, o si se corto a medias sin que se note.</div></div>
+<div><div class="callout callout-warn" style="margin-bottom:10px;"><span class="callout-icon">🚫</span><div class="callout-body"><div class="callout-title">La política de uso de OSM lo prohíbe</div>tile.openstreetmap.org es gratuito y público — su política de uso prohíbe expresamente la descarga masiva ("bulk downloading"). Con miles de tiles seguidos, el servidor empieza a rechazar peticiones a la mitad. flutter_map hasta imprime una advertencia sobre esto al iniciar la app.</div></div>
+<div class="callout callout-info" style="margin-bottom:10px;"><span class="callout-icon">🪪</span><div class="callout-body">El <code>userAgentPackageName</code> también va en la descarga masiva, no solo en el mapa en vivo — OSM exige un User-Agent identificable, sin él es más fácil que el servidor rechace las peticiones.</div></div>
+<div class="callout callout-ok"><span class="callout-icon">✓</span><div class="callout-body"><div class="callout-title">"Terminó" no siempre significa "se descargó todo"</div>Comparar <code>successfulTilesCount</code> con <code>maxTilesCount</code> es la única forma de confirmar si la descarga realmente se completó, o si se cortó a medias sin que se note.</div></div>
 </div></div></div></div>
 
-<div class="slide slide-content"><div class="slide-label">Verificacion</div><div class="slide-title">Como saber que el mapa SI esta usando lo descargado</div><div class="slide-body">
-<div class="two-col"><div><div class="code-label">Estadisticas reales del store</div>
-<div class="code-block">// Cuantos tiles hay, cuanto pesan, y
-// cuantas veces se usaron de verdad
+<div class="slide slide-content"><div class="slide-label">Verificación</div><div class="slide-title">Cómo saber que el mapa SÍ está usando lo descargado</div><div class="slide-body">
+<div class="two-col"><div><div class="code-label">Estadísticas reales del store</div>
+<div class="code-block">// Cuántos tiles hay, cuánto pesan, y
+// cuántas veces se usaron de verdad
 Future&lt;({int tiles, double sizeMB,
     int hits, int misses})&gt;
     estadisticas() async {
@@ -147,31 +147,31 @@ Future&lt;({int tiles, double sizeMB,
     misses: s.misses, // pedido a la red
   );
 }</div></div>
-<div><div class="callout callout-warn" style="margin-bottom:10px;"><span class="callout-icon">👀</span><div class="callout-body"><div class="callout-title">Un tile de cache y uno de red se ven IGUAL</div>No hay ninguna señal visual que diga de donde vino un tile. <code>hits</code> subiendo mientras navegas dentro del area descargada es la unica forma de comprobar que el cache realmente se esta usando.</div></div>
-<div class="callout callout-info" style="margin-bottom:10px;"><span class="callout-icon">📍</span><div class="callout-body"><div class="callout-title">Cuidado al probar modo avion</div>La Clase 2 hace que el mapa siga tu GPS real en cada actualizacion. Si al probar te alejas del area que descargaste (o tu GPS real esta en otro lado), el mapa se recentra fuera del cache — y ahi si, sin red, no hay tile que mostrar. Apagar la Ubicacion antes de activar modo avion evita esto.</div></div>
-<div class="callout callout-ok"><span class="callout-icon">✓</span><div class="callout-body">La prueba definitiva sigue siendo modo avion real, pero el panel de estadisticas permite comprobarlo en vivo, en clase, sin depender del WiFi del aula.</div></div>
+<div><div class="callout callout-warn" style="margin-bottom:10px;"><span class="callout-icon">👀</span><div class="callout-body"><div class="callout-title">Un tile de cache y uno de red se ven IGUAL</div>No hay ninguna señal visual que diga de dónde vino un tile. <code>hits</code> subiendo mientras navegas dentro del área descargada es la única forma de comprobar que el cache realmente se está usando.</div></div>
+<div class="callout callout-info" style="margin-bottom:10px;"><span class="callout-icon">📍</span><div class="callout-body"><div class="callout-title">Cuidado al probar modo avión</div>La Clase 2 hace que el mapa siga tu GPS real en cada actualización. Si al probar te alejas del área que descargaste (o tu GPS real está en otro lado), el mapa se recentra fuera del cache — y ahí sí, sin red, no hay tile que mostrar. Apagar la Ubicación antes de activar modo avión evita esto.</div></div>
+<div class="callout callout-ok"><span class="callout-icon">✓</span><div class="callout-body">La prueba definitiva sigue siendo modo avión real, pero el panel de estadísticas permite comprobarlo en vivo, en clase, sin depender del WiFi del aula.</div></div>
 </div></div></div></div>
 
 <div class="slide slide-content"><div class="slide-label">Resumen</div><div class="slide-title">Lo que aprendiste hoy</div><div class="slide-body">
 <div class="two-col">
 <ul class="slide-list">
-<li>FMTC con BrowseStoreStrategy.read: navegar el mapa NO cachea nada por su cuenta — solo el boton de descarga llena el store</li>
-<li>La region a descargar se arma con el area VISIBLE del mapa (visibleBounds + zoom actual), no un BBox fijo — igual que Google Maps u Organic Maps</li>
-<li>countTiles() (no check(), deprecado) estima tiles antes de descargar; el tamano se calcula multiplicando por un promedio de KB por tile</li>
-<li>tile.openstreetmap.org prohibe la descarga masiva — parallelThreads bajo, rateLimit y userAgentPackageName reducen el riesgo de que el servidor corte la descarga</li>
-<li>El stream de progreso se cierra igual si la descarga termina bien o se cancela — comparar successfulTilesCount vs maxTilesCount confirma si de verdad se completo</li>
-<li>Un tile de cache y uno de red se ven igual: hits/misses via FMTCStore.stats es la unica forma de comprobar que el mapa usa lo descargado, sin cortar la señal</li>
+<li>FMTC con BrowseStoreStrategy.read: navegar el mapa NO cachea nada por su cuenta — solo el botón de descarga llena el store</li>
+<li>La región a descargar se arma con el área VISIBLE del mapa (visibleBounds + zoom actual), no un BBox fijo — igual que Google Maps u Organic Maps</li>
+<li>countTiles() (no check(), deprecado) estima tiles antes de descargar; el tamaño se calcula multiplicando por un promedio de KB por tile</li>
+<li>tile.openstreetmap.org prohíbe la descarga masiva — parallelThreads bajo, rateLimit y userAgentPackageName reducen el riesgo de que el servidor corte la descarga</li>
+<li>El stream de progreso se cierra igual si la descarga termina bien o se cancela — comparar successfulTilesCount vs maxTilesCount confirma si de verdad se completó</li>
+<li>Un tile de cache y uno de red se ven igual: hits/misses vía FMTCStore.stats es la única forma de comprobar que el mapa usa lo descargado, sin cortar la señal</li>
 </ul>
-<div><div class="callout callout-info"><span class="callout-icon">📤</span><div class="callout-body"><div class="callout-title">Proxima clase</div>Exportar y compartir — GeoJSON, CSV y preview instantaneo en geojson.io.</div></div></div>
+<div><div class="callout callout-info"><span class="callout-icon">📤</span><div class="callout-body"><div class="callout-title">Próxima clase</div>Exportar y compartir — GeoJSON, CSV y preview instantáneo en geojson.io.</div></div></div>
 </div></div></div>
 
 <div class="slide slide-cover"><div class="cover-grid"></div>
 <div class="cover-tag"><span class="cover-dot"></span> Fin de la Clase 8</div>
 <h1 class="cover-title">Sin señal.<br><em>Sin problemas.</em></h1>
-<p class="cover-sub">Proxima clase: exportar y compartir los datos de campo.</p>
+<p class="cover-sub">Próxima clase: exportar y compartir los datos de campo.</p>
 <div style="max-width:460px;width:100%;position:relative;">
 <div class="quiz-cta"><div class="quiz-cta-text"><div class="quiz-cta-title">Cuestionario — Clase 8: Offline</div><div class="quiz-cta-sub">12 preguntas · 2 intentos</div></div><a href="test/offline.html" target="_blank">Ir al cuestionario →</a></div></div>
-<div class="cover-pills" style="margin-top:20px;"><span class="cover-pill">Proxima: Exportar y compartir</span><span class="cover-pill">Instala share_plus</span></div>
+<div class="cover-pills" style="margin-top:20px;"><span class="cover-pill">Próxima: Exportar y compartir</span><span class="cover-pill">Instala share_plus</span></div>
 </div>
 </div>
 <div class="navbar"><button class="nav-btn" id="btnPrev">← Anterior</button>

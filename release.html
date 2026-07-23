@@ -5,13 +5,13 @@
 
 <div class="slide slide-cover"><div class="cover-grid"></div>
 <div class="cover-tag"><span class="cover-dot"></span> Clase 10 · Final · <span class="auto-year"></span></div>
-<h1 class="cover-title">GeoCollect Completa:<br><em>proyecto final y publicacion</em></h1>
-<p class="cover-sub">APK release · split-per-abi · obfuscacion · iconos · presentacion de proyectos</p>
+<h1 class="cover-title">GeoCollect Completa:<br><em>proyecto final y publicación</em></h1>
+<p class="cover-sub">APK release · split-per-abi · obfuscación · iconos · presentación de proyectos</p>
 <div class="cover-pills"><span class="cover-pill">⏱ 2 horas</span><span class="cover-pill">🚀 Release</span><span class="cover-pill">👨‍💻 Daniel Quisbert</span></div></div>
 
-<div class="slide slide-content"><div class="slide-label">Checklist de produccion</div><div class="slide-title">Antes de compilar: verificar que todo funciona</div><div class="slide-body">
+<div class="slide slide-content"><div class="slide-label">Checklist de producción</div><div class="slide-title">Antes de compilar: verificar que todo funciona</div><div class="slide-body">
 <div class="steps">
-<div class="step"><div class="step-num">✓</div><div class="step-text"><div class="step-title">Mapa base funcionando con dark mode automatico</div><div class="step-desc">CartoDB Dark Matter activado por MediaQuery.platformBrightness.</div></div></div>
+<div class="step"><div class="step-num">✓</div><div class="step-text"><div class="step-title">Mapa base funcionando con dark mode automático</div><div class="step-desc">CartoDB Dark Matter activado por MediaQuery.platformBrightness.</div></div></div>
 <div class="step"><div class="step-num">✓</div><div class="step-text"><div class="step-title">GPS con stream + trayectoria visible</div><div class="step-desc">distanceFilter: 5, WidgetsBindingObserver para pausar en background.</div></div></div>
 <div class="step"><div class="step-num">✓</div><div class="step-text"><div class="step-title">Capas WMS de GeoServer con toggle y opacidad</div><div class="step-desc">TileLayer sin crossOrigin, Visibility() para mostrar/ocultar.</div></div></div>
 <div class="step"><div class="step-num">✓</div><div class="step-text"><div class="step-title">Formulario de colecta con GPS auto y foto comprimida</div><div class="step-desc">getLastKnownPosition(), imageQuality: 30, SQLite offline-first.</div></div></div>
@@ -19,8 +19,8 @@
 <div class="step"><div class="step-num">✓</div><div class="step-text"><div class="step-title">Exportar GeoJSON con coordenadas correctas</div><div class="step-desc">coordinates: [lon, lat] — verificado en geojson.io.</div></div></div>
 </div></div></div>
 
-<div class="slide slide-content"><div class="slide-label">Iconos y splash</div><div class="slide-title">flutter_launcher_icons — de imagen a todos los tamanos</div><div class="slide-body">
-<div class="two-col"><div><div class="code-label">pubspec.yaml — configuracion de iconos</div>
+<div class="slide slide-content"><div class="slide-label">Iconos y splash</div><div class="slide-title">flutter_launcher_icons — de imagen a todos los tamaños</div><div class="slide-body">
+<div class="two-col"><div><div class="code-label">pubspec.yaml — configuración de iconos</div>
 <div class="code-block">dev_dependencies:
   flutter_launcher_icons: ^0.13.0
 
@@ -29,7 +29,7 @@ flutter_icons:
   ios: true
   image_path: 'assets/icon/app_icon.png'
   # La imagen debe ser 1024x1024px
-  # Fondo transparente o color solido
+  # Fondo transparente o color sólido
   adaptive_icon_background: '#0D1B3E'
   adaptive_icon_foreground:
     'assets/icon/app_icon_fg.png'</div>
@@ -37,19 +37,19 @@ flutter_icons:
 <div class="code-block"># Un solo comando genera todo
 flutter pub run flutter_launcher_icons
 
-# Genera automaticamente:
+# Genera automáticamente:
 # Android: mipmap-mdpi al mipmap-xxxhdpi
 # iOS: AppIcon.appiconset
-# 20+ tamanos en 30 segundos</div></div>
-<div><div class="callout callout-ok" style="margin-bottom:10px;"><span class="callout-icon">✓</span><div class="callout-body">Preparar la imagen base en 1024x1024px con fondo transparente. flutter_launcher_icons genera todos los tamanos necesarios para Android e iOS automaticamente.</div></div>
-<div class="callout callout-info"><span class="callout-icon">💬</span><div class="callout-body">Prompt IA: "Genera el pubspec.yaml final de GeoCollect con todas las dependencias de produccion, flutter_launcher_icons y las instrucciones de build." — Funciona muy bien para el boilerplate.</div></div>
+# 20+ tamaños en 30 segundos</div></div>
+<div><div class="callout callout-ok" style="margin-bottom:10px;"><span class="callout-icon">✓</span><div class="callout-body">Preparar la imagen base en 1024x1024px con fondo transparente. flutter_launcher_icons genera todos los tamaños necesarios para Android e iOS automáticamente.</div></div>
+<div class="callout callout-info"><span class="callout-icon">💬</span><div class="callout-body">Prompt IA: "Genera el pubspec.yaml final de GeoCollect con todas las dependencias de producción, flutter_launcher_icons y las instrucciones de build." — Funciona muy bien para el boilerplate.</div></div>
 </div></div></div></div>
 
-<div class="slide slide-section"><div class="section-num">Hack</div><div class="section-title">split-per-abi:<br>de 25MB a 9MB</div><div class="section-desc">Un flag que reduce el APK un 60% — obligatorio para produccion</div></div>
+<div class="slide slide-section"><div class="section-num">Hack</div><div class="section-title">split-per-abi:<br>de 25MB a 9MB</div><div class="section-desc">Un flag que reduce el APK un 60% — obligatorio para producción</div></div>
 
-<div class="slide slide-content"><div class="slide-label">Hack bueno de la clase</div><div class="slide-title">Compilar el APK optimo + obfuscacion</div><div class="slide-body">
-<div class="two-col"><div><div class="code-label">Comandos de build para produccion</div>
-<div class="code-block"># APK universal (EVITAR en produccion)
+<div class="slide slide-content"><div class="slide-label">Hack bueno de la clase</div><div class="slide-title">Compilar el APK óptimo + obfuscación</div><div class="slide-body">
+<div class="two-col"><div><div class="code-label">Comandos de build para producción</div>
+<div class="code-block"># APK universal (EVITAR en producción)
 flutter build apk --release
 # Resultado: ~25MB
 
@@ -60,7 +60,7 @@ flutter build apk --release --split-per-abi
 # app-armeabi-v7a-release.apk  ~9MB
 # app-x86_64-release.apk       ~9MB
 
-# Con obfuscacion (proteger logica)
+# Con obfuscación (proteger lógica)
 flutter build apk --release
   --split-per-abi
   --obfuscate
@@ -69,39 +69,39 @@ flutter build apk --release
 # App Bundle para Play Store
 flutter build appbundle --release
 # Play Store genera APKs optimizados
-# por dispositivo automaticamente</div></div>
+# por dispositivo automáticamente</div></div>
 <div><div class="kv-list">
 <div class="kv"><span class="kv-key">APK universal</span><span class="kv-val">~25MB — incluye todas las arquitecturas</span></div>
-<div class="kv"><span class="kv-key">APK arm64</span><span class="kv-val">~10MB — solo para 64-bit (mayoria)</span></div>
+<div class="kv"><span class="kv-key">APK arm64</span><span class="kv-val">~10MB — solo para 64-bit (mayoría)</span></div>
 <div class="kv"><span class="kv-key">APK arm32</span><span class="kv-val">~9MB — solo para 32-bit (dispositivos viejos)</span></div>
 <div class="kv"><span class="kv-key">Ahorro</span><span class="kv-val">60% menos — cada usuario descarga lo que necesita</span></div>
 </div>
-<div class="callout callout-warn" style="margin-top:10px;"><span class="callout-icon">⚠️</span><div class="callout-body">--obfuscate SOLO afecta el binario compilado — el codigo fuente .dart permanece intacto. Guardar los debug_symbols para leer stack traces de crashes.</div></div>
+<div class="callout callout-warn" style="margin-top:10px;"><span class="callout-icon">⚠️</span><div class="callout-body">--obfuscate SOLO afecta el binario compilado — el código fuente .dart permanece intacto. Guardar los debug_symbols para leer stack traces de crashes.</div></div>
 </div></div></div></div>
 
-<div class="slide slide-content"><div class="slide-label">Presentacion del proyecto</div><div class="slide-title">Lo que cada estudiante mostrara</div><div class="slide-body">
+<div class="slide slide-content"><div class="slide-label">Presentación del proyecto</div><div class="slide-title">Lo que cada estudiante mostrará</div><div class="slide-body">
 <div class="steps">
-<div class="step"><div class="step-num">1</div><div class="step-text"><div class="step-title">Mapa base + capas</div><div class="step-desc">Dark mode automatico, al menos 1 capa WMS de GeoServer activa en el mapa</div></div></div>
+<div class="step"><div class="step-num">1</div><div class="step-text"><div class="step-title">Mapa base + capas</div><div class="step-desc">Dark mode automático, al menos 1 capa WMS de GeoServer activa en el mapa</div></div></div>
 <div class="step"><div class="step-num">2</div><div class="step-text"><div class="step-title">GPS + trayectoria</div><div class="step-desc">Stream GPS funcionando en vivo, Polyline de trayectoria visible</div></div></div>
 <div class="step"><div class="step-num">3</div><div class="step-text"><div class="step-title">Colecta de campo</div><div class="step-desc">Formulario con GPS + foto + SQLite, funcionando offline-first</div></div></div>
-<div class="step"><div class="step-num">4</div><div class="step-text"><div class="step-title">Heatmap de colectas</div><div class="step-desc">Heatmap con normalizacion por atributo, actualizado con las colectas guardadas</div></div></div>
-<div class="step"><div class="step-num">5</div><div class="step-text"><div class="step-title">Exportar y compartir</div><div class="step-desc">GeoJSON y CSV validos, compartidos con share_plus o previsualizados en geojson.io</div></div></div>
+<div class="step"><div class="step-num">4</div><div class="step-text"><div class="step-title">Heatmap de colectas</div><div class="step-desc">Heatmap con normalización por atributo, actualizado con las colectas guardadas</div></div></div>
+<div class="step"><div class="step-num">5</div><div class="step-text"><div class="step-title">Exportar y compartir</div><div class="step-desc">GeoJSON y CSV válidos, compartidos con share_plus o previsualizados en geojson.io</div></div></div>
 </div>
-<div class="callout callout-info" style="margin-top:14px;"><span class="callout-icon">🎯</span><div class="callout-body"><div class="callout-title">Demo de 5 minutos, no examen</div>No hay ponderacion ni nota por criterio — esta es una guia de lo que conviene mostrar, no una rubrica de puntos. 1) Abrir la app en dispositivo real. 2) Mostrar el mapa con la capa WMS activa. 3) Colectar un punto en vivo. 4) Ver el heatmap actualizado. 5) Exportar y mostrar en geojson.io.</div></div>
+<div class="callout callout-info" style="margin-top:14px;"><span class="callout-icon">🎯</span><div class="callout-body"><div class="callout-title">Demo de 5 minutos, no examen</div>No hay ponderación ni nota por criterio — esta es una guía de lo que conviene mostrar, no una rúbrica de puntos. 1) Abrir la app en dispositivo real. 2) Mostrar el mapa con la capa WMS activa. 3) Colectar un punto en vivo. 4) Ver el heatmap actualizado. 5) Exportar y mostrar en geojson.io.</div></div>
 </div></div>
 
 <div class="slide slide-content"><div class="slide-label">Cierre del curso</div><div class="slide-title">Lo que aprendiste en 10 clases</div><div class="slide-body">
 <div class="cards cards-4">
-<div class="card card-gold"><div class="card-title">Clase 1</div><div class="card-desc">flutter_map sin API key, dark mode automatico, marcadores</div></div>
-<div class="card"><div class="card-title">Clase 2</div><div class="card-desc">GPS stream, trayectoria Polyline, Haversine, bateria</div></div>
+<div class="card card-gold"><div class="card-title">Clase 1</div><div class="card-desc">flutter_map sin API key, dark mode automático, marcadores</div></div>
+<div class="card"><div class="card-title">Clase 2</div><div class="card-desc">GPS stream, trayectoria Polyline, Haversine, batería</div></div>
 <div class="card"><div class="card-title">Clase 3</div><div class="card-desc">WMS de GeoServer, Visibility, Opacity, CQL_FILTER</div></div>
 <div class="card"><div class="card-title">Clase 4</div><div class="card-desc">GeoJSON local, PolygonLayer, compute(), cache SQLite</div></div>
 <div class="card"><div class="card-title">Clase 5</div><div class="card-desc">sqflite, offline-first, fotos comprimidas, GPS auto</div></div>
-<div class="card card-gold"><div class="card-title">Clase 6</div><div class="card-desc">Heatmap, normalizacion, filtro BBox, Slider</div></div>
+<div class="card card-gold"><div class="card-title">Clase 6</div><div class="card-desc">Heatmap, normalización, filtro BBox, Slider</div></div>
 <div class="card"><div class="card-title">Clase 7</div><div class="card-desc">Arquitectura 3 capas: UI, Services, Data</div></div>
-<div class="card"><div class="card-title">Clase 8</div><div class="card-desc">FMTC, descarga de region, modo avion GIS</div></div>
+<div class="card"><div class="card-title">Clase 8</div><div class="card-desc">FMTC, descarga de región, modo avión GIS</div></div>
 <div class="card"><div class="card-title">Clase 9</div><div class="card-desc">GeoJSON puro, CSV puro, share_plus, preview en geojson.io</div></div>
-<div class="card card-gold" style="grid-column: span 2;"><div class="card-title">Clase 10</div><div class="card-desc">APK release, split-per-abi, obfuscacion, flutter_launcher_icons — GeoCollect publicada</div></div>
+<div class="card card-gold" style="grid-column: span 2;"><div class="card-title">Clase 10</div><div class="card-desc">APK release, split-per-abi, obfuscación, flutter_launcher_icons — GeoCollect publicada</div></div>
 </div></div></div>
 
 <div class="slide slide-cover"><div class="cover-grid"></div>
@@ -109,7 +109,7 @@ flutter build appbundle --release
 <h1 class="cover-title">GeoCollect.<br><em>Construida por ti.</em></h1>
 <p class="cover-sub">10 clases · 20 horas · una app de campo funcional en Android e iOS.</p>
 <div style="max-width:460px;width:100%;position:relative;">
-<div class="quiz-cta"><div class="quiz-cta-text"><div class="quiz-cta-title">Cuestionario Final — Clase 10</div><div class="quiz-cta-sub">12 preguntas · Evaluacion del curso completo</div></div><a href="test/release.html" target="_blank">Ir al cuestionario →</a></div></div>
+<div class="quiz-cta"><div class="quiz-cta-text"><div class="quiz-cta-title">Cuestionario Final — Clase 10</div><div class="quiz-cta-sub">12 preguntas · Evaluación del curso completo</div><a href="test/release.html" target="_blank">Ir al cuestionario →</a></div></div>
 <div class="cover-pills" style="margin-top:20px;">
 <span class="cover-pill">🌐 danielquisbert.com</span>
 <span class="cover-pill">📱 flutter-gis.danielquisbert.com</span>
